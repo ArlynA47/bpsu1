@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interested Jobs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        .job-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .job-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        .company-contact {
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .apply-btn {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mb-4 text-center">Your Interested Jobs</h2>
+        <div id="nurturedJobsContainer"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, getDocs, collection, setDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const nurturedJobsContainer = document.getElementById('nurturedJobsContainer');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                alert("Please log in to view your interested jobs.");
+                return;
+            }
+
+            const userDoc = await getDoc(doc(db, 'careerstepEmployees', user.uid));
+            if (!userDoc.exists()) return;
+
+            const nurturedSeeds = userDoc.data().nurturedSeeds || [];
+
+            for (const seed of nurturedSeeds) {
+                const seedDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
+                const jobData = seedDoc.data();
+
+                let employerData = null;
+                if (jobData?.employerId) {
+                    const employerDoc = await getDoc(doc(db, 'employers', jobData.employerId));
+                    employerData = employerDoc.exists() ? employerDoc.data() : null;
+                }
+
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+                    <div class="job-title">${seed.jobTitle}</div>
+                    <div class="mb-2"><strong>Location:</strong> ${seed.location}</div>
+                    <div><strong>Offer:</strong> ${seed.offer}</div>
+                    <div class="mt-2"><strong>Skills:</strong> ${seed.skills.join(', ')}</div>
+                    ${employerData ? `
+                    <div class="company-contact">
+                        <strong>Company Contact:</strong><br>
+                        Email: ${employerData.metadata?.email || 'N/A'}<br>
+                        Contact No.: ${employerData.companyInfo?.contactNumber || 'N/A'}
+                    </div>
+                    ` : ''}
+                    <button class="btn btn-success apply-btn">Apply</button>
+                `;
+
+                const applyBtn = jobCard.querySelector('.apply-btn');
+                applyBtn.addEventListener('click', async () => {
+                    try {
+                        await addDoc(collection(db, 'jobApplications'), {
+                            applicantId: user.uid,
+                            jobId: seed.id,
+                            employerId: jobData?.employerId || '',
+                            status: 'pending',
+                            createdAt: new Date()
+                        });
+                        alert('Application submitted successfully!');
+                        applyBtn.disabled = true;
+                        applyBtn.textContent = 'Applied';
+                    } catch (error) {
+                        console.error('Failed to submit application:', error);
+                        alert('Failed to apply. Please try again.');
+                    }
+                });
+
+                nurturedJobsContainer.appendChild(jobCard);
+            }
+        });
+    </script>
+</body>
+</html>

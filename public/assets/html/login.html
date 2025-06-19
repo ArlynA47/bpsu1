@@ -1,136 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/employer-registration.css">
-    <link rel="stylesheet" href="../css/login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/employer-registration.css" />
+  <link rel="stylesheet" href="../css/login.css" />
 
-    <script src="" defer></script>
-
-    <title>Career Step</title>
+  <title>Career Step</title>
 </head>
-
 <body>
-    <main class="main-container">
-        <!-- Left Section for Design -->
-        <section class="left-section">
-            <a href="login.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-            <div class="design-container">
-                <img src="../images/careerstep-logo.png" alt="Logo">
-                <h1>HirNa!</h1>
-            </div>
-        </section>
+  <main class="main-container">
+    <!-- Left Section -->
+    <section class="left-section">
+      <a href="login.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+      <div class="design-container">
+        <img src="../images/careerstep-logo.png" alt="Logo" />
+        <h1>HirNa!</h1>
+      </div>
+    </section>
 
-        <!-- Right Section for Design -->
-        <section class="right-section">
-            <div class="registration-container login">
-                <div class="header-container">
-                    <img src="../images/employer-reg-icon.png" alt="Logo">
-                    <h1>Login</h1>
-                </div>
-
-                <div class="form-container">
-                    <form id="loginEmployerForm login" autocomplete="off">
-                        <div class="input-fields">
-                            <div class="input-group">
-                                <label>Email</label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-envelope"></i>
-                                    <input type="email" id="email" name="email" required
-                                        placeholder="Enter company email..." />
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label>Password</label>
-                                    <div class="input-with-icon">
-                                        <i class="fas fa-key"></i>
-                                        <input type="password" id="password" name="password" required
-                                            placeholder="Enter your password..." />
-                                    </div>
-                                </div>
-                        </div>
-                        <div class="submit-field">
-                            <!-- Submit Button -->
-                            <button type="submit" class="submit-btn login" id="loginEmployerBtn">Login</button>
-                            
-                            <div class="register-link">
-                                Don't have an account? <a href="employer-registration.html">Register here</a>
-                            </div>
-                        </div>
-                        <div class="flash-message" id="flashMessage" style="display: none;"></div>
-                    </form>
-                </div>
-            </div>
-        </section>
-        <!-- Registration Choice Modal -->
-        <div id="registrationModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close-btn" id="closeModal">&times;</span>
-                <h2>What will you be registering as?</h2>
-                <div class="modal-buttons">
-                    <a href="employer-registration.html" class="modal-btn">
-                        <img src="../images/employer-black.png"> As Employer
-                    </a>
-                    <a href="employee-registration.html" class="modal-btn">
-                        <img src="../images/employee-black.png"> As Employee
-                    </a>
-                </div>
-            </div>
+    <!-- Right Section -->
+    <section class="right-section">
+      <div class="registration-container login">
+        <div class="header-container">
+          <img src="../images/employer-reg-icon.png" alt="Logo" />
+          <h1>Login</h1>
         </div>
-    </main>
-</body>
-<!-- user login script -->
-<script>
-    document.getElementById('loginEmployerForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the form from submitting normally
-        
-        // Get the input values
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        // Check credentials (in a real app, this would be done server-side)
-        if (email === 'employer@email.com' && password === '12345') {
-            // Redirect to employer page
-            window.location.href = 'employer.html';
-        } else if (email === 'employee@email.com' && password === '54321') {
-            // Redirect to employee page
-            window.location.href = 'employee.html';
-        } else {
-            // Show error message (you can customize this)
-            alert('Invalid email or password. Please try again.');
-        }
+
+        <div class="form-container">
+          <form id="loginForm" autocomplete="off">
+            <div class="input-fields">
+              <div class="input-group">
+                <label>Email</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="email" required placeholder="Enter your email..." />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Password</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-key"></i>
+                  <input type="password" id="password" required placeholder="Enter your password..." />
+                </div>
+              </div>
+            </div>
+            <div class="submit-field">
+              <button type="submit" class="submit-btn login" id="loginBtn">Login</button>
+              <div class="register-link">
+                Don't have an account? <a href="#">Register here</a>
+              </div>
+            </div>
+            <div class="flash-message" id="flashMessage" style="display: none;"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal -->
+    <div id="registrationModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2>What will you be registering as?</h2>
+        <div class="modal-buttons">
+          <a href="employer-registration.html" class="modal-btn">
+            <img src="../images/employer-black.png" /> As Employer
+          </a>
+          <a href="employee-registration.html" class="modal-btn">
+            <img src="../images/employee-black.png" /> As Employee
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase & Modal Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+      authDomain: "careerstep-bpsu1.firebaseapp.com",
+      projectId: "careerstep-bpsu1",
+      storageBucket: "careerstep-bpsu1.appspot.com",
+      messagingSenderId: "17047315291",
+      appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+      measurementId: "G-WH6DT9HQW2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const originalText = btn.textContent;
+
+      btn.disabled = true;
+      btn.textContent = "Logging in...";
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) throw new Error("Please verify your email before logging in.");
+        await redirectUserBasedOnType(user.uid);
+      } catch (error) {
+        const errorMap = {
+          'auth/invalid-email': 'Invalid email address',
+          'auth/user-disabled': 'This account has been disabled',
+          'auth/user-not-found': 'No account found with this email',
+          'auth/wrong-password': 'Incorrect password',
+          'auth/too-many-requests': 'Too many attempts. Try again later.'
+        };
+        showFlashMessage(errorMap[error.code] || error.message, 'error');
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
     });
-</script>
-<!-- user registration script -->
-<script>
-        // Modal logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('registrationModal');
-            const closeModal = document.getElementById('closeModal');
-            const registerLink = document.querySelector('.register-link a');
 
-            registerLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                modal.style.display = 'flex';
-            });
+    async function redirectUserBasedOnType(userId) {
+      try {
+        const employerDoc = await getDoc(doc(db, 'employers', userId));
+        if (employerDoc.exists()) return window.location.href = 'employer-home.html';
 
-            closeModal.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
+        const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
+        if (employeeDoc.exists()) return window.location.href = 'explore-garden.html';
 
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        });
-        </script>
+        throw new Error("Account type not recognized. Please contact support.");
+      } catch (error) {
+        showFlashMessage(error.message, 'error');
+        await auth.signOut();
+      }
+    }
+
+    function showFlashMessage(message, type = 'success') {
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = message;
+      flash.style.display = 'block';
+      flash.className = `flash-message ${type}`;
+      setTimeout(() => { flash.style.display = 'none'; }, 5000);
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) await redirectUserBasedOnType(user.uid);
+    });
+
+    // Modal logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('registrationModal');
+      const closeModal = document.getElementById('closeModal');
+      const registerLink = document.querySelector('.register-link a');
+
+      registerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'flex';
+      });
+
+      closeModal.addEventListener('click', () => modal.style.display = 'none');
+      window.addEventListener('click', (event) => {
+        if (event.target === modal) modal.style.display = 'none';
+      });
+    });
+  </script>
+</body>
 </html>

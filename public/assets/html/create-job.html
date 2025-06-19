@@ -3,643 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Job Listing for Skilled Workers</title>
-    <link rel="icon" type="image/png" href="../images/icon.png">
-    <link rel="stylesheet" href="../css/createjob.css">
+    <title>Create Job Seed - HirNa!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* Additional styles for North Luzon focus */
-        .region-highlight {
-            background-color: #f0f8ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2f4f72;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .region-highlight h3 {
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: #2f4f72;
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-weight: bold;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: #ffcc00;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
             color: #2f4f72;
-            margin-top: 0;
+            font-size: 16px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2f4f72;
+            font-size: 18px;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #2f4f72;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(47, 79, 114, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .char-counter {
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .char-counter.warning {
+            color: #e74c3c;
+        }
+        
+        .skills-section {
+            background: #f8f9fc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .skill-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e5eb;
+            transition: all 0.2s;
+        }
+        
+        .skill-item:hover {
+            border-color: #2f4f72;
+            background: #f0f7ff;
+        }
+        
+        .skill-item input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .skill-item label {
+            margin: 0;
+            font-weight: 500;
+            color: #444;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .location-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .location-option:hover {
+            border-color: #2f4f72;
+            background: #f0f7ff;
+        }
+        
+        .location-option.selected {
+            border-color: #2f4f72;
+            background: #e6f0ff;
+        }
+        
+        .location-option i {
+            font-size: 24px;
+            color: #2f4f72;
+            margin-right: 15px;
+        }
+        
+        .location-name {
+            font-weight: 600;
+            color: #2f4f72;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, #2f4f72, #1a3658);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(47, 79, 114, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(47, 79, 114, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            background: #f8f9fc;
+        }
+        
+        @media (max-width: 768px) {
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            
+            header h1 {
+                font-size: 24px;
+                padding-top: 10px;
+            }
+            
+            .logo {
+                position: relative;
+                top: 0;
+                left: 0;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Create Job Listing for Skilled Workers in North Luzon</h1>
+        <header>
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <span>HirNa!</span>
+            </div>
+            <h1>Create Job Seed</h1>
+            <p class="subtitle">Post a simple job listing targeted to North Luzon region</p>
+        </header>
         
-        <!-- Region Focus Section -->
-        <div class="region-highlight">
-            <h3>North Luzon Focus</h3>
-            <p>This job listing will be targeted to skilled workers in the North Luzon region (Ilocos, Cagayan Valley, Cordillera, Central Luzon). Please ensure the job details are relevant to this region.</p>
-        </div>
-        
-        <!-- Job Basic Info Section -->
-        <div class="form-section active" id="basic-info">
-            <h2>Basic Job Information</h2>
-            <label>Job Title</label>
-            <input type="text" id="jobTitle" placeholder="Enter job title (e.g., 'Skilled Carpenter - Ilocos Region')">
-            
-            <h2>Job Type</h2>
-            <div class="job-type-container">
-                <div class="job-type" onclick="selectJobType('Full-time')">
-                    <img src="../images/15.png" alt="Full-time">
-                    <span>Full-time</span>
-                </div>
-                <div class="job-type" onclick="selectJobType('Part-time')">
-                    <img src="../images/18.png" alt="Part-time">
-                    <span>Part-time</span>
-                </div>
-                <div class="job-type" onclick="selectJobType('Project-based')">
-                    <img src="../images/20.png" alt="Project-based">
-                    <span>Project-based</span>
-                </div>
-                <div class="job-type" onclick="selectJobType('Seasonal')">
-                    <img src="../images/19.png" alt="Seasonal">
-                    <span>Seasonal</span>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="jobTitle">Job Title</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-heading"></i>
+                    <input type="text" id="jobTitle" placeholder="Enter job title...">
                 </div>
             </div>
-            <input type="hidden" id="jobType">
             
-            <h2>Work Arrangement</h2>
-            <div class="arrangementscontainer">
-                <div class="arrangements" onclick="selectWorkArrangement('On Site')">
-                    <img src="../images/onsite.png" alt="On Site">
-                    <span>On Site</span>
-                </div>
-                <div class="arrangements" onclick="selectWorkArrangement('Remote')">
-                    <img src="../images/remote.png" alt="Remote">
-                    <span>Remote</span>
-                </div>
-                <div class="arrangements" onclick="selectWorkArrangement('Hybrid')">
-                    <img src="../images/hybrid.png" alt="Hybrid">
-                    <span>Hybrid</span>
+            <div class="form-group">
+                <label>Skills Required</label>
+                <div class="skills-section">
+                    <div class="skills-container" id="skillsContainer">
+                        <!-- Skills will be populated by JavaScript -->
+                        <div class="skill-item">
+                            <input type="checkbox" id="skill-loading" disabled>
+                            <label for="skill-loading">Loading skills...</label>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <input type="hidden" id="workArrangement">
-
-            <h2>Job Location (North Luzon Provinces)</h2>
-            <select id="jobLocation">
-                <option value="">Select Province</option>
-                <optgroup label="Ilocos Region">
-                    <option value="Ilocos Norte">Ilocos Norte</option>
-                    <option value="Ilocos Sur">Ilocos Sur</option>
-                    <option value="La Union">La Union</option>
-                    <option value="Pangasinan">Pangasinan</option>
-                </optgroup>
-                <optgroup label="Cagayan Valley">
-                    <option value="Batanes">Batanes</option>
-                    <option value="Cagayan">Cagayan</option>
-                    <option value="Isabela">Isabela</option>
-                    <option value="Nueva Vizcaya">Nueva Vizcaya</option>
-                    <option value="Quirino">Quirino</option>
-                </optgroup>
-                <optgroup label="Cordillera Administrative Region">
-                    <option value="Abra">Abra</option>
-                    <option value="Apayao">Apayao</option>
-                    <option value="Benguet">Benguet</option>
-                    <option value="Ifugao">Ifugao</option>
-                    <option value="Kalinga">Kalinga</option>
-                    <option value="Mountain Province">Mountain Province</option>
-                </optgroup>
-                <optgroup label="Central Luzon">
-                    <option value="Aurora">Aurora</option>
-                    <option value="Bataan">Bataan</option>
-                    <option value="Bulacan">Bulacan</option>
-                    <option value="Nueva Ecija">Nueva Ecija</option>
-                    <option value="Pampanga">Pampanga</option>
-                    <option value="Tarlac">Tarlac</option>
-                    <option value="Zambales">Zambales</option>
-                </optgroup>
-            </select>
-
-            <h2>Application Deadline</h2>
-            <input type="date" id="applicationDeadline" min="">
-
-            <h2>Number of Open Positions</h2>
-            <input type="number" id="jobSlots" placeholder="Enter number of positions available" min="1">
-                        
-            <div class="buttons">
-                <button disabled>Previous</button>
-                <button onclick="nextSection('basic-info', 'job-details')">Next</button>
+            
+            <div class="form-group">
+                <label for="offer">Job Offer (150 characters max)</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-bullhorn"></i>
+                    <textarea id="offer" placeholder="Describe the job offer..." maxlength="150"></textarea>
+                </div>
+                <div class="char-counter" id="charCounter">0/150</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Job Location (North Luzon)</label>
+                <div class="location-grid" id="locationGrid">
+                    <!-- Location options will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button class="submit-btn" id="submitBtn">
+                    <i class="fas fa-plus-circle"></i> Create Job Seed
+                </button>
             </div>
         </div>
         
-        <!-- Job Details Section -->
-        <div class="form-section" id="job-details">
-            <h2>Job Details</h2>
-            
-            <label>Job Industry or Sector</label>
-            <select id="jobIndustry">
-                <option value="">Select Industry/Sector</option>
-                <option value="Construction">Construction</option>
-                <option value="Agriculture">Agriculture</option>
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Automotive">Automotive</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Food Processing">Food Processing</option>
-                <option value="Textile/Garment">Textile/Garment</option>
-                <option value="Furniture Making">Furniture Making</option>
-                <option value="Tourism/Hospitality">Tourism/Hospitality</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Education/Training">Education/Training</option>
-                <option value="IT/BPO">IT/BPO</option>
-                <option value="Transportation/Logistics">Transportation/Logistics</option>
-                <option value="Utilities/Energy">Utilities/Energy</option>
-                <option value="Other">Other</option>
-            </select>
-            
-            <label>Job Description</label>
-            <textarea id="jobDescription" placeholder="Describe the job responsibilities and requirements. Mention any specific skills needed for North Luzon context."></textarea>
-            
-            <label>Salary Range (PHP)</label>
-            <div class="checkbox-group">
-                <label><input type="radio" name="salaryRange" value="Entry-Level: ₱10,000 – ₱15,000"> Entry-Level: ₱10,000 – ₱15,000</label>
-                <label><input type="radio" name="salaryRange" value="Skilled Worker: ₱15,000 – ₱25,000"> Skilled Worker: ₱15,000 – ₱25,000</label>
-                <label><input type="radio" name="salaryRange" value="Highly Skilled: ₱25,000 – ₱40,000"> Highly Skilled: ₱25,000 – ₱40,000</label>
-                <label><input type="radio" name="salaryRange" value="Supervisory: ₱40,000 – ₱60,000"> Supervisory: ₱40,000 – ₱60,000</label>
-                <label><input type="radio" name="salaryRange" value="Custom"> Custom: <input type="text" id="customSalary" style="width: 60%;" disabled></label>
-            </div>
-            
-            <label>Required Skills & Qualifications</label>
-            <div class="skills">
-                <div class="skill-box" onclick="showSkillInput('education')">
-                    <span>Education Level</span>
-                    <img src="../images/education.png" alt="Education">
-                </div>
-                <div class="skill-box" onclick="showSkillInput('tradeSkills')">
-                    <span>Trade Skills</span>
-                    <img src="../images/technical.png" alt="Trade Skills">
-                </div>
-                <div class="skill-box" onclick="showSkillInput('experience')">
-                    <span>Work Experience</span>
-                    <img src="../images/wel.png" alt="Work Experience">
-                </div>
-                <div class="skill-box" onclick="showSkillInput('certifications')">
-                    <span>Certifications</span>
-                    <img src="../images/cl.png" alt="Certification">
-                </div>
-                <div class="skill-box" onclick="showSkillInput('language')">
-                    <span>Language Skills</span>
-                    <img src="../images/softskills.png" alt="Language Skills">
-                </div>
-            </div>
-            
-            <div id="skillInputContainer">
-                <input type="text" id="skillInput" placeholder="Enter skill details">
-                <button onclick="addSkill()">Add</button>
-            </div>
-            
-            <div id="skillsList"></div>
-
-            <h2>Accommodation & Benefits</h2>
-            <div class="checkbox-group">
-                <label><input type="checkbox" name="benefits" value="Housing Provided"> Housing Provided</label>
-                <label><input type="checkbox" name="benefits" value="Transportation Allowance"> Transportation Allowance</label>
-                <label><input type="checkbox" name="benefits" value="Meals Provided"> Meals Provided</label>
-                <label><input type="checkbox" name="benefits" value="SSS/PhilHealth/Pag-IBIG"> SSS/PhilHealth/Pag-IBIG</label>
-                <label><input type="checkbox" name="benefits" value="Overtime Pay"> Overtime Pay</label>
-                <label><input type="checkbox" name="benefits" value="Other"> Other: <input type="text" id="otherBenefits" style="width: 60%;"></label>
-            </div>
-            
-            <div class="buttons">
-                <button onclick="prevSection('job-details', 'basic-info')">Previous</button>
-                <button onclick="nextSection('job-details', 'how-to-apply')">Next</button>
-            </div>
-        </div>
-        
-        <!-- How to Apply Section -->
-        <div class="form-section" id="how-to-apply">
-            <h2>How to Apply</h2>
-            
-            <label>Application Instructions</label>
-            <textarea id="applicationInstructions" placeholder="Provide instructions for applicants. Include any regional-specific instructions."></textarea>
-            
-            <label>Submission Method</label>
-            <div class="checkbox-group">
-                <label><input type="radio" name="submissionMethod" value="Upload Documents"> Upload Documents</label>
-                <label><input type="radio" name="submissionMethod" value="Email Application"> Email Application</label>
-                <label><input type="radio" name="submissionMethod" value="Text/Call for Interview"> Text/Call for Interview</label>
-                <label><input type="radio" name="submissionMethod" value="In-Person Application"> In-Person Application</label>
-                <label><input type="radio" name="submissionMethod" value="Barangay Hall Submission"> Barangay Hall Submission</label>
-            </div>
-            
-            <label>Required Documents</label>
-            <div class="checkbox-group">
-                <label><input type="checkbox" name="requiredDocs" value="Resume/Biodata"> Resume/Biodata</label>
-                <label><input type="checkbox" name="requiredDocs" value="NC/COC Certification"> NC/COC Certification</label>
-                <label><input type="checkbox" name="requiredDocs" value="Police Clearance"> Police Clearance</label>
-                <label><input type="checkbox" name="requiredDocs" value="NBI Clearance"> NBI Clearance</label>
-                <label><input type="checkbox" name="requiredDocs" value="Barangay Clearance"> Barangay Clearance</label>
-                <label><input type="checkbox" name="requiredDocs" value="Medical Certificate"> Medical Certificate</label>
-                <label><input type="checkbox" name="requiredDocs" value="Other"> Other: <input type="text" id="otherDocs" style="width: 60%;"></label>
-            </div>
-            
-            <div class="file-upload">
-                <label for="jobDocuments">Upload Job Documents (if any)</label>
-                <input type="file" id="jobDocuments" multiple>
-                <button onclick="document.getElementById('jobDocuments').click()">Select Files</button>
-                <div class="file-list" id="fileList"></div>
-            </div>
-            
-            <div class="buttons">
-                <button onclick="prevSection('how-to-apply', 'job-details')">Previous</button>
-                <button onclick="nextSection('how-to-apply', 'review')">Next</button>
-            </div>
-        </div>
-        
-        <!-- Review Section -->
-        <div class="form-section" id="review">
-            <h2>Review Your Job Listing</h2>
-            
-            <div id="reviewContent" style="background: white; color: black; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-                <!-- Review content will be populated by JavaScript -->
-            </div>
-            
-            <div class="buttons">
-                <button onclick="prevSection('review', 'how-to-apply')">Previous</button>
-                <button class="primary" onclick="submitJobListing()">Submit Job Listing</button>
-            </div>
-        </div>
+        <footer>
+            <p>© 2023 HirNa! - Simplifying Job Matching in North Luzon</p>
+        </footer>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
-    <!-- Loading Indicator -->
-    <div class="loading-container" id="loading">
-        <div class="loading-spinner"></div>
-    </div>
-    
-    <!-- Firebase Module -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
-    
+    <script>
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
             authDomain: "careerstep-bpsu1.firebaseapp.com",
             projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            storageBucket: "careerstep-bpsu1.appspot.com",
             messagingSenderId: "17047315291",
             appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
             measurementId: "G-WH6DT9HQW2"
         };
-    
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-    
-        // Expose Firebase methods globally
-        window.auth = auth;
-        window.db = db;
-        window.storage = storage;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.addDoc = addDoc;
-        window.collection = collection;
-        window.doc = doc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.ref = ref;
-        window.uploadBytes = uploadBytes;
-        window.getDownloadURL = getDownloadURL;
-    </script>
-    
-    <script>
-        // Global variables
-        let currentSection = 'basic-info';
-        let jobData = {};
-        let uploadedFiles = [];
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // North Luzon provinces
+        const provinces = [
+            // Ilocos Region
+            "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+            
+            // Cagayan Valley
+            "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+            
+            // Cordillera Administrative Region
+            "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+            
+            // Central Luzon
+            "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+        ];
+
+
+        // Fetch skills from Firebase
+        function fetchSkills() {
+            db.collection("skills").doc("skilled_worker_skills").get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const skills = doc.data().items;
+                        populateSkills(skills);
+                    } else {
+                        console.log("No skills document found!");
+                        // Fallback to default skills
+                        const defaultSkills = [
+                            "Welding", "Carpentry", "Plumbing", "Electrical", "Machining", 
+                            "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
+                        ];
+                        populateSkills(defaultSkills);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching skills:", error);
+                    // Fallback to default skills if there's an error
+                    const defaultSkills = [
+                        "Welding", "Carpentry", "Plumbing", "Electrical", "Machining", 
+                        "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
+                    ];
+                    populateSkills(defaultSkills);
+                });
+        }
+
+        // Populate skills checklist
+        function populateSkills(skills) {
+            const skillsContainer = document.getElementById('skillsContainer');
+            skillsContainer.innerHTML = ''; // Clear loading message
+            
+            skills.forEach(skill => {
+                const skillItem = document.createElement('div');
+                skillItem.className = 'skill-item';
+                skillItem.innerHTML = `
+                    <input type="checkbox" id="skill-${skill.replace(/\s+/g, '-')}" value="${skill}">
+                    <label for="skill-${skill.replace(/\s+/g, '-')}">${skill}</label>
+                `;
+                skillsContainer.appendChild(skillItem);
+            });
+        }
+
+        // Populate location options
+        function populateLocations() {
+            const locationGrid = document.getElementById('locationGrid');
+            provinces.forEach(province => {
+                const locationOption = document.createElement('div');
+                locationOption.className = 'location-option';
+                locationOption.dataset.value = province;
+                locationOption.innerHTML = `
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div class="location-name">${province}</div>
+                `;
+                locationOption.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.location-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Add selected class to clicked option
+                    locationOption.classList.add('selected');
+                });
+                locationGrid.appendChild(locationOption);
+            });
+        }
+
+        // Character counter for offer textarea
+        function setupCharCounter() {
+            const offerTextarea = document.getElementById('offer');
+            const charCounter = document.getElementById('charCounter');
+            
+            offerTextarea.addEventListener('input', () => {
+                const charCount = offerTextarea.value.length;
+                charCounter.textContent = `${charCount}/150`;
+                
+                if (charCount > 135) {
+                    charCounter.classList.add('warning');
+                } else {
+                    charCounter.classList.remove('warning');
+                }
+                
+                // Enforce max length (though maxlength attribute should handle this)
+                if (charCount > 150) {
+                    offerTextarea.value = offerTextarea.value.substring(0, 150);
+                    charCounter.textContent = "150/150";
+                }
+            });
+        }
+
+        // Submit button handler
+        // Submit button handler
+        function setupSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.addEventListener('click', async () => {
+                // Get form values
+                const jobTitle = document.getElementById('jobTitle').value.trim();
+                
+                const selectedSkills = [];
+                document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                    selectedSkills.push(checkbox.value);
+                });
+                
+                const offer = document.getElementById('offer').value.trim();
+                
+                const selectedLocation = document.querySelector('.location-option.selected');
+                const location = selectedLocation ? selectedLocation.dataset.value : '';
+                
+                // Get current timestamp
+                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
+                // Validation
+                if (!jobTitle) {
+                    alert('Please enter a job title');
+                    return;
+                }
+                
+                if (selectedSkills.length === 0) {
+                    alert('Please select at least one required skill');
+                    return;
+                }
+                
+                if (!offer) {
+                    alert('Please enter a job offer description');
+                    return;
+                }
+                
+                if (!location) {
+                    alert('Please select a location');
+                    return;
+                }
+                
+                // Show loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Job Seed...';
+                submitBtn.disabled = true;
+                
+                try {
+                    // Save to Firestore
+                    const docRef = await db.collection('jobSeeds').add({
+                        jobTitle,
+                        skills: selectedSkills,
+                        offer,
+                        location,
+                        createdAt: timestamp,
+                        status: 'active' // You can add other statuses like 'filled', 'expired' later
+                    });
+                    
+                    // Show success message
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Job Seed Created!';
+                    alert('Job seed created successfully with ID: ' + docRef.id);
+                    
+                    // Reset form after success
+                    document.getElementById('jobTitle').value = '';
+                    document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    document.getElementById('offer').value = '';
+                    charCounter.textContent = '0/150';
+                    document.querySelector('.location-option.selected')?.classList.remove('selected');
+                    
+                } catch (error) {
+                    console.error('Error adding job seed: ', error);
+                    alert('Error creating job seed. Please try again.');
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                } finally {
+                    submitBtn.disabled = false;
+                    setTimeout(() => {
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                    }, 2000);
+                }
+            });
+        }
 
         // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('applicationDeadline').min = new Date().toISOString().split('T')[0];
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSkills();
+            populateLocations();
+            setupCharCounter();
+            setupSubmitButton();
         });
-
-        // Navigation functions
-        function nextSection(current, next) {
-            if (validateSection(current)) {
-                document.getElementById(current).classList.remove('active');
-                document.getElementById(next).classList.add('active');
-                currentSection = next;
-                
-                // If moving to review section, populate the review
-                if (next === 'review') {
-                    prepareReview();
-                }
-            }
-        }
-        
-        function prevSection(current, prev) {
-            document.getElementById(current).classList.remove('active');
-            document.getElementById(prev).classList.add('active');
-            currentSection = prev;
-        }
-        
-        // Section validation
-        function validateSection(sectionId) {
-            switch(sectionId) {
-                case 'basic-info':
-                    const jobTitle = document.getElementById('jobTitle').value;
-                    const jobType = document.getElementById('jobType').value;
-                    const workArrangement = document.getElementById('workArrangement').value;
-                    const jobLocation = document.getElementById('jobLocation').value;
-                    const deadline = document.getElementById('applicationDeadline').value;
-                    const jobSlots = document.getElementById('jobSlots').value;
-                    
-                    if (!jobTitle || !jobType || !workArrangement || !jobLocation || !deadline || !jobSlots) {
-                        alert('Please fill all required fields in Basic Job Information');
-                        return false;
-                    }
-                    return true;
-                    
-                case 'job-details':
-                    const jobIndustry = document.getElementById('jobIndustry').value;
-                    const jobDescription = document.getElementById('jobDescription').value;
-                    const salaryRange = document.querySelector('input[name="salaryRange"]:checked');
-                    
-                    if (!jobIndustry || !jobDescription || !salaryRange) {
-                        alert('Please fill all required fields in Job Details');
-                        return false;
-                    }
-                    return true;
-                    
-                default:
-                    return true;
-            }
-        }
-        
-        // Job type selection
-        function selectJobType(type) {
-            document.getElementById('jobType').value = type;
-            // Update UI to show selection
-            document.querySelectorAll('.job-type').forEach(el => {
-                el.style.backgroundColor = el.querySelector('span').textContent === type ? '#2f4f72' : 'white';
-                el.style.color = el.querySelector('span').textContent === type ? 'white' : '#3b5d7c';
-            });
-        }
-        
-        // Work arrangement selection
-        function selectWorkArrangement(arrangement) {
-            document.getElementById('workArrangement').value = arrangement;
-            // Update UI to show selection
-            document.querySelectorAll('.arrangements').forEach(el => {
-                el.style.backgroundColor = el.querySelector('span').textContent === arrangement ? '#2f4f72' : 'white';
-                el.style.color = el.querySelector('span').textContent === arrangement ? 'white' : '#3b5d7c';
-            });
-        }
-        
-        // Salary range handling
-        document.querySelectorAll('input[name="salaryRange"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.getElementById('customSalary').disabled = this.value !== 'Custom';
-                if (this.value === 'Custom') {
-                    document.getElementById('customSalary').focus();
-                }
-            });
-        });
-        
-        // Skills handling
-        let currentSkillType = '';
-        
-        function showSkillInput(type) {
-            currentSkillType = type;
-            document.getElementById('skillInputContainer').style.display = 'block';
-            document.getElementById('skillInput').placeholder = `Enter ${type.replace(/([A-Z])/g, ' $1')}`;
-            document.getElementById('skillInput').focus();
-        }
-        
-        function addSkill() {
-            const skillValue = document.getElementById('skillInput').value;
-            if (skillValue) {
-                if (!jobData.skills) jobData.skills = {};
-                if (!jobData.skills[currentSkillType]) jobData.skills[currentSkillType] = [];
-                
-                jobData.skills[currentSkillType].push(skillValue);
-                updateSkillsList();
-                document.getElementById('skillInput').value = '';
-            }
-        }
-        
-        function updateSkillsList() {
-            let html = '<h3>Added Skills:</h3>';
-            for (const [type, skills] of Object.entries(jobData.skills || {})) {
-                html += `<h4>${type.replace(/([A-Z])/g, ' $1')}:</h4><ul>`;
-                skills.forEach(skill => {
-                    html += `<li>${skill} <button onclick="removeSkill('${type}', '${skill}')">×</button></li>`;
-                });
-                html += '</ul>';
-            }
-            document.getElementById('skillsList').innerHTML = html;
-        }
-        
-        function removeSkill(type, skill) {
-            jobData.skills[type] = jobData.skills[type].filter(s => s !== skill);
-            if (jobData.skills[type].length === 0) {
-                delete jobData.skills[type];
-            }
-            updateSkillsList();
-        }
-        
-        // File upload handling
-        document.getElementById('jobDocuments').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            uploadedFiles = [...uploadedFiles, ...files];
-            updateFileList();
-        });
-        
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-            
-            uploadedFiles.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    ${file.name} (${(file.size / 1024).toFixed(2)} KB)
-                    <button onclick="removeFile(${index})">Remove</button>
-                `;
-                fileList.appendChild(fileItem);
-            });
-        }
-        
-        function removeFile(index) {
-            uploadedFiles.splice(index, 1);
-            updateFileList();
-        }
-        
-        // Prepare review content
-        function prepareReview() {
-            // Collect all data from forms
-            jobData = {
-                basicInfo: {
-                    jobTitle: document.getElementById('jobTitle').value,
-                    jobType: document.getElementById('jobType').value,
-                    workArrangement: document.getElementById('workArrangement').value,
-                    jobLocation: document.getElementById('jobLocation').value,
-                    deadline: document.getElementById('applicationDeadline').value,
-                    jobSlots: document.getElementById('jobSlots').value
-                },
-                jobDetails: {
-                    jobIndustry: document.getElementById('jobIndustry').value,
-                    jobDescription: document.getElementById('jobDescription').value,
-                    salaryRange: document.querySelector('input[name="salaryRange"]:checked').value,
-                    skills: jobData.skills || {},
-                    benefits: Array.from(document.querySelectorAll('input[name="benefits"]:checked')).map(cb => cb.value),
-                    otherBenefits: document.getElementById('otherBenefits').value
-                },
-                howToApply: {
-                    applicationInstructions: document.getElementById('applicationInstructions').value,
-                    submissionMethod: document.querySelector('input[name="submissionMethod"]:checked').value,
-                    requiredDocuments: Array.from(document.querySelectorAll('input[name="requiredDocs"]:checked')).map(cb => cb.value),
-                    otherDocuments: document.getElementById('otherDocs').value
-                },
-                files: uploadedFiles.map(file => file.name),
-                region: "North Luzon"
-            };
-            
-            // Display the review
-            let reviewHTML = `
-                <h3>Basic Information</h3>
-                <p><strong>Job Title:</strong> ${jobData.basicInfo.jobTitle}</p>
-                <p><strong>Job Type:</strong> ${jobData.basicInfo.jobType}</p>
-                <p><strong>Work Arrangement:</strong> ${jobData.basicInfo.workArrangement}</p>
-                <p><strong>Job Location:</strong> ${jobData.basicInfo.jobLocation} (North Luzon)</p>
-                <p><strong>Application Deadline:</strong> ${new Date(jobData.basicInfo.deadline).toLocaleDateString()}</p>
-                <p><strong>Number of Positions:</strong> ${jobData.basicInfo.jobSlots}</p>
-                
-                <h3>Job Details</h3>
-                <p><strong>Industry/Sector:</strong> ${jobData.jobDetails.jobIndustry}</p>
-                <p><strong>Description:</strong> ${jobData.jobDetails.jobDescription}</p>
-                <p><strong>Salary Range:</strong> ${jobData.jobDetails.salaryRange}</p>
-                
-                <h3>Skills & Qualifications</h3>
-            `;
-            
-            for (const [type, skills] of Object.entries(jobData.jobDetails.skills)) {
-                reviewHTML += `<p><strong>${type.replace(/([A-Z])/g, ' $1')}:</strong> ${skills.join(', ')}</p>`;
-            }
-            
-            reviewHTML += `
-                <h3>Benefits</h3>
-                <p>${jobData.jobDetails.benefits.join(', ')}${jobData.jobDetails.otherBenefits ? ', ' + jobData.jobDetails.otherBenefits : ''}</p>
-                
-                <h3>How to Apply</h3>
-                <p><strong>Instructions:</strong> ${jobData.howToApply.applicationInstructions}</p>
-                <p><strong>Submission Method:</strong> ${jobData.howToApply.submissionMethod}</p>
-                <p><strong>Required Documents:</strong> ${jobData.howToApply.requiredDocuments.join(', ')}</p>
-                ${jobData.howToApply.otherDocuments ? `<p><strong>Other Documents:</strong> ${jobData.howToApply.otherDocuments}</p>` : ''}
-                
-                <h3>Attached Files</h3>
-                ${jobData.files.length > 0 ? `<ul>${jobData.files.map(file => `<li>${file}</li>`).join('')}</ul>` : '<p>No files attached</p>'}
-            `;
-            
-            document.getElementById('reviewContent').innerHTML = reviewHTML;
-        }
-        
-        // Submit job listing
-        async function submitJobListing() {
-            document.getElementById('loading').style.display = 'flex';
-            
-            try {
-                // Get current user
-                const user = auth.currentUser;
-                if (!user) {
-                    throw new Error('User not authenticated');
-                }
-
-                // Prepare job data without files first
-                const jobListingData = {
-                    employerId: user.uid,
-                    createdAt: new Date(),
-                    deadline: new Date(jobData.basicInfo.deadline),
-                    status: 'active',
-                    jobTitle: jobData.basicInfo.jobTitle,
-                    jobType: jobData.basicInfo.jobType,
-                    jobSlots: parseInt(jobData.basicInfo.jobSlots),
-                    workArrangement: jobData.basicInfo.workArrangement,
-                    jobLocation: jobData.basicInfo.jobLocation,
-                    jobIndustry: jobData.jobDetails.jobIndustry,
-                    jobDescription: jobData.jobDetails.jobDescription,
-                    salaryRange: jobData.jobDetails.salaryRange,
-                    skills: jobData.jobDetails.skills,
-                    benefits: jobData.jobDetails.benefits,
-                    otherBenefits: jobData.jobDetails.otherBenefits,
-                    howToApply: {
-                        applicationInstructions: jobData.howToApply.applicationInstructions,
-                        submissionMethod: jobData.howToApply.submissionMethod,
-                        requiredDocuments: jobData.howToApply.requiredDocuments,
-                        otherDocuments: jobData.howToApply.otherDocuments,
-                        fileUrls: [] // Initialize empty array - will be populated below
-                    },
-                    region: jobData.region,
-                    targetGroup: "Skilled Workers"
-                };
-
-                // Create the job listing document first to get the ID
-                const docRef = await addDoc(collection(db, 'jobListings'), jobListingData);
-                const jobId = docRef.id;
-                console.log("Created job with ID:", jobId);
-
-                // Upload files to storage if any
-                const fileUrls = [];
-                if (uploadedFiles.length > 0) {
-                    console.log("Uploading", uploadedFiles.length, "files...");
-                    
-                    for (const file of uploadedFiles) {
-                        try {
-                            // Create storage reference
-                            const storagePath = `jobDocuments/${jobId}/${file.name}`;
-                            const storageRef = ref(storage, storagePath);
-                            
-                            // Upload file
-                            console.log("Uploading file:", file.name);
-                            const snapshot = await uploadBytes(storageRef, file);
-                            
-                            // Get download URL
-                            const url = await getDownloadURL(snapshot.ref);
-                            console.log("File uploaded. URL:", url);
-                            
-                            fileUrls.push({
-                                name: file.name,
-                                url: url,
-                                type: file.type || 'application/octet-stream',
-                                size: file.size
-                            });
-                        } catch (fileError) {
-                            console.error("Error uploading file:", file.name, fileError);
-                            // Continue with other files even if one fails
-                        }
-                    }
-                    
-                    // Update the job listing with file URLs
-                    if (fileUrls.length > 0) {
-                        console.log("Updating job with file URLs:", fileUrls);
-                        await updateDoc(doc(db, 'jobListings', jobId), {
-                            'howToApply.fileUrls': fileUrls
-                        });
-                    }
-                }
-
-                // Save reference in employer's subcollection
-                await setDoc(doc(db, 'employers', user.uid, 'jobListings', jobId), {
-                    jobId: jobId,
-                    title: jobData.basicInfo.jobTitle,
-                    location: jobData.basicInfo.jobLocation,
-                    createdAt: new Date(),
-                    status: 'active',
-                    fileCount: fileUrls.length,
-                    region: jobData.region
-                });
-
-                console.log("Job listing created successfully!");
-                alert('Job listing created successfully!');
-                window.location.href = 'employer-dashboard.html';
-                
-            } catch (error) {
-                console.error('Error submitting job listing:', error);
-                alert('Error creating job listing: ' + error.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
     </script>
 </body>
 </html>

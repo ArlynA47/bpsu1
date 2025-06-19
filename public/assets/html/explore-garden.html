@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Find Job Seeds in North Luzon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Job Card Styling */
+        .job-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .job-card.swipe-left {
+            transform: translateX(-100%) rotate(-30deg);
+            opacity: 0;
+        }
+        
+        .job-card.swipe-right {
+            transform: translateX(100%) rotate(30deg);
+            opacity: 0;
+        }
+        
+        .job-card-header {
+            background: #2f4f72;
+            color: white;
+            padding: 15px;
+        }
+        
+        .job-card-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        
+        .job-card-body {
+            padding: 15px;
+        }
+        
+        .job-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .job-detail i {
+            margin-right: 10px;
+            color: #2f4f72;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .job-description {
+            margin: 15px 0;
+        }
+        
+        .job-skills {
+            margin: 15px 0;
+        }
+        
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .skill-tag {
+            background: #e9f0f8;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .match-badge {
+            background: #51cf66;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            max-width: 500px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            margin: 0 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .pass-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .nurture-btn {
+            background: #51cf66;
+            color: white;
+        }
+        
+        /* Toast Message */
+        .toast-message {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 1000;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        /* Header */
+        .app-header {
+            background: #2f4f72;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .app-header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        /* No Jobs Message */
+        .no-jobs {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        /* Login Prompt */
+        .login-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .login-prompt button {
+            margin-top: 20px;
+            background: #51cf66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .top-nav {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+    font-size: 0.9rem;
+    z-index: 101;
+}
+
+.top-nav .nav-link {
+    color: #2f4f72;
+    text-decoration: none;
+}
+
+.top-nav .nav-link i {
+    font-size: 1.2rem;
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Finding job seeds in North Luzon...</p>
+    </div>
+
+    <!-- Login Prompt (shown if not logged in) -->
+    <div id="loginPrompt" class="login-prompt d-none">
+        <h3>Please log in to start matching</h3>
+        <p>You need to be logged in to save your interested job seeds</p>
+        <button id="goToLoginBtn">Go to Login Page</button>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="d-none">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Job Seeds in North Luzon</h1>
+        </header>
+
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav d-flex justify-content-around py-2">
+            <a href="to-nurture.html" class="nav-link text-center">
+                <i class="fas fa-heart"></i><br>
+                <span>Nurture</span>
+            </a>
+            <a href="#profilePage" class="nav-link text-center">
+                <i class="fas fa-user"></i><br>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+
+        <!-- Job Cards Container -->
+        <div id="jobCardsContainer" class="container py-3">
+            <!-- Job cards will be dynamically inserted here -->
+            <div class="no-jobs" id="noJobsMessage">
+                <i class="fas fa-seedling fa-3x mb-3 text-muted"></i>
+                <h4>No job seeds available</h4>
+                <p>Check back later for new opportunities</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <div class="d-flex justify-content-center">
+                <button id="passBtn" class="action-btn pass-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button id="nurtureBtn" class="action-btn nurture-btn">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+        let userSkills = [];
+        let availableSeeds = [];
+        let currentSeedIndex = 0;
+        let currentFilters = {
+            location: ''
+        };
+
+        // DOM Elements
+        const loadingScreen = document.getElementById('loadingScreen');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const appContainer = document.getElementById('appContainer');
+        const jobCardsContainer = document.getElementById('jobCardsContainer');
+        const noJobsMessage = document.getElementById('noJobsMessage');
+        const passBtn = document.getElementById('passBtn');
+        const nurtureBtn = document.getElementById('nurtureBtn');
+        const goToLoginBtn = document.getElementById('goToLoginBtn');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check auth state
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserProfile();
+                    await loadJobSeeds();
+                    showApp();
+                } else {
+                    // Show login prompt if not authenticated
+                    showLoginPrompt();
+                }
+            });
+            
+            // Event listeners
+            passBtn.addEventListener('click', passCurrentSeed);
+            nurtureBtn.addEventListener('click', nurtureCurrentSeed);
+            goToLoginBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+
+            // Touch events for swipe gestures
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            jobCardsContainer.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+
+            jobCardsContainer.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+        });
+
+        // Load user profile from Firestore
+        async function loadUserProfile() {
+            try {
+                const userDoc = await getDoc(doc(db, 'careerstepEmployees', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    userSkills = userData.jobPreferences?.skills || [];
+                } else {
+                    console.error('User profile not found');
+                    // Redirect to complete profile if needed
+                    window.location.href = 'profile-setup.html';
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Load job seeds that match the user's skills
+        async function loadJobSeeds() {
+            try {
+                loadingScreen.classList.remove('d-none');
+                jobCardsContainer.innerHTML = '';
+                noJobsMessage.classList.add('d-none');
+
+                // Query for active job seeds in North Luzon
+                let seedsQuery = query(
+                    collection(db, 'jobSeeds'),
+                    where('status', '==', 'active')
+                );
+
+                const querySnapshot = await getDocs(seedsQuery);
+                availableSeeds = [];
+
+                querySnapshot.forEach((doc) => {
+                    const seedData = doc.data();
+                    // Check if job matches user skills (at least 1 matching skill)
+                    if (doesSeedMatchSkills(seedData)) {
+                        availableSeeds.push({
+                            id: doc.id,
+                            ...seedData,
+                            matchingSkills: getMatchingSkills(seedData.skills)
+                        });
+                    }
+                });
+
+                // Sort by creation date (newest first)
+                availableSeeds.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+
+                if (availableSeeds.length > 0) {
+                    displayCurrentSeed();
+                } else {
+                    noJobsMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error loading job seeds:', error);
+                noJobsMessage.classList.remove('d-none');
+            } finally {
+                loadingScreen.classList.add('d-none');
+                appContainer.classList.remove('d-none');
+            }
+        }
+
+        // Check if job seed matches user skills (at least 1 matching skill)
+        function doesSeedMatchSkills(seed) {
+            if (!seed.skills || seed.skills.length === 0) return true;
+            if (userSkills.length === 0) return true;
+            
+            return seed.skills.some(skill => 
+                userSkills.some(userSkill => 
+                    userSkill.toLowerCase().includes(skill.toLowerCase()) || 
+                    skill.toLowerCase().includes(userSkill.toLowerCase())
+                )
+            );
+        }
+
+        // Get matching skills between job and user
+        function getMatchingSkills(jobSkills) {
+            if (!jobSkills || jobSkills.length === 0) return [];
+            if (userSkills.length === 0) return [];
+            
+            return jobSkills.filter(skill => 
+                userSkills.some(userSkill => 
+                    userSkill.toLowerCase().includes(skill.toLowerCase()) || 
+                    skill.toLowerCase().includes(userSkill.toLowerCase())
+                )
+            );
+        }
+
+        // Display current job seed card
+        function displayCurrentSeed() {
+            if (currentSeedIndex >= availableSeeds.length) {
+                noJobsMessage.classList.remove('d-none');
+                return;
+            }
+
+            noJobsMessage.classList.add('d-none');
+            const seed = availableSeeds[currentSeedIndex];
+
+            // Create seed card
+            const seedCard = document.createElement('div');
+            seedCard.className = 'job-card';
+            seedCard.innerHTML = `
+                <div class="job-card-header">
+                    <h3>${seed.jobTitle}</h3>
+                </div>
+                <div class="job-card-body">
+                    <div class="job-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${seed.location}</span>
+                    </div>
+                    
+                    <div class="job-description">
+                        <h4>Offer:</h4>
+                        <p>${seed.offer}</p>
+                    </div>
+                    
+                    <div class="job-skills">
+                        <h4>Required Skills: ${seed.matchingSkills.length > 0 ? `<span class="match-badge">${seed.matchingSkills.length} match${seed.matchingSkills.length > 1 ? 'es' : ''}</span>` : ''}</h4>
+                        <div class="skill-tags">
+                            ${seed.skills.map(skill => `
+                                <span class="skill-tag ${seed.matchingSkills.includes(skill) ? 'match-badge' : ''}">
+                                    ${skill}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="job-card-footer p-3">
+                    <small>Posted ${seed.createdAt.toDate().toLocaleDateString()}</small>
+                </div>
+            `;
+
+            jobCardsContainer.innerHTML = '';
+            jobCardsContainer.appendChild(seedCard);
+        }
+
+        // Pass on current seed
+        async function passCurrentSeed() {
+            if (currentSeedIndex >= availableSeeds.length) return;
+            
+            // Animation
+            const seedCard = document.querySelector('.job-card');
+            seedCard.classList.add('swipe-left');
+            
+            // Show feedback
+            showToastMessage("Passed on this job");
+            
+            setTimeout(() => {
+                currentSeedIndex++;
+                displayCurrentSeed();
+            }, 300);
+        }
+
+        // Nurture current seed
+        async function nurtureCurrentSeed() {
+            if (currentSeedIndex >= availableSeeds.length) return;
+            
+            const seed = availableSeeds[currentSeedIndex];
+            
+            // Animation
+            const seedCard = document.querySelector('.job-card');
+            seedCard.classList.add('swipe-right');
+            
+            try {
+                // Add to nurtured seeds in Firestore
+                await updateDoc(doc(db, 'careerstepEmployees', currentUser.uid), {
+                    nurturedSeeds: arrayUnion({
+                        id: seed.id,
+                        jobTitle: seed.jobTitle,
+                        location: seed.location,
+                        offer: seed.offer,
+                        skills: seed.skills,
+                        matchingSkills: seed.matchingSkills,
+                        createdAt: new Date()
+                    })
+                });
+                
+                // Show success feedback
+                showToastMessage("Saved to your interested jobs!");
+                
+            } catch (error) {
+                console.error('Error saving nurtured seed:', error);
+                showToastMessage("Failed to save job");
+            }
+            
+            setTimeout(() => {
+                currentSeedIndex++;
+                displayCurrentSeed();
+            }, 300);
+        }
+
+        // Show toast message
+        function showToastMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // Handle swipe gestures
+        function handleSwipe() {
+            const threshold = 50; // Minimum swipe distance
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (swipeDistance > threshold) {
+                // Swipe right - nurture
+                nurtureCurrentSeed();
+            } else if (swipeDistance < -threshold) {
+                // Swipe left - pass
+                passCurrentSeed();
+            }
+        }
+
+        // Show login prompt
+        function showLoginPrompt() {
+            loadingScreen.classList.add('d-none');
+            loginPrompt.classList.remove('d-none');
+        }
+
+        // Show the app after loading
+        function showApp() {
+            loadingScreen.classList.add('d-none');
+            loginPrompt.classList.add('d-none');
+            appContainer.classList.remove('d-none');
+        }
+    </script>
+</body>
+</html>
