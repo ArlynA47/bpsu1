@@ -62,3 +62,13 @@
 .modal-btn:hover {
     background: #8b8b8b;
 }
+
+.register-link {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.form-container {
+    height: fit-content;
+}

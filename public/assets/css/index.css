@@ -13,7 +13,6 @@
 }
 
 .logo-design {
-  flex: 7;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -29,7 +28,7 @@
   font-weight: 600;
 }
 
-.logout-nav-btn {
+.login-nav-btn {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -79,27 +78,14 @@
 }
 
 .half-circle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50vw;
-  height: 100vh;
-  background-color: #ececec; /* Choose any color you like */
-  border-top-right-radius: 50% 50%;
-  border-bottom-right-radius: 50% 50%;
-  z-index: -1; /* Send it behind all content */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50vw;
+    height: 100vh;
+    background-color: #ECECEC; /* Choose any color you like */
+    border-top-right-radius: 50% 50%;
+    border-bottom-right-radius: 50% 50%;
+    z-index: -1; /* Send it behind all content */
 }
 
-.nav-buttons {
-  flex: 3;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-buttons a {
-  text-decoration: none;
-  color: black;
-  font-size: 16px;
-  font-weight: 500;
-}
