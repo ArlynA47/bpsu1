@@ -64,6 +64,10 @@
   overflow: hidden;
 }
 
+.registration-container.login{
+  height:70%;
+}
+
 .register-link{
   color: #8b8b8b;
   text-decoration: none;
@@ -196,5 +200,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 20px;
+}
+
+#loginEmployerForm.login{
   gap: 20px;
 }
