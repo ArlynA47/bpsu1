@@ -6,6 +6,36 @@
     <title>Document</title>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+        /* Additional styles for sentiment results */
+        .sentiment-loading {
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .sentiment-result {
+            padding: 8px;
+            background: #e8f4ff;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .sentiment-error {
+            padding: 8px;
+            background: #ffebee;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #c62828;
+        }
+    </style>
+
 </head>
 <body>
     <header>
@@ -51,7 +81,7 @@
                 </div>
                 <div class="profile-header-right">
                     <div class="feedback">
-                        <button class="summarize-btn">Summarize Review</button>
+                        <button class="summarize-btn" id="summarizeReviewBtn">Summarize Review</button>
                         <div class="icon thumbs-up"><span>3</span>  <img src="../images/likey.png"></div>
                         <div class="icon thumbs-down"><span>2</span> <img src="../images/dislikey.png"> </div>
                     </div>
@@ -60,7 +90,7 @@
             <div class="comments">
                 <div class="comment">
                     <div class="company-name">Company A</div>
-                    <div class="comment-text">Hard-working and reliable.</div>
+                    <div class="comment-text">Quick learner and cooperative! Will hire again!</div>
                 </div>
                 <div class="comment">
                     <div class="company-name">Company B</div>
@@ -73,7 +103,7 @@
                 <span class="close-modal">&times;</span>
                 <h2>Review Summary</h2>
                 <div class="modal-body">
-                <p>This is where the review summary will appear...</p>
+                <p id="sentimentdisplay">This is where the review summary will appear...</p>
                 </div>
                 <div class="modal-footer">
                 <button class="modal-close-btn">Close</button>
@@ -86,6 +116,7 @@
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const dots = document.querySelectorAll('.dot');
+        const sentimentdisplay = document.getElementById('sentimentdisplay');
         let slideInterval;
 
         function showSlide(index) {
@@ -159,15 +190,26 @@
         const modalCloseBtn = document.querySelector('.modal-close-btn');
 
         // Open modal when summarize button is clicked
-        summarizeBtn.addEventListener('click', function() {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
-            
-            // Here you would typically fetch/calculate the summary
-            // For now we'll just use placeholder text
-            const modalBody = document.querySelector('.modal-body p');
-            modalBody.textContent = "This is a generated summary of the reviews. Positive aspects mentioned include excellent service and product quality. Some users noted delivery could be improved.";
+        summarizeBtn.addEventListener('click', async function () {
+            // Disable the button and show "Analyzing..."
+            summarizeBtn.disabled = true;
+            const originalText = summarizeBtn.textContent;
+            summarizeBtn.textContent = 'Analyzing...';
+
+            try {
+                const results = await summarizeReview();
+
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                document.querySelector('.modal-body p').innerHTML = results;
+            } finally {
+                // Re-enable the button and restore original text
+                summarizeBtn.disabled = false;
+                summarizeBtn.textContent = originalText;
+            }
         });
+
+
 
         // Close modal when X is clicked
         closeModal.addEventListener('click', function() {
@@ -189,6 +231,41 @@
             }
         });
         });
+
+async function summarizeReview() {
+    const commentElements = document.querySelectorAll('.comment-text');
+
+    // Combine all comment texts into one string
+    const allText = Array.from(commentElements)
+        .map(el => el.textContent.trim())
+        .filter(text => !!text)
+        .join(' ');
+
+    if (!allText) {
+        return 'No comment text available.';
+    }
+
+    try {
+        const response = await $.ajax({
+            url: "http://localhost:3000/sentiment-proxy",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            data: JSON.stringify({ content: allText })
+        });
+
+        const content = response.content || 'No summary returned.';
+
+        // Replace the word "sentiment" with "feedback" (case-insensitive)
+        return content.replace(/sentiment/gi, 'feedback');
+
+        
+        
+    } catch (error) {
+        console.error('Sentiment API error:', error);
+        return 'Error analyzing comments.';
+    }
+}
+
     </script>
 </body>
 </html>
