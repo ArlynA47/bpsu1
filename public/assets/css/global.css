@@ -1,3 +1,13 @@
-body {
-    
+/* Set Imports */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+  font-family: "Geist", sans-serif;
+
+  /* border: 2px solid red; */
 }

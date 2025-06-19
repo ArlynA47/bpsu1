@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/employer-registration.css">
+
+
+    <script src="" defer></script>
+
+    <title>Document</title>
+</head>
+
+<body>
+    <main class="main-container">
+        <!-- Left Section for Design -->
+        <section class="left-section">
+            <a href="#" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="design-container">
+                <img src="../images/careerstep-logo.png" alt="Logo">
+                <h1>CareerStep</h1>
+            </div>
+        </section>
+
+
+        <!-- Right Section for Design -->
+        <section class="right-section">
+            <div class="registration-container">
+                <div class="header-container">
+                    <img src="../images/employer-reg-icon.png" alt="Logo">
+                    <h1>Employer Registration</h1>
+                </div>
+
+                <div class="form-container">
+                    <form id="registerEmployerForm" autocomplete="off">
+
+                        <div class="input-group">
+                            <label>Email</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" name="email" required
+                                    placeholder="Enter company email..." />
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Password</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="password" name="password" required
+                                    placeholder="Enter your password..." />
+                            </div>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required
+                                    placeholder="Confirm your password..." />
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Company Name</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-building"></i>
+                                <input type="text" id="companyName" name="companyName" required
+                                    placeholder="Enter your company name..." />
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Industry Type</label>
+                            <div class="input-with-icon select-icon">
+                                <i class="fas fa-briefcase"></i>
+                                <select id="industryType" name="industryType" required>
+                                    <option value="" disabled selected>Select industry type</option>
+                                    <option value="IT">IT</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Finance">Finance</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Contact Number</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="contactNumber" name="contactNumber" required
+                                    placeholder="Enter company contact number..." />
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Company Address</label>
+                            <div class="input-with-icon select-icon">
+                                <i class="fas fa-location"></i>
+                                <select id="companyAddress" name="companyAddress" required>
+                                    <option value="" disabled selected>Select company address</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="submit-btn" id="registerEmployerBtn">Create Company</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
