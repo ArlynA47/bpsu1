@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Job Seeds - HirNa!</title>
     <link rel="icon" type="image/png" href="../images/icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
     <style>
         body {
             margin: 0;
@@ -13,6 +15,7 @@
             background-color: #f5f7fa;
             color: #333;
         }
+
         header {
             display: flex;
             justify-content: space-between;
@@ -20,18 +23,21 @@
             padding: 15px 30px;
             background-color: #1e1e1e;
             color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .logo-container {
             display: flex;
             align-items: center;
             font-size: 1.4em;
             font-weight: bold;
         }
+
         .logo-container img {
             margin-right: 10px;
             height: 40px;
         }
+
         nav ul {
             list-style: none;
             display: flex;
@@ -39,6 +45,7 @@
             margin: 0;
             padding: 0;
         }
+
         nav a {
             text-decoration: none;
             color: white;
@@ -46,9 +53,11 @@
             font-size: 1.1em;
             transition: color 0.3s;
         }
+
         nav a:hover {
             color: #7ccc8d;
         }
+
         .profile-btn {
             padding: 10px 20px;
             border: 2px solid white;
@@ -59,16 +68,18 @@
             font-weight: 600;
             transition: all 0.3s;
         }
+
         .profile-btn:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: rgba(255, 255, 255, 0.1);
         }
-        
+
         /* Job Listings Styles */
         .listings-container {
-            max-width: 1200px;
+            width: 90%;
             margin: 30px auto;
             padding: 20px;
         }
+
         .listings-header {
             display: flex;
             justify-content: space-between;
@@ -77,17 +88,21 @@
             flex-wrap: wrap;
             gap: 20px;
         }
+
         .listings-title {
             font-size: 28px;
             font-weight: bold;
             color: #262626;
             margin: 0;
         }
+
         .button-group {
             display: flex;
             gap: 15px;
         }
-        .create-listing-btn, .manage-applications-btn {
+
+        .create-listing-btn,
+        .manage-applications-btn {
             padding: 12px 24px;
             border: none;
             border-radius: 6px;
@@ -99,50 +114,59 @@
             gap: 8px;
             transition: all 0.3s;
         }
+
         .create-listing-btn {
             background-color: #5ab56d;
             color: white;
         }
+
         .create-listing-btn:hover {
             background-color: #4aa35d;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(90, 181, 109, 0.3);
         }
+
         .manage-applications-btn {
             background-color: #1a1a1a;
             color: white;
         }
+
         .manage-applications-btn:hover {
             background-color: #303030;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(47, 74, 98, 0.3);
         }
+
         .job-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 25px;
             margin-top: 30px;
         }
+
         .job-card {
             background: white;
             color: #2c3e50;
             border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             border-left: 4px solid #5ab56d;
             position: relative;
         }
+
         .job-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
+
         .job-title {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #2F4A62;
         }
+
         .job-meta {
             display: flex;
             flex-wrap: wrap;
@@ -150,15 +174,20 @@
             margin-bottom: 15px;
             font-size: 14px;
         }
-        .job-type, .job-location, .job-applicants {
+
+        .job-type,
+        .job-location,
+        .job-applicants {
             display: flex;
             align-items: center;
             gap: 5px;
             color: #555;
         }
+
         .job-meta i {
             color: #5ab56d;
         }
+
         .job-description {
             margin-bottom: 15px;
             font-size: 15px;
@@ -170,6 +199,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
         .job-footer {
             display: flex;
             justify-content: space-between;
@@ -178,28 +208,34 @@
             padding-top: 15px;
             border-top: 1px solid #eee;
         }
+
         .job-status {
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
         }
+
         .status-active {
             background-color: #e1f5e1;
             color: #2e7d32;
         }
+
         .status-closed {
             background-color: #ffebee;
             color: #c62828;
         }
+
         .job-posted {
             font-size: 13px;
             color: #777;
         }
+
         .job-actions {
             display: flex;
             gap: 10px;
         }
+
         .action-btn {
             padding: 8px 12px;
             border: none;
@@ -208,37 +244,45 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+
         .edit-btn {
             background-color: #7CA1CC;
             color: white;
         }
+
         .edit-btn:hover {
             background-color: #6a8db8;
         }
+
         .view-btn {
             background-color: #f5f5f5;
             color: #333;
             border: 1px solid #ddd;
         }
+
         .view-btn:hover {
             background-color: #e9e9e9;
         }
+
         .applicants-btn {
             background-color: #5ab56d;
             color: white;
         }
+
         .applicants-btn:hover {
             background-color: #4aa35d;
         }
+
         .no-listings {
             text-align: center;
             padding: 50px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             color: #777;
             grid-column: 1 / -1;
         }
+
         .loading {
             text-align: center;
             padding: 50px;
@@ -246,6 +290,7 @@
             color: #555;
             grid-column: 1 / -1;
         }
+
         .applicant-count {
             position: absolute;
             top: 15px;
@@ -257,12 +302,14 @@
             font-size: 12px;
             font-weight: bold;
         }
+
         .skills-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 10px;
         }
+
         .skill-tag {
             background-color: #e1f0ff;
             color: #2F4A62;
@@ -271,52 +318,119 @@
             font-size: 12px;
             font-weight: 500;
         }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            padding: 30px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-design {
+            flex: 7;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-design img {
+            max-width: 40px;
+            height: auto;
+        }
+
+        .logo-design h1 {
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        .logout-nav-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 120px;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #f5f5f5;
+            background-color: #2f2f2f;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            flex: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+        }
     </style>
 </head>
+
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="../images/careerstepwhite.png" alt="HirNa! Logo"> 
-            <span>HirNa!</span>
-        </div>
-        
-        <nav>
-            <ul>
-                <li><a href="employer.html">Dashboard</a></li>
-                <li><a href="#" class="active">My Job Seeds</a></li>
-                <li><a href="employer-profile.html">Company Profile</a></li>
-            </ul>
-        </nav>
-        <button class="profile-btn" onclick="window.location.href='employer-profile.html'">
-            <i class="fas fa-user"></i> Profile
-        </button>
-    </header>
-    
-    <div class="listings-container">
-        <div class="listings-header">
-            <h1 class="listings-title">My Job Seeds</h1>
-            <div class="button-group">
-                <a href="create-job.html" class="create-listing-btn">
-                    <i class="fas fa-plus"></i> Create New Seed
-                </a>
-                <a href="manage-job-applications.html" class="manage-applications-btn">
-                    <i class="fas fa-users"></i> Manage Applications
-                </a>
+    <div class="main-container">
+        <nav class="nav-bar">
+            <div class="logo-design">
+                <img src="/public/assets/images/careerstep-logo.png" alt="Logo">
+                <h1>HirNa!</h1>
             </div>
-        </div>
-        
-        <div class="job-cards" id="jobCardsContainer">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading your job seeds...
+
+            <div class="nav-buttons">
+                <a href="employer-home.html" class="active">Home</a>
+                <a href="job-listings.html">Job Listings</a>
+                <button class="logout-nav-btn" onclick="location.href='employer-profile.html'">Logout</button>
+            </div>
+        </nav>
+
+        <div class="content">
+            <div class="listings-container">
+                <div class="listings-header">
+                    <h1 class="listings-title">My Job Seeds</h1>
+                    <div class="button-group">
+                        <a href="create-job.html" class="create-listing-btn">
+                            <i class="fas fa-plus"></i> Create New Seed
+                        </a>
+                        <a href="manage-job-applications.html" class="manage-applications-btn">
+                            <i class="fas fa-users"></i> Manage Applications
+                        </a>
+                    </div>
+                </div>
+
+                <div class="job-cards" id="jobCardsContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading your job seeds...
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    
+
     <script>
         // Firebase configuration
         const firebaseConfig = {
@@ -338,15 +452,15 @@
         async function fetchEmployerJobSeeds(userId) {
             const jobCardsContainer = document.getElementById('jobCardsContainer');
             jobCardsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your job seeds...</div>';
-            
+
             try {
                 // Query jobSeeds collection where employerId matches current user
                 const q = db.collection('jobSeeds')
                     .where('employerId', '==', userId)
                     .orderBy('createdAt', 'desc');
-                
+
                 const querySnapshot = await q.get();
-                
+
                 if (querySnapshot.empty) {
                     jobCardsContainer.innerHTML = `
                         <div class="no-listings">
@@ -359,27 +473,27 @@
                     `;
                     return;
                 }
-                
+
                 // Get all job seeds with applicant counts
                 const jobs = [];
                 for (const docSnap of querySnapshot.docs) {
                     const jobData = docSnap.data();
                     const jobId = docSnap.id;
-                    
+
                     // Query applications for this job
                     const applicationsQuery = db.collection('applications')
                         .where('jobId', '==', jobId);
-                    
+
                     const applicationsSnapshot = await applicationsQuery.get();
                     const applicantCount = applicationsSnapshot.size;
-                    
+
                     jobs.push({
                         id: jobId,
                         ...jobData,
                         applicantCount
                     });
                 }
-                
+
                 displayEmployerJobs(jobs);
             } catch (error) {
                 console.error("Error fetching job seeds:", error);
@@ -392,28 +506,28 @@
                 `;
             }
         }
-        
+
         // Display employer's jobs in the UI
         function displayEmployerJobs(jobs) {
             const jobCardsContainer = document.getElementById('jobCardsContainer');
             let jobCardsHTML = '';
-            
+
             jobs.forEach((job) => {
                 // Format the date
                 let postedDate = 'Recently';
                 if (job.createdAt) {
                     const jobDate = job.createdAt.toDate ? job.createdAt.toDate() : new Date(job.createdAt);
                     const diffDays = Math.floor((new Date() - jobDate) / (1000 * 60 * 60 * 24));
-                    
+
                     if (diffDays === 0) postedDate = 'Today';
                     else if (diffDays === 1) postedDate = 'Yesterday';
                     else if (diffDays < 7) postedDate = `${diffDays} days ago`;
                     else postedDate = jobDate.toLocaleDateString();
                 }
-                
+
                 // Check if job is active or closed
                 const isActive = job.status === 'active';
-                
+
                 // Format skills
                 let skillsHTML = '';
                 if (job.skills && job.skills.length > 0) {
@@ -426,14 +540,14 @@
                     }
                     skillsHTML += '</div>';
                 }
-                
+
                 jobCardsHTML += `
                     <div class="job-card">
-                        ${job.applicantCount > 0 ? 
-                            `<div class="applicant-count" title="${job.applicantCount} applicant(s)">
+                        ${job.applicantCount > 0 ?
+                        `<div class="applicant-count" title="${job.applicantCount} applicant(s)">
                                 <i class="fas fa-users"></i> ${job.applicantCount}
                             </div>` : ''
-                        }
+                    }
                         <div class="job-title">${job.jobTitle}</div>
                         <div class="job-meta">
                             <div class="job-location">
@@ -455,41 +569,35 @@
                                 </span>
                             </div>
                             <div class="job-actions">
-                                <button class="action-btn edit-btn" onclick="editJobSeed('${job.id}')">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                ${job.applicantCount > 0 ? 
-                                    `<button class="action-btn applicants-btn" onclick="viewApplicants('${job.id}')">
+                                ${job.applicantCount > 0 ?
+                        `<button class="action-btn applicants-btn" onclick="viewApplicants('${job.id}')">
                                         <i class="fas fa-eye"></i> View Applicants
                                     </button>` : ''
-                                }
-                                <button class="action-btn view-btn" onclick="viewJobSeed('${job.id}')">
-                                    <i class="fas fa-search"></i> View
-                                </button>
+                    }
                             </div>
                         </div>
                     </div>
                 `;
             });
-            
+
             jobCardsContainer.innerHTML = jobCardsHTML;
         }
-        
+
         // Edit job seed
         function editJobSeed(jobId) {
             window.location.href = `edit-job.html?id=${jobId}`;
         }
-        
+
         // View job seed
         function viewJobSeed(jobId) {
             window.location.href = `job-details.html?id=${jobId}`;
         }
-        
+
         // View applicants
         function viewApplicants(jobId) {
             window.location.href = `manage-applications.html?jobId=${jobId}`;
         }
-        
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged((user) => {
@@ -502,7 +610,7 @@
                 }
             });
         });
-        
+
         // Make functions available globally
         window.editJobSeed = editJobSeed;
         window.viewJobSeed = viewJobSeed;
@@ -510,4 +618,5 @@
         window.fetchEmployerJobSeeds = fetchEmployerJobSeeds;
     </script>
 </body>
+
 </html>
