@@ -3,19 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Job Listing</title>
+    <title>Create Job Listing for Skilled Workers</title>
     <link rel="icon" type="image/png" href="../images/icon.png">
     <link rel="stylesheet" href="../css/createjob.css">
+    <style>
+        /* Additional styles for North Luzon focus */
+        .region-highlight {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2f4f72;
+        }
+        .region-highlight h3 {
+            color: #2f4f72;
+            margin-top: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Create Job Listing</h1>
+        <h1>Create Job Listing for Skilled Workers in North Luzon</h1>
+        
+        <!-- Region Focus Section -->
+        <div class="region-highlight">
+            <h3>North Luzon Focus</h3>
+            <p>This job listing will be targeted to skilled workers in the North Luzon region (Ilocos, Cagayan Valley, Cordillera, Central Luzon). Please ensure the job details are relevant to this region.</p>
+        </div>
         
         <!-- Job Basic Info Section -->
         <div class="form-section active" id="basic-info">
             <h2>Basic Job Information</h2>
             <label>Job Title</label>
-            <input type="text" id="jobTitle" placeholder="Enter job title">
+            <input type="text" id="jobTitle" placeholder="Enter job title (e.g., 'Skilled Carpenter - Ilocos Region')">
             
             <h2>Job Type</h2>
             <div class="job-type-container">
@@ -27,13 +47,13 @@
                     <img src="../images/18.png" alt="Part-time">
                     <span>Part-time</span>
                 </div>
-                <div class="job-type" onclick="selectJobType('Freelance')">
-                    <img src="../images/20.png" alt="Freelance">
-                    <span>Freelance</span>
+                <div class="job-type" onclick="selectJobType('Project-based')">
+                    <img src="../images/20.png" alt="Project-based">
+                    <span>Project-based</span>
                 </div>
-                <div class="job-type" onclick="selectJobType('Internship')">
-                    <img src="../images/19.png" alt="Internship">
-                    <span>Internship</span>
+                <div class="job-type" onclick="selectJobType('Seasonal')">
+                    <img src="../images/19.png" alt="Seasonal">
+                    <span>Seasonal</span>
                 </div>
             </div>
             <input type="hidden" id="jobType">
@@ -55,6 +75,41 @@
             </div>
             <input type="hidden" id="workArrangement">
 
+            <h2>Job Location (North Luzon Provinces)</h2>
+            <select id="jobLocation">
+                <option value="">Select Province</option>
+                <optgroup label="Ilocos Region">
+                    <option value="Ilocos Norte">Ilocos Norte</option>
+                    <option value="Ilocos Sur">Ilocos Sur</option>
+                    <option value="La Union">La Union</option>
+                    <option value="Pangasinan">Pangasinan</option>
+                </optgroup>
+                <optgroup label="Cagayan Valley">
+                    <option value="Batanes">Batanes</option>
+                    <option value="Cagayan">Cagayan</option>
+                    <option value="Isabela">Isabela</option>
+                    <option value="Nueva Vizcaya">Nueva Vizcaya</option>
+                    <option value="Quirino">Quirino</option>
+                </optgroup>
+                <optgroup label="Cordillera Administrative Region">
+                    <option value="Abra">Abra</option>
+                    <option value="Apayao">Apayao</option>
+                    <option value="Benguet">Benguet</option>
+                    <option value="Ifugao">Ifugao</option>
+                    <option value="Kalinga">Kalinga</option>
+                    <option value="Mountain Province">Mountain Province</option>
+                </optgroup>
+                <optgroup label="Central Luzon">
+                    <option value="Aurora">Aurora</option>
+                    <option value="Bataan">Bataan</option>
+                    <option value="Bulacan">Bulacan</option>
+                    <option value="Nueva Ecija">Nueva Ecija</option>
+                    <option value="Pampanga">Pampanga</option>
+                    <option value="Tarlac">Tarlac</option>
+                    <option value="Zambales">Zambales</option>
+                </optgroup>
+            </select>
+
             <h2>Application Deadline</h2>
             <input type="date" id="applicationDeadline" min="">
 
@@ -71,27 +126,35 @@
         <div class="form-section" id="job-details">
             <h2>Job Details</h2>
             
-            <label>Job Industry or Department</label>
+            <label>Job Industry or Sector</label>
             <select id="jobIndustry">
-                <option value="">Select Industry</option>
-                <option value="IT">Information Technology</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Education">Education</option>
-                <option value="Finance">Finance</option>
+                <option value="">Select Industry/Sector</option>
+                <option value="Construction">Construction</option>
+                <option value="Agriculture">Agriculture</option>
                 <option value="Manufacturing">Manufacturing</option>
-                <option value="Retail">Retail</option>
-                <option value="Hospitality">Hospitality</option>
+                <option value="Automotive">Automotive</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Food Processing">Food Processing</option>
+                <option value="Textile/Garment">Textile/Garment</option>
+                <option value="Furniture Making">Furniture Making</option>
+                <option value="Tourism/Hospitality">Tourism/Hospitality</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Education/Training">Education/Training</option>
+                <option value="IT/BPO">IT/BPO</option>
+                <option value="Transportation/Logistics">Transportation/Logistics</option>
+                <option value="Utilities/Energy">Utilities/Energy</option>
                 <option value="Other">Other</option>
             </select>
             
             <label>Job Description</label>
-            <textarea id="jobDescription" placeholder="Describe the job responsibilities and requirements"></textarea>
+            <textarea id="jobDescription" placeholder="Describe the job responsibilities and requirements. Mention any specific skills needed for North Luzon context."></textarea>
             
-            <label>Salary Range</label>
+            <label>Salary Range (PHP)</label>
             <div class="checkbox-group">
-                <label><input type="radio" name="salaryRange" value="Entry-Level: ₱12,000 – ₱20,000"> Entry-Level: ₱12,000 – ₱20,000</label>
-                <label><input type="radio" name="salaryRange" value="Mid-Level: ₱20,000 – ₱40,000"> Mid-Level: ₱20,000 – ₱40,000</label>
-                <label><input type="radio" name="salaryRange" value="Senior-Level: ₱40,000 – ₱70,000"> Senior-Level: ₱40,000 – ₱70,000</label>
+                <label><input type="radio" name="salaryRange" value="Entry-Level: ₱10,000 – ₱15,000"> Entry-Level: ₱10,000 – ₱15,000</label>
+                <label><input type="radio" name="salaryRange" value="Skilled Worker: ₱15,000 – ₱25,000"> Skilled Worker: ₱15,000 – ₱25,000</label>
+                <label><input type="radio" name="salaryRange" value="Highly Skilled: ₱25,000 – ₱40,000"> Highly Skilled: ₱25,000 – ₱40,000</label>
+                <label><input type="radio" name="salaryRange" value="Supervisory: ₱40,000 – ₱60,000"> Supervisory: ₱40,000 – ₱60,000</label>
                 <label><input type="radio" name="salaryRange" value="Custom"> Custom: <input type="text" id="customSalary" style="width: 60%;" disabled></label>
             </div>
             
@@ -101,21 +164,21 @@
                     <span>Education Level</span>
                     <img src="../images/education.png" alt="Education">
                 </div>
-                <div class="skill-box" onclick="showSkillInput('softSkills')">
-                    <span>Soft Skills</span>
-                    <img src="../images/softskills.png" alt="Soft Skills">
+                <div class="skill-box" onclick="showSkillInput('tradeSkills')">
+                    <span>Trade Skills</span>
+                    <img src="../images/technical.png" alt="Trade Skills">
                 </div>
                 <div class="skill-box" onclick="showSkillInput('experience')">
-                    <span>Work Experience Level</span>
+                    <span>Work Experience</span>
                     <img src="../images/wel.png" alt="Work Experience">
                 </div>
-                <div class="skill-box" onclick="showSkillInput('technical')">
-                    <span>Technical Skills</span>
-                    <img src="../images/technical.png" alt="Technical Skills">
-                </div>
                 <div class="skill-box" onclick="showSkillInput('certifications')">
-                    <span>Certification & Licenses</span>
+                    <span>Certifications</span>
                     <img src="../images/cl.png" alt="Certification">
+                </div>
+                <div class="skill-box" onclick="showSkillInput('language')">
+                    <span>Language Skills</span>
+                    <img src="../images/softskills.png" alt="Language Skills">
                 </div>
             </div>
             
@@ -125,6 +188,16 @@
             </div>
             
             <div id="skillsList"></div>
+
+            <h2>Accommodation & Benefits</h2>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="benefits" value="Housing Provided"> Housing Provided</label>
+                <label><input type="checkbox" name="benefits" value="Transportation Allowance"> Transportation Allowance</label>
+                <label><input type="checkbox" name="benefits" value="Meals Provided"> Meals Provided</label>
+                <label><input type="checkbox" name="benefits" value="SSS/PhilHealth/Pag-IBIG"> SSS/PhilHealth/Pag-IBIG</label>
+                <label><input type="checkbox" name="benefits" value="Overtime Pay"> Overtime Pay</label>
+                <label><input type="checkbox" name="benefits" value="Other"> Other: <input type="text" id="otherBenefits" style="width: 60%;"></label>
+            </div>
             
             <div class="buttons">
                 <button onclick="prevSection('job-details', 'basic-info')">Previous</button>
@@ -137,22 +210,25 @@
             <h2>How to Apply</h2>
             
             <label>Application Instructions</label>
-            <textarea id="applicationInstructions" placeholder="Provide instructions for applicants"></textarea>
+            <textarea id="applicationInstructions" placeholder="Provide instructions for applicants. Include any regional-specific instructions."></textarea>
             
             <label>Submission Method</label>
             <div class="checkbox-group">
                 <label><input type="radio" name="submissionMethod" value="Upload Documents"> Upload Documents</label>
                 <label><input type="radio" name="submissionMethod" value="Email Application"> Email Application</label>
-                <label><input type="radio" name="submissionMethod" value="Online Form Link"> Online Form Link</label>
+                <label><input type="radio" name="submissionMethod" value="Text/Call for Interview"> Text/Call for Interview</label>
                 <label><input type="radio" name="submissionMethod" value="In-Person Application"> In-Person Application</label>
+                <label><input type="radio" name="submissionMethod" value="Barangay Hall Submission"> Barangay Hall Submission</label>
             </div>
             
             <label>Required Documents</label>
             <div class="checkbox-group">
-                <label><input type="checkbox" name="requiredDocs" value="Resume or Curriculum Vitae (CV)"> Resume or Curriculum Vitae (CV)</label>
-                <label><input type="checkbox" name="requiredDocs" value="Cover Letter"> Cover Letter</label>
-                <label><input type="checkbox" name="requiredDocs" value="Portfolio"> Portfolio</label>
-                <label><input type="checkbox" name="requiredDocs" value="Certifications/Licenses"> Certifications/Licenses</label>
+                <label><input type="checkbox" name="requiredDocs" value="Resume/Biodata"> Resume/Biodata</label>
+                <label><input type="checkbox" name="requiredDocs" value="NC/COC Certification"> NC/COC Certification</label>
+                <label><input type="checkbox" name="requiredDocs" value="Police Clearance"> Police Clearance</label>
+                <label><input type="checkbox" name="requiredDocs" value="NBI Clearance"> NBI Clearance</label>
+                <label><input type="checkbox" name="requiredDocs" value="Barangay Clearance"> Barangay Clearance</label>
+                <label><input type="checkbox" name="requiredDocs" value="Medical Certificate"> Medical Certificate</label>
                 <label><input type="checkbox" name="requiredDocs" value="Other"> Other: <input type="text" id="otherDocs" style="width: 60%;"></label>
             </div>
             
@@ -264,10 +340,11 @@
                     const jobTitle = document.getElementById('jobTitle').value;
                     const jobType = document.getElementById('jobType').value;
                     const workArrangement = document.getElementById('workArrangement').value;
+                    const jobLocation = document.getElementById('jobLocation').value;
                     const deadline = document.getElementById('applicationDeadline').value;
                     const jobSlots = document.getElementById('jobSlots').value;
                     
-                    if (!jobTitle || !jobType || !workArrangement || !deadline || !jobSlots) {
+                    if (!jobTitle || !jobType || !workArrangement || !jobLocation || !deadline || !jobSlots) {
                         alert('Please fill all required fields in Basic Job Information');
                         return false;
                     }
@@ -313,6 +390,9 @@
         document.querySelectorAll('input[name="salaryRange"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 document.getElementById('customSalary').disabled = this.value !== 'Custom';
+                if (this.value === 'Custom') {
+                    document.getElementById('customSalary').focus();
+                }
             });
         });
         
@@ -393,6 +473,7 @@
                     jobTitle: document.getElementById('jobTitle').value,
                     jobType: document.getElementById('jobType').value,
                     workArrangement: document.getElementById('workArrangement').value,
+                    jobLocation: document.getElementById('jobLocation').value,
                     deadline: document.getElementById('applicationDeadline').value,
                     jobSlots: document.getElementById('jobSlots').value
                 },
@@ -400,7 +481,9 @@
                     jobIndustry: document.getElementById('jobIndustry').value,
                     jobDescription: document.getElementById('jobDescription').value,
                     salaryRange: document.querySelector('input[name="salaryRange"]:checked').value,
-                    skills: jobData.skills || {}
+                    skills: jobData.skills || {},
+                    benefits: Array.from(document.querySelectorAll('input[name="benefits"]:checked')).map(cb => cb.value),
+                    otherBenefits: document.getElementById('otherBenefits').value
                 },
                 howToApply: {
                     applicationInstructions: document.getElementById('applicationInstructions').value,
@@ -408,7 +491,8 @@
                     requiredDocuments: Array.from(document.querySelectorAll('input[name="requiredDocs"]:checked')).map(cb => cb.value),
                     otherDocuments: document.getElementById('otherDocs').value
                 },
-                files: uploadedFiles.map(file => file.name)
+                files: uploadedFiles.map(file => file.name),
+                region: "North Luzon"
             };
             
             // Display the review
@@ -417,11 +501,12 @@
                 <p><strong>Job Title:</strong> ${jobData.basicInfo.jobTitle}</p>
                 <p><strong>Job Type:</strong> ${jobData.basicInfo.jobType}</p>
                 <p><strong>Work Arrangement:</strong> ${jobData.basicInfo.workArrangement}</p>
+                <p><strong>Job Location:</strong> ${jobData.basicInfo.jobLocation} (North Luzon)</p>
                 <p><strong>Application Deadline:</strong> ${new Date(jobData.basicInfo.deadline).toLocaleDateString()}</p>
                 <p><strong>Number of Positions:</strong> ${jobData.basicInfo.jobSlots}</p>
                 
                 <h3>Job Details</h3>
-                <p><strong>Industry:</strong> ${jobData.jobDetails.jobIndustry}</p>
+                <p><strong>Industry/Sector:</strong> ${jobData.jobDetails.jobIndustry}</p>
                 <p><strong>Description:</strong> ${jobData.jobDetails.jobDescription}</p>
                 <p><strong>Salary Range:</strong> ${jobData.jobDetails.salaryRange}</p>
                 
@@ -433,6 +518,9 @@
             }
             
             reviewHTML += `
+                <h3>Benefits</h3>
+                <p>${jobData.jobDetails.benefits.join(', ')}${jobData.jobDetails.otherBenefits ? ', ' + jobData.jobDetails.otherBenefits : ''}</p>
+                
                 <h3>How to Apply</h3>
                 <p><strong>Instructions:</strong> ${jobData.howToApply.applicationInstructions}</p>
                 <p><strong>Submission Method:</strong> ${jobData.howToApply.submissionMethod}</p>
@@ -453,9 +541,9 @@
             try {
                 // Get current user
                 const user = auth.currentUser;
-                // if (!user) {
-                //     throw new Error('User not authenticated');
-                // }
+                if (!user) {
+                    throw new Error('User not authenticated');
+                }
 
                 // Prepare job data without files first
                 const jobListingData = {
@@ -467,17 +555,22 @@
                     jobType: jobData.basicInfo.jobType,
                     jobSlots: parseInt(jobData.basicInfo.jobSlots),
                     workArrangement: jobData.basicInfo.workArrangement,
+                    jobLocation: jobData.basicInfo.jobLocation,
                     jobIndustry: jobData.jobDetails.jobIndustry,
                     jobDescription: jobData.jobDetails.jobDescription,
                     salaryRange: jobData.jobDetails.salaryRange,
                     skills: jobData.jobDetails.skills,
+                    benefits: jobData.jobDetails.benefits,
+                    otherBenefits: jobData.jobDetails.otherBenefits,
                     howToApply: {
                         applicationInstructions: jobData.howToApply.applicationInstructions,
                         submissionMethod: jobData.howToApply.submissionMethod,
                         requiredDocuments: jobData.howToApply.requiredDocuments,
                         otherDocuments: jobData.howToApply.otherDocuments,
                         fileUrls: [] // Initialize empty array - will be populated below
-                    }
+                    },
+                    region: jobData.region,
+                    targetGroup: "Skilled Workers"
                 };
 
                 // Create the job listing document first to get the ID
@@ -529,14 +622,16 @@
                 await setDoc(doc(db, 'employers', user.uid, 'jobListings', jobId), {
                     jobId: jobId,
                     title: jobData.basicInfo.jobTitle,
+                    location: jobData.basicInfo.jobLocation,
                     createdAt: new Date(),
                     status: 'active',
-                    fileCount: fileUrls.length
+                    fileCount: fileUrls.length,
+                    region: jobData.region
                 });
 
                 console.log("Job listing created successfully!");
                 alert('Job listing created successfully!');
-                window.location.href = 'homep.html';
+                window.location.href = 'employer-dashboard.html';
                 
             } catch (error) {
                 console.error('Error submitting job listing:', error);
@@ -545,19 +640,6 @@
                 document.getElementById('loading').style.display = 'none';
             }
         }
-
-        // Initialize the page
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     // Check if user is logged in
-        //     onAuthStateChanged(auth, (user) => {
-        //         if (!user) {
-        //             window.location.href = 'Loginpage.html';
-        //         } else {
-        //             // Fetch disability types when the page loads
-        //             fetchDisabilityTypes();
-        //         }
-        //     });
-        // });
     </script>
 </body>
 </html>

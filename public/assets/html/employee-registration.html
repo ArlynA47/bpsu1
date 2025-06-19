@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Registration</title>
+    <title>Skilled Worker Registration - North Luzon</title>
     <link rel="stylesheet" href="../css/employeeregistration.css">
+    <style>
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Employee Registration</h1>
+        <h1>Skilled Worker Registration - North Luzon</h1>
         
         <form id="employeeRegistrationForm">
             <!-- Personal Information Section -->
@@ -24,7 +39,26 @@
                 <label for="phone" class="required">Phone Number</label>
                 <input type="tel" id="phone" name="phone" required>
                 
-                <label for="address" class="required">Home Address</label>
+                <label for="currentProvince" class="required">Current Province</label>
+                <select id="currentProvince" name="currentProvince" required>
+                    <option value="">Select Province</option>
+                    <option value="Abra">Abra</option>
+                    <option value="Apayao">Apayao</option>
+                    <option value="Benguet">Benguet</option>
+                    <option value="Cagayan">Cagayan</option>
+                    <option value="Ifugao">Ifugao</option>
+                    <option value="Ilocos Norte">Ilocos Norte</option>
+                    <option value="Ilocos Sur">Ilocos Sur</option>
+                    <option value="Isabela">Isabela</option>
+                    <option value="Kalinga">Kalinga</option>
+                    <option value="La Union">La Union</option>
+                    <option value="Mountain Province">Mountain Province</option>
+                    <option value="Nueva Vizcaya">Nueva Vizcaya</option>
+                    <option value="Pangasinan">Pangasinan</option>
+                    <option value="Quirino">Quirino</option>
+                </select>
+                
+                <label for="address" class="required">Complete Address</label>
                 <textarea id="address" name="address" rows="3" required></textarea>
                 
                 <label for="dob" class="required">Date of Birth</label>
@@ -58,7 +92,29 @@
                 <h2>Job Matching Information</h2>
                 
                 <label for="jobTitle" class="required">Desired Job Title/Role</label>
-                <input type="text" id="jobTitle" name="jobTitle" required>
+                <select id="jobTitle" name="jobTitle" required>
+                    <option value="">Select Job Title</option>
+                    <option value="Electrician">Electrician</option>
+                    <option value="Plumber">Plumber</option>
+                    <option value="Carpenter">Carpenter</option>
+                    <option value="Welder">Welder</option>
+                    <option value="Mason">Mason</option>
+                    <option value="Mechanic">Mechanic</option>
+                    <option value="HVAC Technician">HVAC Technician</option>
+                    <option value="Auto Technician">Auto Technician</option>
+                    <option value="Heavy Equipment Operator">Heavy Equipment Operator</option>
+                    <option value="Construction Foreman">Construction Foreman</option>
+                    <option value="Painter">Painter</option>
+                    <option value="Roofer">Roofer</option>
+                    <option value="Pipefitter">Pipefitter</option>
+                    <option value="Steel Worker">Steel Worker</option>
+                    <option value="Equipment Maintenance Technician">Equipment Maintenance Technician</option>
+                    <option value="Agricultural Technician">Agricultural Technician</option>
+                    <option value="Food Processing Technician">Food Processing Technician</option>
+                    <option value="Textile Worker">Textile Worker</option>
+                    <option value="Furniture Maker">Furniture Maker</option>
+                    <option value="Other Skilled Trade">Other Skilled Trade</option>
+                </select>
                 
                 <label for="jobType" class="required">Preferred Job Type</label>
                 <select id="jobType" name="jobType" required>
@@ -108,10 +164,25 @@
                 <label for="certifications">Certifications (if any)</label>
                 <textarea id="certifications" name="certifications" rows="2" placeholder="List any relevant certifications"></textarea>
                 
-                <label for="languages">Languages Spoken</label>
-                <input type="text" id="languages" name="languages" placeholder="e.g., English, Tagalog">
+                <label>Preferred Work Locations in North Luzon</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="preferredLocations" value="Abra"> Abra</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Apayao"> Apayao</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Benguet"> Benguet</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Cagayan"> Cagayan</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Ifugao"> Ifugao</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Ilocos Norte"> Ilocos Norte</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Ilocos Sur"> Ilocos Sur</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Isabela"> Isabela</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Kalinga"> Kalinga</label>
+                    <label><input type="checkbox" name="preferredLocations" value="La Union"> La Union</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Mountain Province"> Mountain Province</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Nueva Vizcaya"> Nueva Vizcaya</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Pangasinan"> Pangasinan</label>
+                    <label><input type="checkbox" name="preferredLocations" value="Quirino"> Quirino</label>
+                </div>
                 
-                <label for="willingToRelocate">Are you willing to relocate?</label>
+                <label for="willingToRelocate">Are you willing to relocate within North Luzon?</label>
                 <div class="radio-group">
                     <label><input type="radio" name="willingToRelocate" value="Yes"> Yes</label>
                     <label><input type="radio" name="willingToRelocate" value="No"> No</label>
@@ -121,8 +192,6 @@
             <button type="submit">Complete Registration</button>
         </form>
     </div>
-
-    
 
 <script type="module">
     // Import Firebase services
@@ -172,88 +241,97 @@
         submitBtn.textContent = 'Creating account...';
         
         try {
-        // Get form values
-        const fullName = document.getElementById('fullName').value;
-        const accountEmail = document.getElementById('accountEmail').value;
-        const password = document.getElementById('password').value;
-        
-        // Create user account
-        const userCredential = await createUserWithEmailAndPassword(auth, accountEmail, password);
-        const user = userCredential.user;
-        
-        // Update user profile with display name
-        await updateProfile(user, { displayName: fullName });
-        
-        // Send email verification FROM CAREERSTEP
-        await sendEmailVerification(user, {
-            url: 'https://careerstep-bpsu1.firebaseapp.com/verify-redirect',
-            handleCodeInApp: true
-        });
-        
-        // Prepare user data for Firestore
-        const userData = {
-            metadata: {
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-            accountType: 'employee'
-            },
-            personalInfo: {
-            fullName,
-            contactEmail: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            address: document.getElementById('address').value,
-            dob: document.getElementById('dob').value,
-            gender: document.querySelector('input[name="gender"]:checked')?.value || 'Not specified'
-            },
-            jobPreferences: {
-            jobTitle: document.getElementById('jobTitle').value,
-            jobType: document.getElementById('jobType').value,
-            workArrangement: document.getElementById('workArrangement').value,
-            salaryExpectation: document.getElementById('salaryExpectation').value,
-            experienceLevel: document.getElementById('experienceLevel').value,
-            educationLevel: document.getElementById('educationLevel').value,
-            skills: document.getElementById('skills').value.split(','),
-            certifications: document.getElementById('certifications').value || 'None',
-            languages: document.getElementById('languages').value || 'Not specified',
-            willingToRelocate: document.querySelector('input[name="willingToRelocate"]:checked')?.value || 'No'
-            },
-            accountStatus: {
-            emailVerified: false,
-            profileComplete: true,
-            jobAlertsEnabled: true
-            }
-        };
-        
-        // Save to Firestore under CareerStep collection
-        await setDoc(doc(db, 'careerstepEmployees', user.uid), userData);
-        
-        // Create public profile for matching
-        const publicProfile = {
-            userId: user.uid,
-            displayName: fullName,
-            ...userData.jobPreferences,
-            lastUpdated: new Date()
-        };
-        await setDoc(doc(db, 'careerstepPublicProfiles', user.uid), publicProfile);
-        
-        // Success - redirect to verification page
-        window.location.href = `verify-email.html?email=${encodeURIComponent(accountEmail)}`;
-        
+            // Get form values
+            const fullName = document.getElementById('fullName').value;
+            const accountEmail = document.getElementById('accountEmail').value;
+            const password = document.getElementById('password').value;
+            
+            // Get preferred locations
+            const preferredLocations = [];
+            document.querySelectorAll('input[name="preferredLocations"]:checked').forEach(checkbox => {
+                preferredLocations.push(checkbox.value);
+            });
+            
+            // Create user account
+            const userCredential = await createUserWithEmailAndPassword(auth, accountEmail, password);
+            const user = userCredential.user;
+            
+            // Update user profile with display name
+            await updateProfile(user, { displayName: fullName });
+            
+            // Send email verification FROM CAREERSTEP
+            await sendEmailVerification(user, {
+                url: 'https://careerstep-bpsu1.firebaseapp.com/verify-redirect',
+                handleCodeInApp: true
+            });
+            
+            // Prepare user data for Firestore
+            const userData = {
+                metadata: {
+                    createdAt: new Date(),
+                    lastUpdated: new Date(),
+                    accountType: 'employee',
+                    region: 'North Luzon'
+                },
+                personalInfo: {
+                    fullName,
+                    contactEmail: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    currentProvince: document.getElementById('currentProvince').value,
+                    address: document.getElementById('address').value,
+                    dob: document.getElementById('dob').value,
+                    gender: document.querySelector('input[name="gender"]:checked')?.value || 'Not specified'
+                },
+                jobPreferences: {
+                    jobTitle: document.getElementById('jobTitle').value,
+                    jobType: document.getElementById('jobType').value,
+                    workArrangement: document.getElementById('workArrangement').value,
+                    salaryExpectation: document.getElementById('salaryExpectation').value,
+                    experienceLevel: document.getElementById('experienceLevel').value,
+                    educationLevel: document.getElementById('educationLevel').value,
+                    skills: document.getElementById('skills').value.split(','),
+                    certifications: document.getElementById('certifications').value || 'None',
+                    preferredLocations: preferredLocations,
+                    willingToRelocate: document.querySelector('input[name="willingToRelocate"]:checked')?.value || 'No'
+                },
+                accountStatus: {
+                    emailVerified: false,
+                    profileComplete: true,
+                    jobAlertsEnabled: true
+                }
+            };
+            
+            // Save to Firestore under CareerStep collection
+            await setDoc(doc(db, 'careerstepEmployees', user.uid), userData);
+            
+            // Create public profile for matching
+            const publicProfile = {
+                userId: user.uid,
+                displayName: fullName,
+                ...userData.jobPreferences,
+                currentProvince: userData.personalInfo.currentProvince,
+                lastUpdated: new Date()
+            };
+            await setDoc(doc(db, 'careerstepPublicProfiles', user.uid), publicProfile);
+            
+            // Success - redirect to verification page
+            window.location.href = `verify-email.html?email=${encodeURIComponent(accountEmail)}`;
+            
         } catch (error) {
-        console.error('CareerStep Registration Error:', error);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Complete Registration';
-        
-        // Enhanced error handling
-        const errorMap = {
-            'auth/email-already-in-use': 'This email is already registered with CareerStep',
-            'auth/invalid-email': 'Please enter a valid CareerStep email address',
-            'auth/weak-password': 'Password must be at least 6 characters',
-            'auth/operation-not-allowed': 'Account creation is currently restricted',
-            'auth/network-request-failed': 'Network error. Please check your connection'
-        };
-        
-        alert(errorMap[error.code] || 'CareerStep registration failed. Please try again.');
+            console.error('CareerStep Registration Error:', error);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Registration';
+            
+            // Enhanced error handling
+            const errorMap = {
+                'auth/email-already-in-use': 'This email is already registered with CareerStep',
+                'auth/invalid-email': 'Please enter a valid CareerStep email address',
+                'auth/weak-password': 'Password must be at least 6 characters',
+                'auth/operation-not-allowed': 'Account creation is currently restricted',
+                'auth/network-request-failed': 'Network error. Please check your connection'
+            };
+            
+            alert(errorMap[error.code] || 'CareerStep registration failed. Please try again.');
         }
     });
 
@@ -264,9 +342,9 @@
         const skillInput = document.getElementById('skillInput');
         const skill = skillInput.value.trim();
         if (skill && !skillsList.includes(skill)) {
-        skillsList.push(skill);
-        updateSkillsDisplay();
-        skillInput.value = '';
+            skillsList.push(skill);
+            updateSkillsDisplay();
+            skillInput.value = '';
         }
     }
     
@@ -281,13 +359,13 @@
         
         skillsContainer.innerHTML = '';
         skillsList.forEach((skill, index) => {
-        const skillTag = document.createElement('div');
-        skillTag.className = 'skill-tag';
-        skillTag.innerHTML = `
-            ${skill}
-            <button type="button" onclick="removeSkill(${index})">×</button>
-        `;
-        skillsContainer.appendChild(skillTag);
+            const skillTag = document.createElement('div');
+            skillTag.className = 'skill-tag';
+            skillTag.innerHTML = `
+                ${skill}
+                <button type="button" onclick="removeSkill(${index})">×</button>
+            `;
+            skillsContainer.appendChild(skillTag);
         });
         skillsHiddenInput.value = skillsList.join(',');
     }
@@ -298,14 +376,14 @@
         const dobInput = document.getElementById('dob');
         const today = new Date();
         dobInput.max = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate())
-        .toISOString().split('T')[0];
+            .toISOString().split('T')[0];
         
         // Skill input handler
         document.getElementById('skillInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addSkill();
-        }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSkill();
+            }
         });
         
         // Make functions global

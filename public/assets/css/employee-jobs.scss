@@ -1,0 +1,326 @@
+// Variables
+$primary: #2f4f72;
+$secondary: #6c757d;
+$success: #28a745;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #343a40;
+
+// Mixins
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+// Base Styles
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+    padding-bottom: 60px; // Space for bottom nav
+}
+
+// Loading Screen
+.loading-screen {
+    @include flex-center;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 9999;
+
+    p {
+        margin-top: 20px;
+        color: $primary;
+    }
+}
+
+// Job Cards
+.job-cards-container {
+    padding: 15px;
+    min-height: calc(100vh - 120px);
+}
+
+.job-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    margin-bottom: 15px;
+
+    &.swipe-left {
+        transform: translateX(-100%) rotate(-15deg);
+        opacity: 0;
+    }
+
+    &.swipe-right {
+        transform: translateX(100%) rotate(15deg);
+        opacity: 0;
+    }
+}
+
+.job-card-header {
+    padding: 15px;
+    background-color: $primary;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+    }
+}
+
+.job-card-body {
+    padding: 15px;
+
+    .job-detail {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+
+        i {
+            margin-right: 10px;
+            color: $primary;
+            width: 20px;
+            text-align: center;
+        }
+    }
+
+    .job-description {
+        margin: 15px 0;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+
+        h4 {
+            font-size: 1rem;
+            color: $primary;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+    }
+
+    .job-skills {
+        margin: 15px 0;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+
+        h4 {
+            font-size: 1rem;
+            color: $primary;
+            margin-bottom: 10px;
+        }
+
+        .skill-category {
+            margin-bottom: 10px;
+
+            h5 {
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+            }
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .skill-tag {
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+    }
+
+    .job-benefits {
+        margin: 15px 0;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+
+        h4 {
+            font-size: 1rem;
+            color: $primary;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+    }
+}
+
+.job-card-footer {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    font-size: 0.8rem;
+    color: $secondary;
+}
+
+// Action Buttons
+.action-buttons {
+    z-index: 1000;
+
+    .btn {
+        width: 60px;
+        height: 60px;
+        @include flex-center;
+    }
+}
+
+// Bottom Navigation
+.bottom-nav {
+    z-index: 1000;
+
+    .btn-nav {
+        @include flex-center;
+        flex-direction: column;
+        color: $secondary;
+        font-size: 0.8rem;
+        padding: 8px 0;
+        border: none;
+        background: none;
+
+        i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        &.active {
+            color: $primary;
+        }
+    }
+}
+
+// Filter Panel
+.filter-panel {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+// Interested Jobs Panel
+.interested-panel {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    z-index: 900;
+    overflow-y: auto;
+}
+
+.interested-job-card {
+    .card {
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        color: $secondary;
+        margin-bottom: 5px;
+
+        i {
+            margin-right: 5px;
+            width: 15px;
+            text-align: center;
+        }
+    }
+
+    .remove-job-btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .apply-now-btn {
+        font-size: 0.9rem;
+    }
+}
+
+// Empty State
+.empty-state {
+    color: $secondary;
+
+    i {
+        opacity: 0.5;
+    }
+
+    h4 {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+}
+
+// Toast Message
+.toast-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    z-index: 9999;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+// Responsive Adjustments
+@media (min-width: 768px) {
+    .job-cards-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .action-buttons {
+        position: relative;
+        background: none;
+        box-shadow: none;
+        padding-bottom: 20px;
+    }
+
+    .bottom-nav {
+        display: none;
+    }
+}

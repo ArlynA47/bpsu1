@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Find Skilled Jobs in North Luzon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/employee-jobs.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Finding jobs that match your skills...</p>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="container-fluid px-0 d-none">
+        <!-- Header -->
+        <header class="sticky-top bg-primary text-white py-3 shadow">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h5 mb-0">SkilledJobs North Luzon</h1>
+                    <div class="d-flex">
+                        <button id="filterBtn" class="btn btn-sm btn-light me-2">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                        <button id="profileBtn" class="btn btn-sm btn-light">
+                            <i class="fas fa-user"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filter Panel (Hidden by default) -->
+        <div id="filterPanel" class="filter-panel bg-light p-3 shadow d-none">
+            <div class="mb-3">
+                <label for="locationFilter" class="form-label">Location</label>
+                <select id="locationFilter" class="form-select">
+                    <option value="">All Locations</option>
+                    <optgroup label="Ilocos Region">
+                        <option value="Ilocos Norte">Ilocos Norte</option>
+                        <option value="Ilocos Sur">Ilocos Sur</option>
+                        <option value="La Union">La Union</option>
+                        <option value="Pangasinan">Pangasinan</option>
+                    </optgroup>
+                    <optgroup label="Cagayan Valley">
+                        <option value="Batanes">Batanes</option>
+                        <option value="Cagayan">Cagayan</option>
+                        <option value="Isabela">Isabela</option>
+                        <option value="Nueva Vizcaya">Nueva Vizcaya</option>
+                        <option value="Quirino">Quirino</option>
+                    </optgroup>
+                    <optgroup label="Cordillera Administrative Region">
+                        <option value="Abra">Abra</option>
+                        <option value="Apayao">Apayao</option>
+                        <option value="Benguet">Benguet</option>
+                        <option value="Ifugao">Ifugao</option>
+                        <option value="Kalinga">Kalinga</option>
+                        <option value="Mountain Province">Mountain Province</option>
+                    </optgroup>
+                    <optgroup label="Central Luzon">
+                        <option value="Aurora">Aurora</option>
+                        <option value="Bataan">Bataan</option>
+                        <option value="Bulacan">Bulacan</option>
+                        <option value="Nueva Ecija">Nueva Ecija</option>
+                        <option value="Pampanga">Pampanga</option>
+                        <option value="Tarlac">Tarlac</option>
+                        <option value="Zambales">Zambales</option>
+                    </optgroup>
+                </select>
+            </div>
+            <button id="applyFilterBtn" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+
+        <!-- Job Cards Container -->
+        <div id="jobCardsContainer" class="job-cards-container">
+            <!-- Job cards will be dynamically inserted here -->
+            <div class="no-jobs text-center py-5" id="noJobsMessage">
+                <i class="fas fa-briefcase fa-3x mb-3 text-muted"></i>
+                <h4>No jobs available</h4>
+                <p>Try adjusting your filters or check back later</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons fixed-bottom bg-white py-3 shadow">
+            <div class="container">
+                <div class="d-flex justify-content-center">
+                    <button id="rejectBtn" class="btn btn-danger btn-lg rounded-circle mx-2">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button id="interestedBtn" class="btn btn-success btn-lg rounded-circle mx-2">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav fixed-bottom bg-white d-lg-none shadow">
+            <div class="container">
+                <div class="d-flex justify-content-around py-2">
+                    <button class="btn btn-nav active" id="jobsNavBtn">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Jobs</span>
+                    </button>
+                    <button class="btn btn-nav" id="interestedNavBtn">
+                        <i class="fas fa-heart"></i>
+                        <span>Interested</span>
+                    </button>
+                    <button class="btn btn-nav" id="profileNavBtn">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Interested Jobs Panel (Hidden by default) -->
+        <div id="interestedPanel" class="interested-panel bg-white p-3 d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Jobs You Liked</h2>
+                <button class="btn btn-sm btn-outline-secondary" id="backToJobsBtn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+            
+            <div id="interestedJobsList" class="interested-jobs-list">
+                <!-- Interested jobs will be listed here -->
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-heart fa-3x mb-3 text-muted"></i>
+                    <h4>No jobs liked yet</h4>
+                    <p>Swipe right on jobs you're interested in</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+        let userProfile = null;
+        let availableJobs = [];
+        let currentJobIndex = 0;
+        let interestedJobs = [];
+        let currentFilters = {
+            location: ''
+        };
+
+        // DOM Elements
+        const loadingScreen = document.getElementById('loadingScreen');
+        const appContainer = document.getElementById('appContainer');
+        const jobCardsContainer = document.getElementById('jobCardsContainer');
+        const noJobsMessage = document.getElementById('noJobsMessage');
+        const filterPanel = document.getElementById('filterPanel');
+        const filterBtn = document.getElementById('filterBtn');
+        const locationFilter = document.getElementById('locationFilter');
+        const applyFilterBtn = document.getElementById('applyFilterBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+        const interestedBtn = document.getElementById('interestedBtn');
+        const interestedPanel = document.getElementById('interestedPanel');
+        const interestedJobsList = document.getElementById('interestedJobsList');
+        const jobsNavBtn = document.getElementById('jobsNavBtn');
+        const interestedNavBtn = document.getElementById('interestedNavBtn');
+        const profileNavBtn = document.getElementById('profileNavBtn');
+        const backToJobsBtn = document.getElementById('backToJobsBtn');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check auth state
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadUserProfile();
+                    await loadInterestedJobs();
+                    await loadJobs();
+                    showApp();
+                } else {
+                    // Redirect to login if not authenticated
+                    //window.location.href = 'employee-login.html';
+                }
+            });
+
+            // Event listeners
+            filterBtn.addEventListener('click', toggleFilterPanel);
+            applyFilterBtn.addEventListener('click', applyFilters);
+            rejectBtn.addEventListener('click', rejectCurrentJob);
+            interestedBtn.addEventListener('click', interestedInCurrentJob);
+            jobsNavBtn.addEventListener('click', showJobsPanel);
+            interestedNavBtn.addEventListener('click', showInterestedPanel);
+            profileNavBtn.addEventListener('click', showProfile);
+            backToJobsBtn.addEventListener('click', showJobsPanel);
+
+            // Touch events for swipe gestures
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            jobCardsContainer.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+
+            jobCardsContainer.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+        });
+
+        // Load user profile from Firestore
+        async function loadUserProfile() {
+            try {
+                const userDoc = await getDoc(doc(db, 'careerstepEmployees', currentUser.uid));
+                if (userDoc.exists()) {
+                    userProfile = userDoc.data();
+                } else {
+                    console.error('User profile not found');
+                    // Redirect to complete profile
+                    window.location.href = 'employee-registration.html';
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Load jobs that match the user's profile
+        async function loadJobs() {
+            try {
+                loadingScreen.classList.remove('d-none');
+                jobCardsContainer.innerHTML = '';
+                noJobsMessage.classList.add('d-none');
+
+                // Base query for active jobs in North Luzon
+                let jobsQuery = query(
+                    collection(db, 'jobListings'),
+                    where('status', '==', 'active'),
+                    where('region', '==', 'North Luzon')
+                );
+
+                // Apply location filter if set
+                if (currentFilters.location) {
+                    jobsQuery = query(jobsQuery, where('jobLocation', '==', currentFilters.location));
+                }
+
+                const querySnapshot = await getDocs(jobsQuery);
+                availableJobs = [];
+
+                querySnapshot.forEach((doc) => {
+                    const jobData = doc.data();
+                    // Basic matching based on user profile
+                    if (isJobRelevant(jobData)) {
+                        availableJobs.push({
+                            id: doc.id,
+                            ...jobData
+                        });
+                    }
+                });
+
+                // Sort by relevance (simple implementation)
+                availableJobs.sort((a, b) => {
+                    // Higher salary first
+                    return parseSalary(b.salaryRange) - parseSalary(a.salaryRange);
+                });
+
+                if (availableJobs.length > 0) {
+                    displayCurrentJob();
+                } else {
+                    noJobsMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                noJobsMessage.classList.remove('d-none');
+            } finally {
+                loadingScreen.classList.add('d-none');
+                appContainer.classList.remove('d-none');
+            }
+        }
+
+        // Simple job relevance check based on user profile
+        function isJobRelevant(job) {
+            // Check if user already interacted with this job
+            if (interestedJobs.some(j => j.id === job.id)) {
+                return false;
+            }
+
+            // Check location preference
+            if (userProfile.jobPreferences.preferredLocations && 
+                userProfile.jobPreferences.preferredLocations.length > 0 &&
+                !userProfile.jobPreferences.preferredLocations.includes(job.jobLocation)) {
+                if (userProfile.jobPreferences.willingToRelocate !== 'Yes') {
+                    return false;
+                }
+            }
+
+            // Check job type preference
+            if (userProfile.jobPreferences.jobType && 
+                userProfile.jobPreferences.jobType !== job.jobType) {
+                return false;
+            }
+
+            // Check work arrangement
+            if (userProfile.jobPreferences.workArrangement && 
+                userProfile.jobPreferences.workArrangement !== job.workArrangement) {
+                return false;
+            }
+
+            // Check salary expectations (simple check)
+            const expectedSalary = parseSalary(userProfile.jobPreferences.salaryExpectation);
+            const jobSalary = parseSalary(job.salaryRange);
+            if (expectedSalary > 0 && jobSalary > 0 && jobSalary < expectedSalary * 0.8) {
+                return false;
+            }
+
+            // Check skills match (simple implementation)
+            if (job.skills && userProfile.jobPreferences.skills) {
+                const requiredSkills = Object.values(job.skills).flat();
+                const userSkills = userProfile.jobPreferences.skills;
+                
+                const matchedSkills = requiredSkills.filter(skill => 
+                    userSkills.some(userSkill => 
+                        userSkill.toLowerCase().includes(skill.toLowerCase()) || 
+                        skill.toLowerCase().includes(userSkill.toLowerCase())
+                    )
+                );
+
+                if (matchedSkills.length / requiredSkills.length < 0.5) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Helper function to parse salary from text
+        function parseSalary(salaryText) {
+            if (!salaryText) return 0;
+            
+            // Extract numbers from text (simple implementation)
+            const numbers = salaryText.match(/\d+/g);
+            if (numbers && numbers.length > 0) {
+                // Return the highest number found
+                return Math.max(...numbers.map(n => parseInt(n)));
+            }
+            return 0;
+        }
+
+        // Display current job card
+        function displayCurrentJob() {
+            if (currentJobIndex >= availableJobs.length) {
+                noJobsMessage.classList.remove('d-none');
+                return;
+            }
+
+            noJobsMessage.classList.add('d-none');
+            const job = availableJobs[currentJobIndex];
+
+            // Format deadline date
+            const deadlineDate = job.deadline.toDate();
+            const formattedDeadline = deadlineDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Format salary
+            let salaryText = job.salaryRange;
+            if (job.salaryRange.includes('Custom')) {
+                salaryText = job.salaryRange.replace('Custom: ', '');
+            }
+
+            // Create job card
+            const jobCard = document.createElement('div');
+            jobCard.className = 'job-card';
+            jobCard.innerHTML = `
+                <div class="job-card-header">
+                    <h3>${job.jobTitle}</h3>
+                    <span class="badge bg-primary">${job.jobType}</span>
+                </div>
+                <div class="job-card-body">
+                    <div class="job-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${job.jobLocation} (${job.workArrangement})</span>
+                    </div>
+                    <div class="job-detail">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>${salaryText}</span>
+                    </div>
+                    <div class="job-detail">
+                        <i class="fas fa-calendar-times"></i>
+                        <span>Apply by: ${formattedDeadline}</span>
+                    </div>
+                    
+                    <div class="job-description">
+                        <h4>Job Description:</h4>
+                        <p>${job.jobDescription}</p>
+                    </div>
+                    
+                    <div class="job-skills">
+                        <h4>Required Skills:</h4>
+                        <div class="skills-container">
+                            ${Object.entries(job.skills || {}).map(([type, skills]) => `
+                                <div class="skill-category">
+                                    <h5>${type.replace(/([A-Z])/g, ' $1')}:</h5>
+                                    <div class="skill-tags">
+                                        ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="job-benefits">
+                        <h4>Benefits:</h4>
+                        <ul>
+                            ${job.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                            ${job.otherBenefits ? `<li>${job.otherBenefits}</li>` : ''}
+                        </ul>
+                    </div>
+                </div>
+                <div class="job-card-footer">
+                    <small>Posted ${job.createdAt.toDate().toLocaleDateString()}</small>
+                </div>
+            `;
+
+            jobCardsContainer.innerHTML = '';
+            jobCardsContainer.appendChild(jobCard);
+        }
+
+        // Load user's interested jobs
+        async function loadInterestedJobs() {
+            try {
+                const userDoc = await getDoc(doc(db, 'careerstepEmployees', currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    interestedJobs = userData.interestedJobs || [];
+                    updateInterestedJobsList();
+                }
+            } catch (error) {
+                console.error('Error loading interested jobs:', error);
+            }
+        }
+
+        // Update the interested jobs list display
+        function updateInterestedJobsList() {
+            if (interestedJobs.length === 0) {
+                interestedJobsList.innerHTML = `
+                    <div class="empty-state text-center py-5">
+                        <i class="fas fa-heart fa-3x mb-3 text-muted"></i>
+                        <h4>No jobs liked yet</h4>
+                        <p>Swipe right on jobs you're interested in</p>
+                    </div>
+                `;
+                return;
+            }
+
+            interestedJobsList.innerHTML = interestedJobs.map(job => `
+                <div class="interested-job-card mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="card-title">${job.jobTitle}</h5>
+                                    <p class="card-text mb-1">
+                                        <i class="fas fa-map-marker-alt"></i> ${job.jobLocation}
+                                    </p>
+                                    <p class="card-text mb-1">
+                                        <i class="fas fa-money-bill-wave"></i> ${job.salaryRange}
+                                    </p>
+                                    <p class="card-text">
+                                        <i class="fas fa-briefcase"></i> ${job.jobType}
+                                    </p>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger remove-job-btn" data-jobid="${job.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="d-grid mt-2">
+                                <button class="btn btn-sm btn-primary apply-now-btn" data-jobid="${job.id}">
+                                    Apply Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add event listeners to the new buttons
+            document.querySelectorAll('.remove-job-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const jobId = e.currentTarget.getAttribute('data-jobid');
+                    removeInterestedJob(jobId);
+                });
+            });
+
+            document.querySelectorAll('.apply-now-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const jobId = e.currentTarget.getAttribute('data-jobid');
+                    applyForJob(jobId);
+                });
+            });
+        }
+
+        // Handle job rejection
+        async function rejectCurrentJob() {
+            if (currentJobIndex >= availableJobs.length) return;
+            
+            // Animation
+            const jobCard = document.querySelector('.job-card');
+            jobCard.classList.add('swipe-left');
+            
+            setTimeout(() => {
+                currentJobIndex++;
+                displayCurrentJob();
+            }, 300);
+        }
+
+        // Handle interest in current job
+        async function interestedInCurrentJob() {
+            if (currentJobIndex >= availableJobs.length) return;
+            
+            const job = availableJobs[currentJobIndex];
+            
+            // Animation
+            const jobCard = document.querySelector('.job-card');
+            jobCard.classList.add('swipe-right');
+            
+            try {
+                // Add to interested jobs in Firestore
+                await updateDoc(doc(db, 'careerstepEmployees', currentUser.uid), {
+                    interestedJobs: arrayUnion({
+                        id: job.id,
+                        jobTitle: job.jobTitle,
+                        jobLocation: job.jobLocation,
+                        jobType: job.jobType,
+                        salaryRange: job.salaryRange,
+                        workArrangement: job.workArrangement,
+                        createdAt: new Date()
+                    })
+                });
+                
+                // Update local state
+                interestedJobs.push({
+                    id: job.id,
+                    jobTitle: job.jobTitle,
+                    jobLocation: job.jobLocation,
+                    jobType: job.jobType,
+                    salaryRange: job.salaryRange,
+                    workArrangement: job.workArrangement,
+                    createdAt: new Date()
+                });
+                
+                updateInterestedJobsList();
+                
+                // Show success feedback
+                const toast = document.createElement('div');
+                toast.className = 'toast-message';
+                toast.textContent = 'Added to your interested jobs!';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error saving interested job:', error);
+            }
+            
+            setTimeout(() => {
+                currentJobIndex++;
+                displayCurrentJob();
+            }, 300);
+        }
+
+        // Remove job from interested list
+        async function removeInterestedJob(jobId) {
+            try {
+                const jobToRemove = interestedJobs.find(job => job.id === jobId);
+                if (jobToRemove) {
+                    await updateDoc(doc(db, 'careerstepEmployees', currentUser.uid), {
+                        interestedJobs: arrayRemove(jobToRemove)
+                    });
+                    
+                    interestedJobs = interestedJobs.filter(job => job.id !== jobId);
+                    updateInterestedJobsList();
+                }
+            } catch (error) {
+                console.error('Error removing interested job:', error);
+            }
+        }
+
+        // Apply for a job
+        async function applyForJob(jobId) {
+            // In a real app, this would navigate to an application form
+            alert(`Application process for job ${jobId} would start here.`);
+            // For now, just remove from interested list
+            await removeInterestedJob(jobId);
+        }
+
+        // Handle swipe gestures
+        function handleSwipe() {
+            const threshold = 50; // Minimum swipe distance
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (swipeDistance > threshold) {
+                // Swipe right - interested
+                interestedInCurrentJob();
+            } else if (swipeDistance < -threshold) {
+                // Swipe left - reject
+                rejectCurrentJob();
+            }
+        }
+
+        // Toggle filter panel
+        function toggleFilterPanel() {
+            filterPanel.classList.toggle('d-none');
+        }
+
+        // Apply filters
+        function applyFilters() {
+            currentFilters.location = locationFilter.value;
+            filterPanel.classList.add('d-none');
+            currentJobIndex = 0;
+            loadJobs();
+        }
+
+        // Show main jobs panel
+        function showJobsPanel() {
+            interestedPanel.classList.add('d-none');
+            jobCardsContainer.classList.remove('d-none');
+            jobsNavBtn.classList.add('active');
+            interestedNavBtn.classList.remove('active');
+            profileNavBtn.classList.remove('active');
+        }
+
+        // Show interested jobs panel
+        function showInterestedPanel() {
+            jobCardsContainer.classList.add('d-none');
+            interestedPanel.classList.remove('d-none');
+            jobsNavBtn.classList.remove('active');
+            interestedNavBtn.classList.add('active');
+            profileNavBtn.classList.remove('active');
+        }
+
+        // Show profile (placeholder)
+        function showProfile() {
+            alert('Profile screen would appear here.');
+            jobsNavBtn.classList.remove('active');
+            interestedNavBtn.classList.remove('active');
+            profileNavBtn.classList.add('active');
+        }
+
+        // Show the app after loading
+        function showApp() {
+            loadingScreen.classList.add('d-none');
+            appContainer.classList.remove('d-none');
+        }
+    </script>
+</body>
+</html>
