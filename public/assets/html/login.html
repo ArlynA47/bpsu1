@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/employer-registration.css">
+
+    <script src="" defer></script>
+
+    <title>Career Step</title>
+</head>
+
+<body>
+    <main class="main-container">
+        <!-- Left Section for Design -->
+        <section class="left-section">
+            <a href="login.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="design-container">
+                <img src="../images/careerstep-logo.png" alt="Logo">
+                <h1>HirNa!</h1>
+            </div>
+        </section>
+
+        <!-- Right Section for Design -->
+        <section class="right-section">
+            <div class="registration-container">
+                <div class="header-container">
+                    <img src="../images/employer-reg-icon.png" alt="Logo">
+                    <h1>Login</h1>
+                </div>
+
+                <div class="form-container">
+                    <form id="loginEmployerForm" autocomplete="off">
+                        <div class="input-fields">
+                            <div class="input-group">
+                                <label>Email</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="email" name="email" required
+                                        placeholder="Enter company email..." />
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Password</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-key"></i>
+                                        <input type="password" id="password" name="password" required
+                                            placeholder="Enter your password..." />
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="submit-field">
+                            <!-- Submit Button -->
+                            <button type="submit" class="submit-btn login" id="loginEmployerBtn">Login</button>
+                            
+                            <div class="register-link">
+                                Don't have an account? <a href="employer-registration.html">Register here</a>
+                            </div>
+                        </div>
+                        <div class="flash-message" id="flashMessage" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+<script>
+    document.getElementById('loginEmployerForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        
+        // Get the input values
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        // Check credentials (in a real app, this would be done server-side)
+        if (email === 'employer@email.com' && password === '12345') {
+            // Redirect to employer page
+            window.location.href = 'employer.html';
+        } else if (email === 'employee@email.com' && password === '54321') {
+            // Redirect to employee page
+            window.location.href = 'employee.html';
+        } else {
+            // Show error message (you can customize this)
+            alert('Invalid email or password. Please try again.');
+        }
+    });
+</script>
+</html>

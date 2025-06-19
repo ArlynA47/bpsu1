@@ -64,6 +64,21 @@
   overflow: hidden;
 }
 
+.register-link{
+  color: #8b8b8b;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.register-link a{
+  color: #8b8b8b;
+}
+
+.register-link a:hover {
+  color: #dcdcdc;
+}
+
 .header-container {
   display: flex;
   align-items: end;
@@ -146,7 +161,7 @@
   background-position: right 15px center;
   background-size: 16px;
 }
-
+/* blabla */
 .input-with-icon select {
   width: 100%;
   padding: 10px 15px 10px 45px;
@@ -172,55 +187,14 @@
   margin-top: 20px;
 }
 
-.form-section h2 {
-  color: #dcdcdc;
-  font-size: 30px;
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+.submit-btn.login{
+  margin-bottom:10px;
 }
 
-.input-group .radio-group {
+#loginEmployerForm{
+  height:100%;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 20px;
 }
-
-.radio-group label {
-  font-size: 18px;
-}
-
-.input-with-icon textarea {
-  width: 100%;
-  padding: 10px 15px 10px 15px;
-  font-size: 18px;
-  border-radius: 8px;
-  outline: none;
-  resize: none;
-  min-height: 100px;
-  border-radius: 10px;
-  background-color: #0b0b0b;
-  color: #dcdcdc;
-}
-
-  /* Checkbox Group Styling */
-  .checkbox-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-  }
-
-  .checkbox-column {
-    flex: 1;
-  }
-
-  .checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    font-size: 18px;
-    color: #dcdcdc;
-    position: relative;
-    min-height: 24px;
-  }
