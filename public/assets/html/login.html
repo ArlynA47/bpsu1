@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employer-registration.css">
+    <link rel="stylesheet" href="../css/login.css">
 
     <script src="" defer></script>
 
@@ -29,14 +30,14 @@
 
         <!-- Right Section for Design -->
         <section class="right-section">
-            <div class="registration-container">
+            <div class="registration-container login">
                 <div class="header-container">
                     <img src="../images/employer-reg-icon.png" alt="Logo">
                     <h1>Login</h1>
                 </div>
 
                 <div class="form-container">
-                    <form id="loginEmployerForm" autocomplete="off">
+                    <form id="loginEmployerForm login" autocomplete="off">
                         <div class="input-fields">
                             <div class="input-group">
                                 <label>Email</label>
@@ -69,8 +70,24 @@
                 </div>
             </div>
         </section>
+        <!-- Registration Choice Modal -->
+        <div id="registrationModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-btn" id="closeModal">&times;</span>
+                <h2>What will you be registering as?</h2>
+                <div class="modal-buttons">
+                    <a href="employer-registration.html" class="modal-btn">
+                        <img src="../images/employer-black.png"> As Employer
+                    </a>
+                    <a href="employee-registration.html" class="modal-btn">
+                        <img src="../images/employee-black.png"> As Employee
+                    </a>
+                </div>
+            </div>
+        </div>
     </main>
 </body>
+<!-- user login script -->
 <script>
     document.getElementById('loginEmployerForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the form from submitting normally
@@ -92,4 +109,28 @@
         }
     });
 </script>
+<!-- user registration script -->
+<script>
+        // Modal logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('registrationModal');
+            const closeModal = document.getElementById('closeModal');
+            const registerLink = document.querySelector('.register-link a');
+
+            registerLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.style.display = 'flex';
+            });
+
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+        </script>
 </html>
