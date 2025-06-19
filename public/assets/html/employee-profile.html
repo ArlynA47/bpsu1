@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/employee-profile.css">
+</head>
+<body>
+    <header>
+        <div class="logo-header">
+            <img src="../images/careerstep-logo.png" alt="Bataan Access Logo" width="50px" height="50px"> 
+            <h1>HirNa!</h1>
+        </div>
+        <nav>
+            <ul>
+                <li class="active"><a href="#">Explore Garden</a></li>
+                <li><a href="create-job.html">To Nurture</a></li>
+            </ul>
+            <button class="profile-btn" onclick="window.location.href='#'">Profile</button>
+        </nav>
+    </header>
+    <main>
+        <div class="slider-container">
+            <div class="slider">
+                <div class="slide active">
+                    <img src="../images/onsite.png" alt="Employee Profile 1">
+                </div>
+                <div class="slide">
+                    <img src="../images/employee-profile-2.jpg" alt="Employee Profile 2">
+                </div>
+                <div class="slide">
+                    <img src="../images/employee-profile-3.jpg" alt="Employee Profile 3">
+                </div>
+            </div>
+            <div class="pagination">
+                <span class="dot active" onclick="showSlide(0)"></span>
+                <span class="dot" onclick="showSlide(1)"></span>
+                <span class="dot" onclick="showSlide(2)"></span>
+            </div>
+        </div>
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-header-left">
+                    <div class="name">Francis Daniel M. Genese</div>
+                    <div class="skills">
+                        <div class="skill">Skill 1</div>
+                        <div class="skill">Skill 2</div>
+                    </div>
+                </div>
+                <div class="profile-header-right">
+                    <div class="feedback">
+                        <div class="icon thumbs-up"><span>3</span>  <img src="../images/likey.png"></div>
+                        <div class="icon thumbs-down"><span>2</span> <img src="../images/dislikey.png"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="comments">
+                <div class="comment">
+                    <div class="company-name">Company A</div>
+                    <div class="comment-text">Hard-working and reliable.</div>
+                </div>
+                <div class="comment">
+                    <div class="company-name">Company B</div>
+                    <div class="comment-text">Strong communication skills.</div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+    <!-- slider script -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        let slideInterval;
+
+        function showSlide(index) {
+            // Wrap around if at ends
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+            
+            // Update slides
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            
+            // Update dots
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function startSlider() {
+            slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        }
+
+        function stopSlider() {
+            clearInterval(slideInterval);
+        }
+
+        // Initialize
+        showSlide(0);
+        startSlider();
+
+        // Pause on hover
+        document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
+        document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
+
+        // Click handlers for dots
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                showSlide(i);
+            });
+        });
+
+        // Optional: Add arrow navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const sliderContainer = document.querySelector('.slider-container');
+            
+            // Create navigation arrows
+            sliderContainer.insertAdjacentHTML('beforeend', `
+                <div class="slider-nav">
+                    <button class="prev-slide">❮</button>
+                    <button class="next-slide">❯</button>
+                </div>
+            `);
+            
+            // Add event listeners for arrows
+            document.querySelector('.prev-slide').addEventListener('click', () => showSlide(currentSlide - 1));
+            document.querySelector('.next-slide').addEventListener('click', nextSlide);
+        });
+    </script>
+</body>
+</html>

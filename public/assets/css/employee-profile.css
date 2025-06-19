@@ -1,0 +1,267 @@
+*{
+    
+}
+
+header {
+    display:flex;
+    padding:20px 30px;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+}
+
+.logo-header{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+nav{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+nav ul{
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+nav ul li a{
+    margin-right: 70px;
+    position: relative;
+    font-size: 18px;
+    font-weight: 500;
+    color:#212121;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+nav ul li a:active{
+    color: #212121;
+    padding-bottom:8px;
+}
+
+.profile-btn{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    border: 1px solid #212121;
+    background: #212121;
+    color: #f5f5f5;
+    font-size: 20px;
+    padding: 15px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover{
+    background: #f5f5f5;
+    color: #212121;
+}
+
+/* Slider Container */
+.slider-container {
+    background: #8b8b8b;
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+    margin: 20px 0;
+}
+
+/* Slider Track */
+.slider {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Individual Slides */
+.slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+    object-position: center;
+    border-radius: 8px;
+}
+
+/* Pagination Dots */
+.pagination {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background-color: #fff;
+    transform: scale(1.2);
+}
+
+.dot:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Navigation Arrows (optional) */
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 10;
+}
+
+.slider-nav button {
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.slider-nav button:hover {
+    background: rgba(0, 0, 0, 0.6);
+    transform: scale(1.1);
+}
+
+.profile-container {
+    padding: 10px 30px;
+    width: 100%;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom:20px;
+    border-bottom: 3px solid #e0e0e0;
+}
+
+.profile-header-left{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.name{
+    font-size: 36px;
+    font-weight: 600;
+    color: #212121;
+}
+
+.skills{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: flex-start;
+}
+
+.skills .skill{
+    background: #f5f5f5;
+    color: #212121;
+    font-size: 16px;
+    font-weight: 500;   
+    border:2px solid #212121;
+    padding: 10px;
+    border-radius: 24px;
+    min-width:120px;
+    text-align: center;
+}
+
+.feedback{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon.thumbs-up, .icon.thumbs-down{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    gap:20px;
+}
+
+.feedback span{
+    font-size: 32px;
+    font-weight: 500;
+    color: #212121;
+}
+
+.comments{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.comment{
+    display:flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.comment div{
+    font-size:35px;
+    color: #212121;
+}
+
+.company-name{
+    font-weight: 500;
+}
+
+.company-text{
+    font-weight: 300;
+}
