@@ -63,7 +63,25 @@
 }
 
 .analyticsdash{
-    height: fit-content;
+    height: 150px;
     width: 100%;
-    background-color: #323232;
+    padding:20px; 
+  
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    gap:10px;
+}
+
+.topdashcount{
+    flex:1;
+    background-color: #dcdcdc;
+    border-radius: 10px;
+}
+
+.provincedashanal{
+    width: match-parent;
+    height: 100vh;
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
 }
