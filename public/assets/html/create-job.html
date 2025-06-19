@@ -351,6 +351,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <script>
         // Firebase configuration
@@ -367,6 +368,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // North Luzon provinces
         const provinces = [
@@ -382,7 +384,6 @@
             // Central Luzon
             "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
         ];
-
 
         // Fetch skills from Firebase
         function fetchSkills() {
@@ -475,7 +476,6 @@
         }
 
         // Submit button handler
-        // Submit button handler
         function setupSubmitButton() {
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.addEventListener('click', async () => {
@@ -521,6 +521,15 @@
                 submitBtn.disabled = true;
                 
                 try {
+                    // Check if user is authenticated
+                    const user = auth.currentUser;
+                    if (!user) {
+                        alert('You must be logged in to create a job listing.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                        return;
+                    }
+                    
                     // Save to Firestore
                     const docRef = await db.collection('jobSeeds').add({
                         jobTitle,
@@ -528,7 +537,9 @@
                         offer,
                         location,
                         createdAt: timestamp,
-                        status: 'active' // You can add other statuses like 'filled', 'expired' later
+                        status: 'active', // You can add other statuses like 'filled', 'expired' later
+                        employerId: user.uid,
+                        employerEmail: user.email || null
                     });
                     
                     // Show success message
@@ -563,6 +574,14 @@
             populateLocations();
             setupCharCounter();
             setupSubmitButton();
+            
+            // Check auth state
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    // User is not signed in, you might want to redirect to login
+                    console.log("User is not authenticated");
+                }
+            });
         });
     </script>
 </body>
