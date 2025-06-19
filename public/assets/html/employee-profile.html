@@ -201,6 +201,9 @@
         .employer .employer-only {
             display: block;
         }
+        #workpref {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -210,10 +213,6 @@
             <h1>HirNa!</h1>
         </div>
         <nav>
-            <ul>
-                <li class="active"><a href="#">Explore Garden</a></li>
-                <li><a href="create-job.html">To Nurture</a></li>
-            </ul>
             <button class="profile-btn" onclick="window.location.href='#'">Profile</button>
         </nav>
     </header>
@@ -258,7 +257,7 @@
                     <div><strong>Location:</strong> <span id="employeeLocation">Loading...</span></div>
                 </div>
                 
-                <div class="detail-card">
+                <div class="detail-card" id="workpref">
                     <h3>Work Preferences</h3>
                     <div><strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
                     <div><strong>Work Arrangement:</strong> <span id="employeeWorkArrangement">Loading...</span></div>
