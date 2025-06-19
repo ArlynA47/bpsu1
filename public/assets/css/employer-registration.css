@@ -64,6 +64,21 @@
   overflow: hidden;
 }
 
+.register-link{
+  color: #8b8b8b;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.register-link a{
+  color: #8b8b8b;
+}
+
+.register-link a:hover {
+  color: #dcdcdc;
+}
+
 .header-container {
   display: flex;
   align-items: end;
@@ -146,7 +161,7 @@
   background-position: right 15px center;
   background-size: 16px;
 }
-
+/* blabla */
 .input-with-icon select {
   width: 100%;
   padding: 10px 15px 10px 45px;
@@ -170,4 +185,16 @@
   border-radius: 10px;
   cursor: pointer;
   margin-top: 20px;
+}
+
+.submit-btn.login{
+  margin-bottom:10px;
+}
+
+#loginEmployerForm{
+  height:100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
 }
