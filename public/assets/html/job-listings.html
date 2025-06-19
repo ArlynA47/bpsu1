@@ -285,7 +285,7 @@
                 <a href="create-job.html" class="create-listing-btn">
                     <i class="fas fa-plus"></i> Create New Listing
                 </a>
-                <a href="manage-applications.html" class="manage-applications-btn">
+                <a href="manage-job-applications.html" class="manage-applications-btn">
                     <i class="fas fa-users"></i> Manage Applications
                 </a>
             </div>
@@ -331,7 +331,6 @@
         async function fetchEmployerJobListings(userId) {
             const jobCardsContainer = document.getElementById('jobCardsContainer');
             jobCardsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your job listings...</div>';
-            
             try {
                 // Query job listings where employerId matches current user
                 const q = query(
@@ -339,9 +338,7 @@
                     where('employerId', '==', userId),
                     orderBy('createdAt', 'desc')
                 );
-                
                 const querySnapshot = await getDocs(q);
-                
                 if (querySnapshot.empty) {
                     jobCardsContainer.innerHTML = `
                         <div class="no-listings">
@@ -354,27 +351,23 @@
                     `;
                     return;
                 }
-                
-                // Get all job listings with applicant counts
+                // Get all job listings with applicant counts from flat 'applications' collection
                 const jobs = [];
-                for (const doc of querySnapshot.docs) {
-                    const jobData = doc.data();
-                    const jobId = doc.id;
-                    
-                    // Get applicant count
-                    const applicationsRef = collection(db, 'jobListings', jobId, 'applications');
-                    const applicationsSnapshot = await getDocs(applicationsRef);
+                for (const docSnap of querySnapshot.docs) {
+                    const jobData = docSnap.data();
+                    const jobId = docSnap.id;
+                    // Query the flat 'applications' collection for this job
+                    const applicationsRef = collection(db, 'applications');
+                    const appQuery = query(applicationsRef, where('jobId', '==', jobId));
+                    const applicationsSnapshot = await getDocs(appQuery);
                     const applicantCount = applicationsSnapshot.size;
-                    
                     jobs.push({
                         id: jobId,
                         ...jobData,
                         applicantCount
                     });
                 }
-                
                 displayEmployerJobs(jobs);
-                
             } catch (error) {
                 console.error("Error fetching job listings:", error);
                 jobCardsContainer.innerHTML = `

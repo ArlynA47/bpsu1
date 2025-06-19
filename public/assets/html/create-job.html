@@ -475,7 +475,6 @@
         }
 
         // Submit button handler
-        // Submit button handler
         function setupSubmitButton() {
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.addEventListener('click', async () => {
@@ -522,13 +521,21 @@
                 
                 try {
                     // Save to Firestore
+                    const employerId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+                    if (!employerId) {
+                        alert('You must be logged in to create a job listing.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                        return;
+                    }
                     const docRef = await db.collection('jobSeeds').add({
                         jobTitle,
                         skills: selectedSkills,
                         offer,
                         location,
                         createdAt: timestamp,
-                        status: 'active' // You can add other statuses like 'filled', 'expired' later
+                        status: 'active', // You can add other statuses like 'filled', 'expired' later
+                        employerId
                     });
                     
                     // Show success message
