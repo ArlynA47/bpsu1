@@ -7,13 +7,13 @@
     <link rel="icon" type="image/png" href="images/careerstep-favicon.png">
     <style>
         :root {
-            --careerstep-blue: #2c3e50;
-            --careerstep-light-blue: #3498db;
+            --careerstep-black: #212121;
+            --careerstep-light-black: #494949;
             --careerstep-green: #27ae60;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
             display: flex;
@@ -31,13 +31,18 @@
             padding: 40px;
             text-align: center;
         }
+        .verify-header{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap:20px;
+            margin-bottom: 30px;
+        }
         .logo {
             width: 180px;
-            margin-bottom: 20px;
         }
         h1 {
-            color: var(--careerstep-blue);
-            margin-bottom: 10px;
+            color: var(--careerstep-black);
         }
         .subtitle {
             color: #7f8c8d;
@@ -45,16 +50,16 @@
         }
         .email-display {
             font-weight: bold;
-            color: var(--careerstep-light-blue);
+            color: var(--careerstep-light-black);
             word-break: break-all;
             margin: 20px 0;
             padding: 15px;
             background-color: #f8f9fa;
             border-radius: 5px;
-            border-left: 4px solid var(--careerstep-light-blue);
+            border-left: 4px solid var(--careerstep-light-black);
         }
         .btn {
-            background-color: var(--careerstep-light-blue);
+            background-color: var(--careerstep-light-black);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -68,18 +73,29 @@
             display: inline-block;
         }
         .btn:hover {
-            background-color: #2980b9;
+            background-color: #8b8b8b;
         }
+
+        #resendBtn {
+            padding: 13px 25px;
+            border:2px solid var(--careerstep-black);
+            background:#212121;
+        }
+        #resendBtn:hover {
+            background: #f5f5f5;
+            color:var(--careerstep-black)
+        }
+
         .btn-outline {
             background-color: transparent;
-            border: 1px solid var(--careerstep-light-blue);
-            color: var(--careerstep-light-blue);
+            border: 1px solid var(--careerstep-light-black);
+            color: var(--careerstep-light-black);
         }
         .btn-outline:hover {
-            background-color: #f8f9fa;
+            background: #dcdcdc;
         }
         .resend-link {
-            color: var(--careerstep-light-blue);
+            color: var(--careerstep-light-black);
             cursor: pointer;
             text-decoration: underline;
             margin-top: 20px;
@@ -88,7 +104,7 @@
         .loading-spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 4px solid var(--careerstep-light-blue);
+            border-top: 4px solid var(--careerstep-light-black);
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
@@ -133,8 +149,10 @@
 </head>
 <body>
     <div class="verify-container">
-        <img src="images/careerstep-logo.png" alt="CareerStep Logo" class="logo">
-        <h1>Verify Your Email</h1>
+        <div class="verify-header">
+            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" class="logo" style="width:50px; height:50px;">
+            <h1>Verify Your Email</h1>
+        </div>
         <p class="subtitle">One last step to complete your CareerStep registration</p>
         
         <div class="email-display" id="emailDisplay">user@example.com</div>
