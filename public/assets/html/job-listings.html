@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Job Listings - CareerStep</title>
+    <title>My Job Seeds - HirNa!</title>
     <link rel="icon" type="image/png" href="../images/icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -257,19 +257,33 @@
             font-size: 12px;
             font-weight: bold;
         }
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill-tag {
+            background-color: #e1f0ff;
+            color: #2F4A62;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="logo-container">
-            <img src="../images/careerstep-logo.png" alt="CareerStep Logo"> 
-            <span>CAREERSTEP</span>
+            <img src="../images/careerstep-logo.png" alt="HirNa! Logo"> 
+            <span>HirNa!</span>
         </div>
         
         <nav>
             <ul>
                 <li><a href="employer.html">Dashboard</a></li>
-                <li><a href="#" class="active">My Job Listings</a></li>
+                <li><a href="#" class="active">My Job Seeds</a></li>
                 <li><a href="employer-profile.html">Company Profile</a></li>
             </ul>
         </nav>
@@ -280,10 +294,10 @@
     
     <div class="listings-container">
         <div class="listings-header">
-            <h1 class="listings-title">My Job Listings</h1>
+            <h1 class="listings-title">My Job Seeds</h1>
             <div class="button-group">
                 <a href="create-job.html" class="create-listing-btn">
-                    <i class="fas fa-plus"></i> Create New Listing
+                    <i class="fas fa-plus"></i> Create New Seed
                 </a>
                 <a href="manage-job-applications.html" class="manage-applications-btn">
                     <i class="fas fa-users"></i> Manage Applications
@@ -293,88 +307,87 @@
         
         <div class="job-cards" id="jobCardsContainer">
             <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading your job listings...
+                <i class="fas fa-spinner fa-spin"></i> Loading your job seeds...
             </div>
         </div>
     </div>
     
-    <!-- Firebase Module -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            query, 
-            where, 
-            getDocs,
-            orderBy,
-            doc,
-            getDoc
-        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
+    <script>
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
             authDomain: "careerstep-bpsu1.firebaseapp.com",
             projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            storageBucket: "careerstep-bpsu1.appspot.com",
             messagingSenderId: "17047315291",
             appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
             measurementId: "G-WH6DT9HQW2"
         };
-    
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
-        // Fetch job listings for the logged-in employer
-        async function fetchEmployerJobListings(userId) {
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Fetch job seeds for the logged-in employer
+        async function fetchEmployerJobSeeds(userId) {
             const jobCardsContainer = document.getElementById('jobCardsContainer');
-            jobCardsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your job listings...</div>';
+            jobCardsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your job seeds...</div>';
+            
             try {
-                // Query job listings where employerId matches current user
-                const q = query(
-                    collection(db, 'jobListings'),
-                    where('employerId', '==', userId),
-                    orderBy('createdAt', 'desc')
-                );
-                const querySnapshot = await getDocs(q);
+                // Query jobSeeds collection where employerId matches current user
+                const q = db.collection('jobSeeds')
+                    .where('employerId', '==', userId)
+                    .orderBy('createdAt', 'desc');
+                
+                const querySnapshot = await q.get();
+                
                 if (querySnapshot.empty) {
                     jobCardsContainer.innerHTML = `
                         <div class="no-listings">
-                            <h3>You haven't created any job listings yet</h3>
-                            <p>Get started by creating your first job listing</p>
+                            <h3>You haven't created any job seeds yet</h3>
+                            <p>Get started by creating your first job seed</p>
                             <a href="create-job.html" class="create-listing-btn" style="display: inline-block; margin-top: 15px;">
-                                <i class="fas fa-plus"></i> Create Job Listing
+                                <i class="fas fa-plus"></i> Create Job Seed
                             </a>
                         </div>
                     `;
                     return;
                 }
-                // Get all job listings with applicant counts from flat 'applications' collection
+                
+                // Get all job seeds with applicant counts
                 const jobs = [];
                 for (const docSnap of querySnapshot.docs) {
                     const jobData = docSnap.data();
                     const jobId = docSnap.id;
-                    // Query the flat 'applications' collection for this job
-                    const applicationsRef = collection(db, 'applications');
-                    const appQuery = query(applicationsRef, where('jobId', '==', jobId));
-                    const applicationsSnapshot = await getDocs(appQuery);
+                    
+                    // Query applications for this job
+                    const applicationsQuery = db.collection('applications')
+                        .where('jobId', '==', jobId);
+                    
+                    const applicationsSnapshot = await applicationsQuery.get();
                     const applicantCount = applicationsSnapshot.size;
+                    
                     jobs.push({
                         id: jobId,
                         ...jobData,
                         applicantCount
                     });
                 }
+                
                 displayEmployerJobs(jobs);
             } catch (error) {
-                console.error("Error fetching job listings:", error);
+                console.error("Error fetching job seeds:", error);
                 jobCardsContainer.innerHTML = `
                     <div class="no-listings">
-                        <h3>Error loading job listings</h3>
+                        <h3>Error loading job seeds</h3>
                         <p>Please try again later</p>
-                        <button onclick="fetchEmployerJobListings('${userId}')">Retry</button>
+                        <button onclick="fetchEmployerJobSeeds('${userId}')">Retry</button>
                     </div>
                 `;
             }
@@ -398,10 +411,21 @@
                     else postedDate = jobDate.toLocaleDateString();
                 }
                 
-                // Check if job is expired
-                const today = new Date();
-                const deadlineDate = job.deadline?.toDate ? job.deadline.toDate() : new Date(job.deadline);
-                const isExpired = deadlineDate && deadlineDate < today;
+                // Check if job is active or closed
+                const isActive = job.status === 'active';
+                
+                // Format skills
+                let skillsHTML = '';
+                if (job.skills && job.skills.length > 0) {
+                    skillsHTML = '<div class="skills-tags">';
+                    job.skills.slice(0, 5).forEach(skill => {
+                        skillsHTML += `<span class="skill-tag">${skill}</span>`;
+                    });
+                    if (job.skills.length > 5) {
+                        skillsHTML += `<span class="skill-tag">+${job.skills.length - 5} more</span>`;
+                    }
+                    skillsHTML += '</div>';
+                }
                 
                 jobCardsHTML += `
                     <div class="job-card">
@@ -412,33 +436,26 @@
                         }
                         <div class="job-title">${job.jobTitle}</div>
                         <div class="job-meta">
-                            <div class="job-type">
-                                <i class="fas fa-briefcase"></i>
-                                <span>${job.jobType}</span>
-                            </div>
                             <div class="job-location">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>${job.jobLocation}</span>
-                            </div>
-                            <div class="job-applicants">
-                                <i class="fas fa-user-friends"></i>
-                                <span>${job.jobSlots || 1} position(s)</span>
+                                <span>${job.location}</span>
                             </div>
                         </div>
                         <div class="job-description">
-                            ${job.jobDescription.substring(0, 150)}${job.jobDescription.length > 150 ? '...' : ''}
+                            ${job.offer}
                         </div>
+                        ${skillsHTML}
                         <div class="job-footer">
                             <div>
-                                <span class="job-status ${isExpired ? 'status-closed' : 'status-active'}">
-                                    ${isExpired ? 'Closed' : 'Active'}
+                                <span class="job-status ${isActive ? 'status-active' : 'status-closed'}">
+                                    ${isActive ? 'Active' : 'Closed'}
                                 </span>
                                 <span class="job-posted">
                                     <i class="far fa-clock"></i> Posted ${postedDate}
                                 </span>
                             </div>
                             <div class="job-actions">
-                                <button class="action-btn edit-btn" onclick="editJobListing('${job.id}')">
+                                <button class="action-btn edit-btn" onclick="editJobSeed('${job.id}')">
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
                                 ${job.applicantCount > 0 ? 
@@ -446,7 +463,7 @@
                                         <i class="fas fa-eye"></i> View Applicants
                                     </button>` : ''
                                 }
-                                <button class="action-btn view-btn" onclick="viewJobListing('${job.id}')">
+                                <button class="action-btn view-btn" onclick="viewJobSeed('${job.id}')">
                                     <i class="fas fa-search"></i> View
                                 </button>
                             </div>
@@ -458,13 +475,13 @@
             jobCardsContainer.innerHTML = jobCardsHTML;
         }
         
-        // Edit job listing
-        function editJobListing(jobId) {
+        // Edit job seed
+        function editJobSeed(jobId) {
             window.location.href = `edit-job.html?id=${jobId}`;
         }
         
-        // View job listing
-        function viewJobListing(jobId) {
+        // View job seed
+        function viewJobSeed(jobId) {
             window.location.href = `job-details.html?id=${jobId}`;
         }
         
@@ -475,10 +492,10 @@
         
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            onAuthStateChanged(auth, (user) => {
+            auth.onAuthStateChanged((user) => {
                 if (user) {
-                    // User is signed in, fetch their job listings
-                    fetchEmployerJobListings(user.uid);
+                    // User is signed in, fetch their job seeds
+                    fetchEmployerJobSeeds(user.uid);
                 } else {
                     // No user is signed in, redirect to login
                     window.location.href = 'login.html';
@@ -487,10 +504,10 @@
         });
         
         // Make functions available globally
-        window.editJobListing = editJobListing;
-        window.viewJobListing = viewJobListing;
+        window.editJobSeed = editJobSeed;
+        window.viewJobSeed = viewJobSeed;
         window.viewApplicants = viewApplicants;
-        window.fetchEmployerJobListings = fetchEmployerJobListings;
+        window.fetchEmployerJobSeeds = fetchEmployerJobSeeds;
     </script>
 </body>
 </html>
