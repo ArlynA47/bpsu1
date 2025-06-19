@@ -1,0 +1,151 @@
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-screen p {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* Application Cards */
+.application-card {
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+}
+
+.application-card:hover {
+    border-color: #0d6efd;
+}
+
+/* Status Badges */
+.application-status {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-reviewed {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-interview {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-hired {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Empty State */
+.empty-state {
+    color: #6c757d;
+}
+
+.empty-state i {
+    opacity: 0.5;
+}
+
+/* Progress Tracker */
+.progress-tracker {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.progress-tracker::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.step-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.step-active .step-number {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.step-completed .step-number {
+    background-color: #198754;
+    color: white;
+}
+
+/* Document Previews */
+.document-preview {
+    max-width: 100px;
+    max-height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .progress-tracker {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .progress-step {
+        width: 25%;
+        margin-bottom: 15px;
+    }
+    
+    .progress-tracker::before {
+        display: none;
+    }
+}

@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employer-registration.css">
 
-    <script src="" defer></script>
-
     <title>Career Step</title>
 </head>
 
@@ -36,14 +34,14 @@
                 </div>
 
                 <div class="form-container">
-                    <form id="loginEmployerForm" autocomplete="off">
+                    <form id="loginForm" autocomplete="off">
                         <div class="input-fields">
                             <div class="input-group">
                                 <label>Email</label>
                                 <div class="input-with-icon">
                                     <i class="fas fa-envelope"></i>
                                     <input type="email" id="email" name="email" required
-                                        placeholder="Enter company email..." />
+                                        placeholder="Enter your email..." />
                                 </div>
                             </div>
 
@@ -58,7 +56,7 @@
                         </div>
                         <div class="submit-field">
                             <!-- Submit Button -->
-                            <button type="submit" class="submit-btn login" id="loginEmployerBtn">Login</button>
+                            <button type="submit" class="submit-btn login" id="loginBtn">Login</button>
                             
                             <div class="register-link">
                                 Don't have an account? <a href="employer-registration.html">Register here</a>
@@ -70,26 +68,129 @@
             </div>
         </section>
     </main>
-</body>
-<script>
-    document.getElementById('loginEmployerForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the form from submitting normally
-        
-        // Get the input values
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        // Check credentials (in a real app, this would be done server-side)
-        if (email === 'employer@email.com' && password === '12345') {
-            // Redirect to employer page
-            window.location.href = 'employer.html';
-        } else if (email === 'employee@email.com' && password === '54321') {
-            // Redirect to employee page
-            window.location.href = 'employee.html';
-        } else {
-            // Show error message (you can customize this)
-            alert('Invalid email or password. Please try again.');
+
+    <script type="module">
+        // Import Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { 
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = document.getElementById('loginBtn');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            
+            // Get form values
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // Sign in user
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    throw new Error('Please verify your email before logging in.');
+                }
+                
+                // Determine user type and redirect accordingly
+                await redirectUserBasedOnType(user.uid);
+                
+            } catch (error) {
+                console.error('Login Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+                
+                // Enhanced error handling
+                const errorMap = {
+                    'auth/invalid-email': 'Invalid email address',
+                    'auth/user-disabled': 'This account has been disabled',
+                    'auth/user-not-found': 'No account found with this email',
+                    'auth/wrong-password': 'Incorrect password',
+                    'auth/too-many-requests': 'Too many attempts. Try again later.'
+                };
+                
+                showFlashMessage(errorMap[error.code] || error.message || 'Login failed. Please try again.', 'error');
+            }
+        });
+
+        // Function to redirect user based on their account type
+        async function redirectUserBasedOnType(userId) {
+            try {
+                // First check if user is an employer
+                const employerDoc = await getDoc(doc(db, 'employers', userId));
+                
+                if (employerDoc.exists()) {
+                    window.location.href = 'employer-home.html';
+                    return;
+                }
+                
+                // If not employer, check if employee
+                const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
+                
+                if (employeeDoc.exists()) {
+                    window.location.href = 'explore-garden.html';
+                    return;
+                }
+                
+                // If neither, show error
+                throw new Error('Account type not recognized. Please contact support.');
+            } catch (error) {
+                console.error('Redirect Error:', error);
+                showFlashMessage(error.message, 'error');
+                await auth.signOut(); // Sign out the user since we can't determine their type
+            }
         }
-    });
-</script>
+
+        // Function to show flash messages
+        function showFlashMessage(message, type = 'success') {
+            const flashMessage = document.getElementById('flashMessage');
+            flashMessage.textContent = message;
+            flashMessage.style.display = 'block';
+            flashMessage.className = `flash-message ${type}`;
+            
+            setTimeout(() => {
+                flashMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Check if user is already logged in
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in, redirect based on type
+                await redirectUserBasedOnType(user.uid);
+            }
+        });
+    </script>
+</body>
 </html>
