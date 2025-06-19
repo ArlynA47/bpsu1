@@ -144,15 +144,38 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            align-items: flex-start;
         }
         
         .comment-header {
             display: flex;
-            justify-content: space-between;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: flex-start;
             margin-bottom: 10px;
             font-weight: 500;
+            text-align: left;
         }
         
+        .comment-header span{
+            font-size:1.6rem;
+            text-align: left;
+        }
+
+        .comment-header .comment-date{
+            font-size:0.8rem;
+        }
+
+        .comment .comment-text{
+            flex:1;
+            font-size:1.2rem;
+            text-align: left;
+        }
+
         .comment-rating {
             font-weight: bold;
         }
@@ -576,30 +599,36 @@
                     const commentDiv = document.createElement('div');
                     commentDiv.className = 'comment';
                     
+                    // comment-header: companySpan only
                     const commentHeader = document.createElement('div');
                     commentHeader.className = 'comment-header';
-                    
-                    const ratingSpan = document.createElement('span');
-                    ratingSpan.className = `comment-rating ${feedback.rating === 'positive' ? 'positive-rating' : 'negative-rating'}`;
-                    ratingSpan.textContent = feedback.rating === 'positive' ? '👍 Liked' : '👎 Disliked';
-                    
                     const companySpan = document.createElement('span');
                     companySpan.textContent = feedback.employerName;
-                    
+                    commentHeader.appendChild(companySpan);
+
+                    // comment-text: dateSpan, ratingSpan, comment-text
+                    const commentTextBlock = document.createElement('div');
+                    commentTextBlock.className = 'comment-text';
+
                     const dateSpan = document.createElement('span');
                     dateSpan.className = 'comment-date';
                     dateSpan.textContent = feedback.createdAt?.toDate().toLocaleDateString() || '';
+
+                    const ratingSpan = document.createElement('span');
+                    ratingSpan.className = `comment-rating ${feedback.rating === 'positive' ? 'positive-rating' : 'negative-rating'}`;
+                    ratingSpan.textContent = feedback.rating === 'positive' ? '👍 Liked' : '👎 Disliked';
+
+                    // Add date, rating, and comment text in order
+                    commentTextBlock.appendChild(document.createTextNode(feedback.comment));
+                    commentTextBlock.appendChild(document.createElement('br'));
+                    commentTextBlock.appendChild(dateSpan);
+                    commentTextBlock.appendChild(document.createTextNode(' ')); // space
+                    commentTextBlock.appendChild(ratingSpan);
                     
-                    commentHeader.appendChild(ratingSpan);
-                    commentHeader.appendChild(companySpan);
-                    commentHeader.appendChild(dateSpan);
                     
-                    const commentText = document.createElement('div');
-                    commentText.className = 'comment-text';
-                    commentText.textContent = feedback.comment;
-                    
+
                     commentDiv.appendChild(commentHeader);
-                    commentDiv.appendChild(commentText);
+                    commentDiv.appendChild(commentTextBlock);
                     
                     commentsContainer.appendChild(commentDiv);
                 });
