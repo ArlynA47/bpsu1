@@ -1,0 +1,91 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  padding: 30px;
+}
+
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-design {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo-design img {
+  max-width: 40px;
+  height: auto;
+}
+
+.logo-design h1 {
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.login-nav-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 120px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #f5f5f5;
+  background-color: #2f2f2f;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+}
+
+.left-section,
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-section {
+  gap: 10px;
+}
+
+.left-section h1 {
+  font-size: 70px;
+  font-weight: 600;
+}
+
+.left-section p {
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.right-section img {
+  height: auto;
+  width: 550px;
+}
+
+.half-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50vw;
+    height: 100vh;
+    background-color: #ECECEC; /* Choose any color you like */
+    border-top-right-radius: 50% 50%;
+    border-bottom-right-radius: 50% 50%;
+    z-index: -1; /* Send it behind all content */
+}
+
