@@ -1,0 +1,226 @@
+.main-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.left-section,
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.left-section {
+  flex-direction: column;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: #212121;
+  text-decoration: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.design-container {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 40px;
+}
+
+.left-section img {
+  width: 130px;
+  height: 130px;
+}
+
+.left-section h1 {
+  font-size: 60px;
+  font-weight: 600;
+}
+
+.registration-container {
+  flex: 0 auto;
+  display: flex;
+  gap: 40px;
+  flex-direction: column;
+  width: 90%;
+  height: 90%;
+  border-radius: 50px;
+  padding: 30px;
+  background-color: #222222;
+
+  overflow: hidden;
+}
+
+.header-container {
+  display: flex;
+  align-items: end;
+  gap: 30px;
+}
+
+.header-container h1 {
+  font-size: 45px;
+  font-weight: 500;
+  color: #f5f5f5;
+}
+
+.form-container {
+  flex: 1;
+  background-color: #252525;
+  border-radius: 30px;
+  padding: 20px;
+
+  overflow-y: auto;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #f5f5f5 #252525;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+  color: #dcdcdc;
+}
+
+.input-group label {
+  font-size: 25px;
+}
+
+.input-group input {
+  padding: 10px 15px 10px 15px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background-color: #0b0b0b;
+  color: #dcdcdc;
+  margin-bottom: 5px;
+}
+
+.input-with-icon {
+  position: relative;
+  width: 100%;
+}
+
+.input-with-icon i {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: #dcdcdc;
+  font-size: 16px;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 10px 15px 10px 50px;
+  font-size: 18px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.input-group select {
+  padding: 10px 40px 10px 15px;
+  font-size: 18px;
+  border-radius: 10px;
+  color: #dcdcdc;
+  background-color: #0b0b0b;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.input-with-icon select {
+  width: 100%;
+  padding: 10px 15px 10px 45px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0b0b0b;
+  color: #dcdcdc;
+  outline: none;
+  appearance: none;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #2f2f2f;
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.form-section h2 {
+  color: #dcdcdc;
+  font-size: 30px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-group .radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-group label {
+  font-size: 18px;
+}
+
+.input-with-icon textarea {
+  width: 100%;
+  padding: 10px 15px 10px 15px;
+  font-size: 18px;
+  border-radius: 8px;
+  outline: none;
+  resize: none;
+  min-height: 100px;
+  border-radius: 10px;
+  background-color: #0b0b0b;
+  color: #dcdcdc;
+}
+
+  /* Checkbox Group Styling */
+  .checkbox-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .checkbox-column {
+    flex: 1;
+  }
+
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #dcdcdc;
+    position: relative;
+    min-height: 24px;
+  }
