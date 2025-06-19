@@ -336,6 +336,14 @@
                 </div>
             </div>
             
+            <div class="form-group">
+                <label for="positionsNeeded">Number of Needed Workers</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-users"></i>
+                    <input type="number" id="positionsNeeded" min="1" placeholder="Enter number of needed workers...">
+                </div>
+            </div>
+            
             <div class="btn-container">
                 <button class="submit-btn" id="submitBtn">
                     <i class="fas fa-plus-circle"></i> Create Job Seed
@@ -492,6 +500,8 @@
                 const selectedLocation = document.querySelector('.location-option.selected');
                 const location = selectedLocation ? selectedLocation.dataset.value : '';
                 
+                const positionsNeeded = parseInt(document.getElementById('positionsNeeded').value, 10);
+                
                 // Get current timestamp
                 const timestamp = firebase.firestore.FieldValue.serverTimestamp();
                 
@@ -513,6 +523,11 @@
                 
                 if (!location) {
                     alert('Please select a location');
+                    return;
+                }
+                
+                if (!positionsNeeded || positionsNeeded < 1) {
+                    alert('Please enter the number of needed workers (at least 1)');
                     return;
                 }
                 
@@ -539,7 +554,9 @@
                         createdAt: timestamp,
                         status: 'active', // You can add other statuses like 'filled', 'expired' later
                         employerId: user.uid,
-                        employerEmail: user.email || null
+                        employerEmail: user.email || null,
+                        positionsNeeded,
+                        positionsAvailable: positionsNeeded
                     });
                     
                     // Show success message
@@ -554,6 +571,7 @@
                     document.getElementById('offer').value = '';
                     charCounter.textContent = '0/150';
                     document.querySelector('.location-option.selected')?.classList.remove('selected');
+                    document.getElementById('positionsNeeded').value = '';
                     
                 } catch (error) {
                     console.error('Error adding job seed: ', error);

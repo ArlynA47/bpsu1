@@ -440,6 +440,11 @@
                                 <i class="fas fa-map-marker-alt"></i>
                                 <span>${job.location}</span>
                             </div>
+                            <div class="job-positions">
+                                <i class="fas fa-users"></i>
+                                <span>Needed: ${job.positionsNeeded || 'N/A'}</span> |
+                                <span>Available: ${job.positionsAvailable !== undefined ? job.positionsAvailable : 'N/A'}</span>
+                            </div>
                         </div>
                         <div class="job-description">
                             ${job.offer}

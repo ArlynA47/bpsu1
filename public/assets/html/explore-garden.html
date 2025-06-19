@@ -361,6 +361,8 @@ a.nav-link.text-center:hover i.fas.fa-user{
         let currentFilters = {
             location: ''
         };
+        let nurturedSeedIds = new Set();
+        let appliedJobIds = new Set();
 
         // DOM Elements
         const loadingScreen = document.getElementById('loadingScreen');
@@ -379,6 +381,8 @@ a.nav-link.text-center:hover i.fas.fa-user{
                 if (user) {
                     currentUser = user;
                     await loadUserProfile();
+                    await loadNurturedSeeds();
+                    await loadAppliedJobs();
                     await loadJobSeeds();
                     showApp();
                 } else {
@@ -425,6 +429,36 @@ a.nav-link.text-center:hover i.fas.fa-user{
             }
         }
 
+        // Load nurtured seeds from Firestore
+        async function loadNurturedSeeds() {
+            try {
+                const userDoc = await getDoc(doc(db, 'careerstepEmployees', currentUser.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    nurturedSeedIds = new Set((data.nurturedSeeds || []).map(seed => seed.id));
+                } else {
+                    nurturedSeedIds = new Set();
+                }
+            } catch (e) {
+                nurturedSeedIds = new Set();
+            }
+        }
+
+        // Load applied jobs from Firestore
+        async function loadAppliedJobs() {
+            try {
+                const q = query(collection(db, 'applications'), where('applicantId', '==', currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                appliedJobIds = new Set();
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.jobId) appliedJobIds.add(data.jobId);
+                });
+            } catch (e) {
+                appliedJobIds = new Set();
+            }
+        }
+
         // Load job seeds that match the user's skills
         async function loadJobSeeds() {
             try {
@@ -443,8 +477,12 @@ a.nav-link.text-center:hover i.fas.fa-user{
 
                 querySnapshot.forEach((doc) => {
                     const seedData = doc.data();
-                    // Check if job matches user skills (at least 1 matching skill)
-                    if (doesSeedMatchSkills(seedData)) {
+                    // Only show jobs not in nurturedSeedIds and not already applied
+                    if (
+                        doesSeedMatchSkills(seedData) &&
+                        !nurturedSeedIds.has(doc.id) &&
+                        !appliedJobIds.has(doc.id)
+                    ) {
                         availableSeeds.push({
                             id: doc.id,
                             ...seedData,
@@ -505,6 +543,8 @@ a.nav-link.text-center:hover i.fas.fa-user{
 
             noJobsMessage.classList.add('d-none');
             const seed = availableSeeds[currentSeedIndex];
+            const isNurtured = nurturedSeedIds.has(seed.id);
+            const isApplied = appliedJobIds.has(seed.id);
 
             // Create seed card
             const seedCard = document.createElement('div');
@@ -517,6 +557,10 @@ a.nav-link.text-center:hover i.fas.fa-user{
                     <div class="job-detail">
                         <i class="fas fa-map-marker-alt"></i>
                         <span>${seed.location}</span>
+                    </div>
+                    <div class="job-detail">
+                        <i class='fas fa-users'></i>
+                        <span>Needed: ${seed.positionsNeeded || 'N/A'} | Available: ${seed.positionsAvailable !== undefined ? seed.positionsAvailable : 'N/A'}</span>
                     </div>
                     
                     <div class="job-description">
@@ -537,11 +581,22 @@ a.nav-link.text-center:hover i.fas.fa-user{
                 </div>
                 <div class="job-card-footer p-3">
                     <small>Posted ${seed.createdAt.toDate().toLocaleDateString()}</small>
+                    ${isNurtured ? '<span style="color:#e25555;font-weight:bold;margin-left:10px;"><i class="fas fa-heart"></i> Liked</span>' : ''}
+                    ${isApplied ? '<span style="color:#51cf66;font-weight:bold;margin-left:10px;"><i class="fas fa-paper-plane"></i> Applied</span>' : ''}
                 </div>
             `;
 
             jobCardsContainer.innerHTML = '';
             jobCardsContainer.appendChild(seedCard);
+
+            // Update heart button state
+            if (isNurtured) {
+                nurtureBtn.disabled = true;
+                nurtureBtn.innerHTML = '<i class="fas fa-heart" style="color:#e25555"></i>';
+            } else {
+                nurtureBtn.disabled = false;
+                nurtureBtn.innerHTML = '<i class="fas fa-heart"></i>';
+            }
         }
 
         // Pass on current seed
@@ -564,13 +619,14 @@ a.nav-link.text-center:hover i.fas.fa-user{
         // Nurture current seed
         async function nurtureCurrentSeed() {
             if (currentSeedIndex >= availableSeeds.length) return;
-            
             const seed = availableSeeds[currentSeedIndex];
-            
+            if (nurturedSeedIds.has(seed.id)) {
+                showToastMessage("Already in your interested jobs!");
+                return;
+            }
             // Animation
             const seedCard = document.querySelector('.job-card');
             seedCard.classList.add('swipe-right');
-            
             try {
                 // Add to nurtured seeds in Firestore
                 await updateDoc(doc(db, 'careerstepEmployees', currentUser.uid), {
@@ -584,18 +640,17 @@ a.nav-link.text-center:hover i.fas.fa-user{
                         createdAt: new Date()
                     })
                 });
-                
+                nurturedSeedIds.add(seed.id);
                 // Show success feedback
                 showToastMessage("Saved to your interested jobs!");
-                
             } catch (error) {
                 console.error('Error saving nurtured seed:', error);
-                showToastMessage("Failed to save job");
+                showToastMessage("Failed to save job: " + (error.message || error));
             }
-            
             setTimeout(() => {
                 currentSeedIndex++;
-                displayCurrentSeed();
+                // Reload job seeds to update the UI and remove the liked job
+                loadJobSeeds();
             }, 300);
         }
 

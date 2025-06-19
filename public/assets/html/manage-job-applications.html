@@ -87,18 +87,10 @@
             font-size: 0.9rem;
         }
 
-        /* New color schemes for stat cards */
+        /* Color schemes for stat cards */
         .stat-card:nth-child(1) {
             background: linear-gradient(135deg, #3D6585 0%, #2b4a66 100%);
             color: white;
-        }
-
-        .stat-card:nth-child(1) .stat-number {
-            color: #ffffff;
-        }
-
-        .stat-card:nth-child(1) .stat-label {
-            color: rgba(255, 255, 255, 0.9);
         }
 
         .stat-card:nth-child(2) {
@@ -106,88 +98,14 @@
             color: white;
         }
 
-        .stat-card:nth-child(2) .stat-number {
-            color: #ffffff;
-        }
-
-        .stat-card:nth-child(2) .stat-label {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
         .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, #ffc107 0%, #d39e00 100%);
-            color: #212529;
-        }
-
-        .stat-card:nth-child(3) .stat-number {
-            color: #212529;
-        }
-
-        .stat-card:nth-child(3) .stat-label {
-            color: rgba(33, 37, 41, 0.9);
-        }
-
-        .stat-card:nth-child(4) {
             background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
             color: white;
         }
 
-        .stat-card:nth-child(4) .stat-number {
-            color: #ffffff;
-        }
-
-        .stat-card:nth-child(4) .stat-label {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .stat-card:nth-child(5) {
+        .stat-card:nth-child(4) {
             background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%);
             color: white;
-        }
-
-        .stat-card:nth-child(5) .stat-number {
-            color: #ffffff;
-        }
-
-        .stat-card:nth-child(5) .stat-label {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .filters-section {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .filter-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #3D6585;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
         }
 
         button {
@@ -219,15 +137,6 @@
 
         .btn-success:hover {
             background-color: #218838;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
         }
 
         .btn-danger {
@@ -287,11 +196,6 @@
             color: #155724;
         }
 
-        .status-interview {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
         .status-hired {
             background-color: #d1ecf1;
             color: #0c5460;
@@ -322,226 +226,6 @@
 
         .pagination button.active {
             background-color: #2b4a66;
-        }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 50px auto;
-            max-width: 800px;
-            width: 90%;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            padding: 30px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .modal-section {
-            margin-bottom: 25px;
-        }
-
-        .modal-section h3 {
-            color: #3D6585;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .applicant-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .applicant-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 20px;
-            border: 1px solid #eee;
-            background-color: #f5f7fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #7C8A97;
-            font-size: 2rem;
-        }
-
-        .applicant-details {
-            flex: 1;
-        }
-
-        .applicant-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3D6585;
-            margin-bottom: 5px;
-        }
-
-        .applicant-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: #7C8A97;
-            font-size: 0.9rem;
-        }
-
-        .job-info {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .job-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: #7C8A97;
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #3D6585;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .file-list {
-            margin-top: 15px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            background-color: #f8f9fa;
-        }
-
-        .file-item:last-child {
-            border-bottom: none;
-        }
-
-        .file-item a {
-            padding: 6px 12px;
-            background-color: #3D6585;
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .file-item a:hover {
-            background-color: #2b4a66;
-        }
-
-        .file-type {
-            font-size: 12px;
-            color: #666;
-            background-color: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: auto;
-            margin-right: 10px;
-        }
-
-        .timeline {
-            margin-top: 20px;
-            padding-left: 20px;
-            border-left: 2px solid #3D6585;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .timeline-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -11px;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: #3D6585;
-        }
-
-        .timeline-date {
-            font-weight: bold;
-            color: #3D6585;
-        }
-
-        .timeline-content {
-            margin-top: 5px;
-            color: #666;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
         }
 
         .empty-state {
@@ -591,30 +275,10 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive styles */
         @media (max-width: 768px) {
-            .filter-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .filter-group {
-                min-width: 100%;
-            }
-            
             .applications-table {
                 display: block;
                 overflow-x: auto;
-            }
-            
-            .applicant-info {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .applicant-avatar {
-                margin-right: 0;
-                margin-bottom: 15px;
             }
         }
     </style>
@@ -622,7 +286,7 @@
 <body>
     <div class="container">
         <header>
-            <img src="../images/careerstep-logo.png" alt="HirNa Logo" class="logo">
+            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" class="logo">
             <h1>Manage Job Applications</h1>
         </header>
         <div class="dashboard-header">
@@ -657,7 +321,6 @@
                         <th>Applicant</th>
                         <th>Job Title</th>
                         <th>Applied Date</th>
-                        <th>Disability</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -675,53 +338,30 @@
             <button id="resetEmptyState" class="btn-secondary">Reset Filters</button>
         </div>
     </div>
-    <!-- Application Details Modal -->
-    <div class="modal" id="applicationModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div id="applicationContent">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-    <!-- Status Update Modal -->
-    <div class="modal" id="statusModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div id="statusContent">
-                <!-- Will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    
     const firebaseConfig = { 
         apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-      authDomain: "careerstep-bpsu1.firebaseapp.com",
-      projectId: "careerstep-bpsu1",
-      storageBucket: "careerstep-bpsu1.appspot.com",
-      messagingSenderId: "17047315291",
-      appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-      measurementId: "G-WH6DT9HQW2"
+        authDomain: "careerstep-bpsu1.firebaseapp.com",
+        projectId: "careerstep-bpsu1",
+        storageBucket: "careerstep-bpsu1.appspot.com",
+        messagingSenderId: "17047315291",
+        appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+        measurementId: "G-WH6DT9HQW2"
     };
+    
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    window.firebaseApp = app;
-    window.firebaseAuth = auth;
-    window.firebaseDb = db;
-    window.firebase = {
-        firestore: { collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy },
-        onAuthStateChanged
-    };
-</script>
-<script>
+    
     document.addEventListener('DOMContentLoaded', function() {
         const applicationsList = document.getElementById('applicationsList');
         const paginationEl = document.getElementById('pagination');
@@ -736,10 +376,10 @@
         let totalApplications = 0;
         let allApplications = [];
         let filteredApplications = [];
-        const interviewModal = null; // Interview modal removed
-        const interviewContent = null; // Interview content removed
+        
         // Init
         init();
+        
         async function init() {
             const user = await getCurrentUser();
             if (user) {
@@ -750,119 +390,134 @@
             }
             setupEventListeners();
         }
+        
         async function getCurrentUser() {
             return new Promise((resolve) => {
-                const unsubscribe = window.firebase.onAuthStateChanged(window.firebaseAuth, (user) => {
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
                     unsubscribe();
                     resolve(user);
                 });
             });
         }
+        
         function setupEventListeners() {
             document.getElementById('refreshBtn').addEventListener('click', loadApplications);
             document.getElementById('backToListings').addEventListener('click', function() {
                 window.location.href = 'job-listings.html';
             });
-            // Modal close buttons
-            document.querySelectorAll('.close-modal').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    applicationModal.style.display = 'none';
-                    statusModal.style.display = 'none';
-                });
-            });
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                if (event.target === applicationModal) {
-                    applicationModal.style.display = 'none';
-                }
-                if (event.target === statusModal) {
-                    statusModal.style.display = 'none';
-                }
+            document.getElementById('resetEmptyState').addEventListener('click', function() {
+                filteredApplications = allApplications;
+                displayApplications();
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('applicationsContainer').style.display = 'block';
             });
         }
+        
         async function loadApplications() {
             loadingOverlay.style.display = 'flex';
             try {
-                const applicationsQuery = window.firebase.firestore.query(
-                    window.firebase.firestore.collection(window.firebaseDb, 'applications'),
-                    window.firebase.firestore.where('employerId', '==', currentUser.uid),
-                    window.firebase.firestore.orderBy('appliedAt', 'desc')
+                const applicationsQuery = query(
+                    collection(db, 'applications'),
+                    where('employerId', '==', currentUser.uid),
+                    orderBy('appliedAt', 'desc')
                 );
-                const querySnapshot = await window.firebase.firestore.getDocs(applicationsQuery);
+                
+                const querySnapshot = await getDocs(applicationsQuery);
                 allApplications = [];
+                
                 for (const doc of querySnapshot.docs) {
                     const application = doc.data();
                     application.id = doc.id;
+                    
                     if (application.appliedAt) application.appliedAt = application.appliedAt.toDate();
-                    if (application.userId) {
-                        const userDoc = await window.firebase.firestore.getDoc(
-                            window.firebase.firestore.doc(window.firebaseDb, 'users', application.userId)
-                        );
-                        if (userDoc.exists()) {
-                            application.userData = userDoc.data();
-                            application.applicantName = `${application.userData.fname || ''} ${application.userData.surname || ''}`.trim() || 'Unknown Applicant';
-                            application.applicantEmail = application.userData.email || '';
-                            application.applicantDisability = application.userData.disability || application.userData.disabilityType || 'Not specified';
+                    
+                    // Get applicant data
+                    const applicantUid = application.applicantId || application.userId;
+                    if (applicantUid) {
+                        try {
+                            const userDoc = await getDoc(doc(db, 'careerstepEmployees', applicantUid));
+                            if (userDoc.exists()) {
+                                application.userData = userDoc.data();
+                                application.applicantName = application.userData.personalInfo?.fullName || application.userData.displayName || 'Unknown Applicant';
+                                application.applicantEmail = application.userData.personalInfo?.contactEmail || application.userData.email || '';
+                            }
+                        } catch (userError) {
+                            console.error('Error fetching applicant profile:', userError);
                         }
                     }
+                    
+                    // Get job data
                     if (application.jobId) {
-                        const jobRef = window.firebase.firestore.doc(window.firebaseDb, 'jobListings', application.jobId);
-                        const jobDoc = await window.firebase.firestore.getDoc(jobRef);
-                        if (jobDoc.exists()) {
-                            application.jobData = jobDoc.data();
-                            application.jobData.jobTitle = application.jobData.jobTitle || application.jobData.title;
+                        try {
+                            const jobRef = doc(db, 'jobSeeds', application.jobId);
+                            const jobDoc = await getDoc(jobRef);
+                            if (jobDoc.exists()) {
+                                application.jobData = jobDoc.data();
+                                application.jobData.jobTitle = application.jobData.jobTitle || application.jobData.title;
+                            }
+                        } catch (jobError) {
+                            console.error('Error fetching job info:', jobError);
                         }
                     }
+                    
                     allApplications.push(application);
                 }
+                
                 updateStats(allApplications);
                 filteredApplications = allApplications;
                 totalApplications = filteredApplications.length;
                 currentPage = 1;
                 displayApplications();
                 setupPagination();
+                
                 document.getElementById('emptyState').style.display = filteredApplications.length === 0 ? 'block' : 'none';
                 document.getElementById('applicationsContainer').style.display = filteredApplications.length === 0 ? 'none' : 'block';
             } catch (error) {
-                applicationsList.innerHTML = '<tr><td colspan="6" class="error-message">Error loading applications. Please try again.</td></tr>';
+                console.error('Error loading applications:', error);
+                applicationsList.innerHTML = '<tr><td colspan="5" class="error-message">Error loading applications. Please try again.<br>' + (error.message || error) + '</td></tr>';
             } finally {
                 loadingOverlay.style.display = 'none';
             }
         }
+        
         function updateStats(applications) {
             totalApplicationsEl.textContent = applications.length;
             shortlistedEl.textContent = applications.filter(app => app.status === 'shortlisted').length;
             hiredEl.textContent = applications.filter(app => app.status === 'hired').length;
             rejectedEl.textContent = applications.filter(app => app.status === 'rejected').length;
         }
+        
         function displayApplications() {
             if (filteredApplications.length === 0) {
-                applicationsList.innerHTML = '<tr><td colspan="6">No applications found.</td></tr>';
+                applicationsList.innerHTML = '<tr><td colspan="5">No applications found.</td></tr>';
                 paginationEl.innerHTML = '';
                 return;
             }
+            
             const startIndex = (currentPage - 1) * applicationsPerPage;
             const endIndex = Math.min(startIndex + applicationsPerPage, filteredApplications.length);
             const appsToDisplay = filteredApplications.slice(startIndex, endIndex);
+            
             applicationsList.innerHTML = '';
+            
             appsToDisplay.forEach(application => {
                 const appRow = document.createElement('tr');
+                
                 // Applicant name column (clickable)
                 const applicantCell = document.createElement('td');
                 applicantCell.innerHTML = `<a href="employee-profile.html?userId=${application.userId}" class="applicant-link">${application.applicantName || 'N/A'}</a><br><small>${application.applicantEmail || ''}</small>`;
                 appRow.appendChild(applicantCell);
+                
                 // Job title column
                 const jobCell = document.createElement('td');
                 jobCell.textContent = application.jobData?.jobTitle || 'Job not found';
                 appRow.appendChild(jobCell);
+                
                 // Applied date column
                 const dateCell = document.createElement('td');
                 dateCell.textContent = formatDate(application.appliedAt);
                 appRow.appendChild(dateCell);
-                // Disability column
-                const disabilityCell = document.createElement('td');
-                disabilityCell.textContent = application.applicantDisability || 'Not specified';
-                appRow.appendChild(disabilityCell);
+                
                 // Status column
                 const statusCell = document.createElement('td');
                 const statusBadge = document.createElement('span');
@@ -870,9 +525,11 @@
                 statusBadge.textContent = getStatusDisplayName(application.status);
                 statusCell.appendChild(statusBadge);
                 appRow.appendChild(statusCell);
+                
                 // Actions column
                 const actionsCell = document.createElement('td');
                 actionsCell.className = 'actions-cell';
+                
                 // Only show buttons for allowed transitions
                 if (application.status !== 'shortlisted') {
                     const shortlistBtn = document.createElement('button');
@@ -881,6 +538,7 @@
                     shortlistBtn.onclick = () => updateStatus(application.id, 'shortlisted');
                     actionsCell.appendChild(shortlistBtn);
                 }
+                
                 if (application.status !== 'hired') {
                     const hireBtn = document.createElement('button');
                     hireBtn.className = 'action-btn btn-success';
@@ -888,6 +546,7 @@
                     hireBtn.onclick = () => updateStatus(application.id, 'hired');
                     actionsCell.appendChild(hireBtn);
                 }
+                
                 if (application.status !== 'rejected') {
                     const rejectBtn = document.createElement('button');
                     rejectBtn.className = 'action-btn btn-danger';
@@ -895,10 +554,12 @@
                     rejectBtn.onclick = () => updateStatus(application.id, 'rejected');
                     actionsCell.appendChild(rejectBtn);
                 }
+                
                 appRow.appendChild(actionsCell);
                 applicationsList.appendChild(appRow);
             });
         }
+        
         function getStatusDisplayName(status) {
             const statusMap = {
                 'submitted': 'Submitted',
@@ -908,14 +569,18 @@
             };
             return statusMap[status] || status;
         }
+        
         function setupPagination() {
             const totalPages = Math.ceil(totalApplications / applicationsPerPage);
             if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+            
             let paginationHTML = '';
             for (let i = 1; i <= totalPages; i++) {
                 paginationHTML += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
             }
+            
             paginationEl.innerHTML = paginationHTML;
+            
             document.querySelectorAll('[data-page]').forEach((btn) => {
                 btn.addEventListener('click', function() {
                     currentPage = parseInt(this.getAttribute('data-page'));
@@ -925,21 +590,58 @@
                 });
             });
         }
+        
         async function updateStatus(applicationId, newStatus) {
             if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
+            
             loadingOverlay.style.display = 'flex';
             try {
-                await window.firebase.firestore.updateDoc(
-                    window.firebase.firestore.doc(window.firebaseDb, 'applications', applicationId),
-                    { status: newStatus, updatedAt: window.firebase.firestore.serverTimestamp() }
+                // Get the application document to find the jobId
+                const appRef = doc(db, 'applications', applicationId);
+                const appSnap = await getDoc(appRef);
+                const appData = appSnap.exists() ? appSnap.data() : null;
+                let jobId = appData?.jobId;
+                
+                // Update application status
+                await updateDoc(
+                    appRef,
+                    { status: newStatus, updatedAt: serverTimestamp() }
                 );
+                
+                // If hiring, decrement positionsAvailable in jobSeeds
+                if (newStatus === 'hired' && jobId) {
+                    try {
+                        const jobRef = doc(db, 'jobSeeds', jobId);
+                        const jobSnap = await getDoc(jobRef);
+                        
+                        if (jobSnap.exists()) {
+                            const jobData = jobSnap.data();
+                            let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : null;
+                            
+                            if (positionsAvailable !== null && positionsAvailable > 0) {
+                                positionsAvailable = positionsAvailable - 1;
+                                let updateObj = { positionsAvailable };
+                                
+                                if (positionsAvailable === 0) {
+                                    updateObj.status = 'filled';
+                                }
+                                
+                                await updateDoc(jobRef, updateObj);
+                            }
+                        }
+                    } catch (jobUpdateError) {
+                        console.error('Error updating job positions:', jobUpdateError);
+                    }
+                }
+                
                 await loadApplications();
             } catch (error) {
-                alert('Error updating application status. Please try again.');
+                console.error('Error updating application status:', error);
             } finally {
                 loadingOverlay.style.display = 'none';
             }
         }
+        
         function formatDate(date) {
             if (!date) return 'Not specified';
             try {
