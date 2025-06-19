@@ -414,71 +414,70 @@
         }
         
         async function loadApplications() {
-            loadingOverlay.style.display = 'flex';
-            try {
-                const applicationsQuery = query(
-                    collection(db, 'applications'),
-                    where('employerId', '==', currentUser.uid),
-                    orderBy('appliedAt', 'desc')
-                );
-                
-                const querySnapshot = await getDocs(applicationsQuery);
-                allApplications = [];
-                
-                for (const doc of querySnapshot.docs) {
-                    const application = doc.data();
-                    application.id = doc.id;
-                    
-                    if (application.appliedAt) application.appliedAt = application.appliedAt.toDate();
-                    
-                    // Get applicant data
-                    const applicantUid = application.applicantId || application.userId;
-                    if (applicantUid) {
-                        try {
-                            const userDoc = await getDoc(doc(db, 'careerstepEmployees', applicantUid));
-                            if (userDoc.exists()) {
-                                application.userData = userDoc.data();
-                                application.applicantName = application.userData.personalInfo?.fullName || application.userData.displayName || 'Unknown Applicant';
-                                application.applicantEmail = application.userData.personalInfo?.contactEmail || application.userData.email || '';
-                            }
-                        } catch (userError) {
-                            console.error('Error fetching applicant profile:', userError);
-                        }
+    loadingOverlay.style.display = 'flex';
+    try {
+        const applicationsQuery = query(
+            collection(db, 'applications'),
+            where('employerId', '==', currentUser.uid),
+            orderBy('appliedAt', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(applicationsQuery);
+        allApplications = [];
+        
+        for (const applicationDoc of querySnapshot.docs) {
+            const application = applicationDoc.data();
+            application.id = applicationDoc.id;
+            
+            if (application.appliedAt) application.appliedAt = application.appliedAt.toDate();
+            
+            // Get applicant data - FIXED: Using imported doc function correctly
+            const applicantUid = application.applicantId || application.userId;
+            if (applicantUid) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'careerstepEmployees', applicantUid));
+                    if (userDoc.exists()) {
+                        application.userData = userDoc.data();
+                        application.applicantName = application.userData.personalInfo?.fullName || application.userData.displayName || 'Unknown Applicant';
+                        application.applicantEmail = application.userData.personalInfo?.contactEmail || application.userData.email || '';
                     }
-                    
-                    // Get job data
-                    if (application.jobId) {
-                        try {
-                            const jobRef = doc(db, 'jobSeeds', application.jobId);
-                            const jobDoc = await getDoc(jobRef);
-                            if (jobDoc.exists()) {
-                                application.jobData = jobDoc.data();
-                                application.jobData.jobTitle = application.jobData.jobTitle || application.jobData.title;
-                            }
-                        } catch (jobError) {
-                            console.error('Error fetching job info:', jobError);
-                        }
-                    }
-                    
-                    allApplications.push(application);
+                } catch (userError) {
+                    console.error('Error fetching applicant profile:', userError);
                 }
-                
-                updateStats(allApplications);
-                filteredApplications = allApplications;
-                totalApplications = filteredApplications.length;
-                currentPage = 1;
-                displayApplications();
-                setupPagination();
-                
-                document.getElementById('emptyState').style.display = filteredApplications.length === 0 ? 'block' : 'none';
-                document.getElementById('applicationsContainer').style.display = filteredApplications.length === 0 ? 'none' : 'block';
-            } catch (error) {
-                console.error('Error loading applications:', error);
-                applicationsList.innerHTML = '<tr><td colspan="5" class="error-message">Error loading applications. Please try again.<br>' + (error.message || error) + '</td></tr>';
-            } finally {
-                loadingOverlay.style.display = 'none';
             }
+            
+            // Get job data - FIXED: Using imported doc function correctly
+            if (application.jobId) {
+                try {
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', application.jobId));
+                    if (jobDoc.exists()) {
+                        application.jobData = jobDoc.data();
+                        application.jobData.jobTitle = application.jobData.jobTitle || application.jobData.title;
+                    }
+                } catch (jobError) {
+                    console.error('Error fetching job info:', jobError);
+                }
+            }
+            
+            allApplications.push(application);
         }
+        
+        updateStats(allApplications);
+        filteredApplications = allApplications;
+        totalApplications = filteredApplications.length;
+        currentPage = 1;
+        displayApplications();
+        setupPagination();
+        
+        document.getElementById('emptyState').style.display = filteredApplications.length === 0 ? 'block' : 'none';
+        document.getElementById('applicationsContainer').style.display = filteredApplications.length === 0 ? 'none' : 'block';
+    } catch (error) {
+        console.error('Error loading applications:', error);
+        applicationsList.innerHTML = '<tr><td colspan="5" class="error-message">Error loading applications. Please try again.<br>' + (error.message || error) + '</td></tr>';
+    } finally {
+        loadingOverlay.style.display = 'none';
+    }
+}
         
         function updateStats(applications) {
             totalApplicationsEl.textContent = applications.length;

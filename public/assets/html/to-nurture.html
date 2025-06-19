@@ -116,21 +116,29 @@
 
                 const applyBtn = jobCard.querySelector('.apply-btn');
                 if (!isApplied) {
+                    // Modify the application submission in to-nurture.html
                     applyBtn.addEventListener('click', async () => {
                         try {
+                            // Get job details first
+                            const jobDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
+                            const jobData = jobDoc.data();
+                            
                             await addDoc(collection(db, 'applications'), {
                                 applicantId: user.uid,
                                 userId: user.uid,
                                 jobId: seed.id,
+                                jobTitle: seed.jobTitle,
                                 employerId: jobData?.employerId || '',
                                 status: 'pending',
                                 appliedAt: new Date(),
                                 createdAt: new Date()
                             });
+                            
                             appliedJobIds.add(seed.id);
                             applyBtn.disabled = true;
                             applyBtn.textContent = 'Applied';
-                            // Optionally, update badge
+                            
+                            // Add applied badge
                             if (!jobCard.querySelector('.applied-badge')) {
                                 const badge = document.createElement('span');
                                 badge.className = 'applied-badge';
@@ -138,14 +146,12 @@
                                 badge.innerHTML = '<i class="fas fa-paper-plane"></i> Applied';
                                 jobCard.appendChild(badge);
                             }
-                            // Reload the list to reflect changes
-                            setTimeout(() => window.location.reload(), 500);
                         } catch (error) {
                             console.error('Failed to submit application:', error);
                             alert('Failed to apply. Please try again.\n' + (error.message || error));
                         }
                     });
-                }
+                                    }
 
                 nurturedJobsContainer.appendChild(jobCard);
             }

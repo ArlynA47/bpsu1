@@ -491,8 +491,78 @@
         }
         
         // View applicants
-        function viewApplicants(jobId) {
-            window.location.href = `manage-applications.html?jobId=${jobId}`;
+        // Add this function to handle hiring an applicant
+        async function hireApplicant(jobId, applicantId) {
+            const batch = db.batch();
+            
+            // Update application status
+            const applicationRef = db.collection('applications').doc(applicationId);
+            batch.update(applicationRef, { status: 'hired' });
+            
+            // Decrement available positions
+            const jobRef = db.collection('jobSeeds').doc(jobId);
+            batch.update(jobRef, {
+                positionsAvailable: firebase.firestore.FieldValue.increment(-1)
+            });
+            
+            try {
+                await batch.commit();
+                alert('Applicant hired successfully!');
+                fetchEmployerJobSeeds(auth.currentUser.uid);
+            } catch (error) {
+                console.error('Error hiring applicant:', error);
+                alert('Failed to hire applicant. Please try again.');
+            }
+        }
+
+        // Modify the viewApplicants function to include hiring capability
+        async function viewApplicants(jobId) {
+            try {
+                const applicationsQuery = db.collection('applications')
+                    .where('jobId', '==', jobId)
+                    .orderBy('appliedAt', 'desc');
+                
+                const querySnapshot = await applicationsQuery.get();
+                
+                if (querySnapshot.empty) {
+                    alert('No applicants found for this job.');
+                    return;
+                }
+                
+                let applicantsHTML = '<h3>Applicants</h3><div class="applicants-list">';
+                
+                for (const doc of querySnapshot.docs) {
+                    const application = doc.data();
+                    const userDoc = await db.collection('careerstepEmployees').doc(application.applicantId).get();
+                    const userData = userDoc.data();
+                    
+                    applicantsHTML += `
+                        <div class="applicant-card">
+                            <h4>${userData.personalInfo?.fullName || 'Unknown'}</h4>
+                            <p>Skills: ${userData.jobPreferences?.skills?.join(', ') || 'None listed'}</p>
+                            <p>Status: ${application.status}</p>
+                            <button onclick="viewEmployeeProfile('${application.applicantId}')">View Profile</button>
+                            <button onclick="hireApplicant('${jobId}', '${application.applicantId}', '${doc.id}')" 
+                                ${application.status === 'hired' ? 'disabled' : ''}>
+                                ${application.status === 'hired' ? 'Hired' : 'Hire'}
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                applicantsHTML += '</div>';
+                
+                // Show in a modal or new page
+                window.location.href = `manage-job-applications.html?jobId=${jobId}`;
+            } catch (error) {
+                console.error('Error loading applicants:', error);
+                alert('Failed to load applicants. Please try again.');
+            }
+        }
+
+        // Add this function to view employee profile
+        function viewEmployeeProfile(employeeId) {
+            window.location.href = `employee-profile.html?id=${employeeId}`;
         }
         
         // Initialize the page
