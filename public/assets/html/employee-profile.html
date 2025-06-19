@@ -3,20 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Employee Profile</title>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
+    <style>
+        /* Additional styles for dynamic content */
+        .profile-container {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .detail-card h3 {
+            margin-top: 0;
+            color: #3D6585;
+            font-size: 1rem;
+        }
+        
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .skill-badge {
+            background: #3D6585;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        /* Feedback section styles */
+        .feedback-section {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .feedback-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+        
+        .like-btn {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .dislike-btn {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .feedback-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .like-btn.active {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .dislike-btn.active {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .comment-form {
+            margin-top: 20px;
+        }
+        
+        .comment-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            margin-bottom: 10px;
+        }
+        
+        .submit-comment-btn {
+            background-color: #3D6585;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .submit-comment-btn:hover {
+            background-color: #2b4a66;
+        }
+        
+        /* Comments section */
+        .comments-section {
+            margin-top: 30px;
+        }
+        
+        .comment {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            align-items: flex-start;
+        }
+        
+        .comment-header {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-align: left;
+        }
+        
+        .comment-header span{
+            font-size:1.6rem;
+            text-align: left;
+        }
+
+        .comment-header .comment-date{
+            font-size:0.8rem;
+        }
+
+        .comment .comment-text{
+            flex:1;
+            font-size:1.2rem;
+            text-align: left;
+        }
+
+        .comment-rating {
+            font-weight: bold;
+        }
+        
+        .positive-rating {
+            color: #28a745;
+        }
+        
+        .negative-rating {
+            color: #dc3545;
+        }
+        
+        .comment-date {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        
+        /* Employer-only sections */
+        .employer-only {
+            display: none;
+        }
+        
+        .employer .employer-only {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="logo-header">
-            <img src="../images/careerstep-logo.png" alt="Bataan Access Logo" width="50px" height="50px"> 
+            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" width="50px" height="50px"> 
             <h1>HirNa!</h1>
         </div>
         <nav>
             <ul>
-                <li class="active"><a href="explore-garden.html">Explore Garden</a></li>
-                <li><a href="to-nurture.html">To Nurture</a></li>
+                <li class="active"><a href="#">Explore Garden</a></li>
+                <li><a href="create-job.html">To Nurture</a></li>
             </ul>
             <button class="profile-btn" onclick="window.location.href='#'">Profile</button>
         </nav>
@@ -43,99 +239,408 @@
         <div class="profile-container">
             <div class="profile-header">
                 <div class="profile-header-left">
-                    <div class="name">Francis Daniel M. Genese</div>
-                    <div class="skills">
-                        <div class="skill">Skill 1</div>
-                        <div class="skill">Skill 2</div>
-                    </div>
+                    <div class="name" id="employeeName">Loading...</div>
+                    <div class="job-title" id="employeeJobTitle"></div>
                 </div>
                 <div class="profile-header-right">
                     <div class="feedback">
-                        <div class="icon thumbs-up"><span>3</span>  <img src="../images/likey.png"></div>
-                        <div class="icon thumbs-down"><span>2</span> <img src="../images/dislikey.png"> </div>
+                        <div class="icon thumbs-up"><span id="positiveFeedback">0</span> <img src="../images/likey.png"></div>
+                        <div class="icon thumbs-down"><span id="negativeFeedback">0</span> <img src="../images/dislikey.png"></div>
                     </div>
                 </div>
             </div>
-            <div class="comments">
-                <div class="comment">
-                    <div class="company-name">Company A</div>
-                    <div class="comment-text">Hard-working and reliable.</div>
+            
+            <div class="profile-details">
+                <div class="detail-card">
+                    <h3>Contact Information</h3>
+                    <div><strong>Email:</strong> <span id="employeeEmail">Loading...</span></div>
+                    <div><strong>Phone:</strong> <span id="employeePhone">Loading...</span></div>
+                    <div><strong>Location:</strong> <span id="employeeLocation">Loading...</span></div>
                 </div>
-                <div class="comment">
-                    <div class="company-name">Company B</div>
-                    <div class="comment-text">Strong communication skills.</div>
+                
+                <div class="detail-card">
+                    <h3>Work Preferences</h3>
+                    <div><strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
+                    <div><strong>Work Arrangement:</strong> <span id="employeeWorkArrangement">Loading...</span></div>
+                    <div><strong>Experience Level:</strong> <span id="employeeExperience">Loading...</span></div>
+                </div>
+                
+                <div class="detail-card">
+                    <h3>Skills</h3>
+                    <div class="skills-container" id="employeeSkills">
+                        <!-- Skills will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="detail-card">
+                    <h3>Preferred Locations</h3>
+                    <div id="employeePreferredLocations">
+                        <!-- Locations will be populated by JavaScript -->
+                    </div>
                 </div>
             </div>
             
+            <!-- Employer Feedback Section (only visible to employers) -->
+            <div class="feedback-section employer-only" id="employerFeedbackSection">
+                <h3>Leave Feedback</h3>
+                <div class="feedback-actions">
+                    <button id="likeBtn" class="feedback-btn like-btn">
+                        <i class="fas fa-thumbs-up"></i> Like
+                    </button>
+                    <button id="dislikeBtn" class="feedback-btn dislike-btn">
+                        <i class="fas fa-thumbs-down"></i> Dislike
+                    </button>
+                </div>
+                <div class="comment-form">
+                    <textarea class="comment-textarea" id="commentText" placeholder="Write your feedback about this employee..."></textarea>
+                    <button class="submit-comment-btn" id="submitCommentBtn">Submit Feedback</button>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comments-section" id="employeeComments">
+                <h3>Employer Feedback</h3>
+                <!-- Comments will be populated by JavaScript -->
+            </div>
         </div>
     </main>
-    <!-- slider script -->
-    <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        let slideInterval;
 
-        function showSlide(index) {
-            // Wrap around if at ends
-            if (index >= slides.length) currentSlide = 0;
-            else if (index < 0) currentSlide = slides.length - 1;
-            else currentSlide = index;
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Get user ID from URL or current user
+        const urlParams = new URLSearchParams(window.location.search);
+        const profileUserId = urlParams.get('userId') || null;
+        
+        // Global variables
+        let currentUser = null;
+        let isEmployer = false;
+        let selectedRating = null;
+        let employerData = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
             
-            // Update slides
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === currentSlide);
-            });
+            // Slider script remains the same
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let slideInterval;
             
-            // Update dots
+            function showSlide(index) {
+                if (index >= slides.length) currentSlide = 0;
+                else if (index < 0) currentSlide = slides.length - 1;
+                else currentSlide = index;
+                
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === currentSlide);
+                });
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentSlide);
+                });
+            }
+            
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+            
+            function startSlider() {
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+            
+            function stopSlider() {
+                clearInterval(slideInterval);
+            }
+            
+            showSlide(0);
+            startSlider();
+            
+            document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
+            document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
+            
             dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlide);
+                dot.addEventListener('click', () => {
+                    showSlide(i);
+                });
             });
-        }
-
-        function nextSlide() {
-            showSlide(currentSlide + 1);
-        }
-
-        function startSlider() {
-            slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
-        }
-
-        function stopSlider() {
-            clearInterval(slideInterval);
-        }
-
-        // Initialize
-        showSlide(0);
-        startSlider();
-
-        // Pause on hover
-        document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
-        document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
-
-        // Click handlers for dots
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                showSlide(i);
+            
+            // Feedback button event listeners
+            document.getElementById('likeBtn').addEventListener('click', () => {
+                selectRating('positive');
             });
+            
+            document.getElementById('dislikeBtn').addEventListener('click', () => {
+                selectRating('negative');
+            });
+            
+            document.getElementById('submitCommentBtn').addEventListener('click', submitFeedback);
         });
+        
+        async function checkAuthState() {
+            try {
+                const user = await new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        unsubscribe();
+                        resolve(user);
+                    });
+                });
+                
+                if (user) {
+                    currentUser = user;
+                    // Check if user is an employer
+                    const employerDoc = await getDoc(doc(db, 'employers', user.uid));
+                    if (employerDoc.exists()) {
+                        isEmployer = true;
+                        employerData = employerDoc.data();
+                        document.body.classList.add('employer');
+                    }
+                    loadProfileData();
+                } else {
+                    // Not logged in, but still allow viewing profile
+                    loadProfileData();
+                }
+            } catch (error) {
+                console.error('Error checking auth state:', error);
+                loadProfileData();
+            }
+        }
+        
+        async function loadProfileData() {
+            try {
+                let profileData;
+                let profileUserIdToLoad = profileUserId || (currentUser ? currentUser.uid : null);
+                
+                if (!profileUserIdToLoad) {
+                    console.error('No profile user ID available');
+                    return;
+                }
+                
+                // Viewing another user's profile or own profile
+                const profileDoc = await getDoc(doc(db, 'careerstepPublicProfiles', profileUserIdToLoad));
+                if (profileDoc.exists()) {
+                    profileData = profileDoc.data();
+                } else {
+                    // Fallback to employee document if public profile doesn't exist
+                    const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', profileUserIdToLoad));
+                    if (employeeDoc.exists()) {
+                        profileData = employeeDoc.data();
+                    }
+                }
+                
+                if (!profileData) {
+                    console.error('No profile data found');
+                    return;
+                }
+                
+                // Update profile information
+                document.getElementById('employeeName').textContent = profileData.personalInfo?.fullName || profileData.displayName || 'No name provided';
+                document.getElementById('employeeJobTitle').textContent = profileData.jobTitle || 'Skilled Worker';
+                document.getElementById('employeeEmail').textContent = profileData.personalInfo?.contactEmail || 'Not provided';
+                document.getElementById('employeePhone').textContent = profileData.personalInfo?.phone || 'Not provided';
+                document.getElementById('employeeLocation').textContent = profileData.currentProvince || 'Location not specified';
+                document.getElementById('employeeJobType').textContent = profileData.jobType || 'Not specified';
+                document.getElementById('employeeWorkArrangement').textContent = profileData.workArrangement || 'Not specified';
+                document.getElementById('employeeExperience').textContent = profileData.experienceLevel || 'Not specified';
+                
+                // Update skills
+                const skillsContainer = document.getElementById('employeeSkills');
+                skillsContainer.innerHTML = '';
+                if (profileData.skills && profileData.skills.length > 0) {
+                    profileData.skills.forEach(skill => {
+                        const skillBadge = document.createElement('div');
+                        skillBadge.className = 'skill-badge';
+                        skillBadge.textContent = skill;
+                        skillsContainer.appendChild(skillBadge);
+                    });
+                } else {
+                    skillsContainer.innerHTML = '<p>No skills listed</p>';
+                }
+                
+                // Update preferred locations
+                const locationsContainer = document.getElementById('employeePreferredLocations');
+                locationsContainer.innerHTML = '';
+                if (profileData.preferredLocations && profileData.preferredLocations.length > 0) {
+                    const locationsList = document.createElement('ul');
+                    profileData.preferredLocations.forEach(location => {
+                        const locationItem = document.createElement('li');
+                        locationItem.textContent = location;
+                        locationsList.appendChild(locationItem);
+                    });
+                    locationsContainer.appendChild(locationsList);
+                } else {
+                    locationsContainer.innerHTML = '<p>No preferred locations specified</p>';
+                }
+                
+                // Load feedback/comments
+                loadEmployeeFeedback(profileUserIdToLoad);
+                
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+                alert('Error loading profile information. Please try again.');
+            }
+        }
+        
+        function selectRating(rating) {
+            selectedRating = rating;
+            
+            // Update button styles
+            const likeBtn = document.getElementById('likeBtn');
+            const dislikeBtn = document.getElementById('dislikeBtn');
+            
+            if (rating === 'positive') {
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+            } else {
+                dislikeBtn.classList.add('active');
+                likeBtn.classList.remove('active');
+            }
+        }
+        
+        async function submitFeedback() {
+            if (!currentUser || !isEmployer || !profileUserId) {
+                alert('You must be logged in as an employer to submit feedback.');
+                return;
+            }
+            
+            const commentText = document.getElementById('commentText').value.trim();
+            
+            if (!selectedRating) {
+                alert('Please select a rating (like or dislike) before submitting feedback.');
+                return;
+            }
+            
+            if (!commentText) {
+                alert('Please write a comment before submitting feedback.');
+                return;
+            }
+            
+            try {
+                // Create feedback document
+                const feedbackData = {
+                    employeeId: profileUserId,
+                    employerId: currentUser.uid,
+                    employerName: employerData.companyInfo?.companyName || 'Anonymous Employer',
+                    rating: selectedRating,
+                    comment: commentText,
+                    createdAt: serverTimestamp()
+                };
+                
+                // Add to feedback collection
+                await setDoc(doc(collection(db, 'employeeFeedback')), feedbackData);
+                
+                // Show success message
+                alert('Thank you for your feedback!');
+                
+                // Clear form
+                document.getElementById('commentText').value = '';
+                selectedRating = null;
+                document.getElementById('likeBtn').classList.remove('active');
+                document.getElementById('dislikeBtn').classList.remove('active');
+                
+                // Reload feedback
+                loadEmployeeFeedback(profileUserId);
+                
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                alert('Failed to submit feedback. Please try again.');
+            }
+        }
+        
+        async function loadEmployeeFeedback(employeeId) {
+            try {
+                if (!employeeId) return;
+                
+                const feedbackQuery = query(
+                    collection(db, 'employeeFeedback'),
+                    where('employeeId', '==', employeeId),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(feedbackQuery);
+                const commentsContainer = document.getElementById('employeeComments');
+                let positiveCount = 0;
+                let negativeCount = 0;
+                
+                // Clear existing comments but keep the heading
+                const commentsHeading = commentsContainer.querySelector('h3');
+                commentsContainer.innerHTML = '';
+                if (commentsHeading) commentsContainer.appendChild(commentsHeading);
+                
+                if (querySnapshot.empty) {
+                    const noFeedback = document.createElement('p');
+                    noFeedback.textContent = 'No employer feedback yet.';
+                    commentsContainer.appendChild(noFeedback);
+                    return;
+                }
+                
+                querySnapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    if (feedback.rating === 'positive') positiveCount++;
+                    else if (feedback.rating === 'negative') negativeCount++;
+                    
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment';
+                    
+                    // comment-header: companySpan only
+                    const commentHeader = document.createElement('div');
+                    commentHeader.className = 'comment-header';
+                    const companySpan = document.createElement('span');
+                    companySpan.textContent = feedback.employerName;
+                    commentHeader.appendChild(companySpan);
 
-        // Optional: Add arrow navigation
-        document.addEventListener('DOMContentLoaded', () => {
-            const sliderContainer = document.querySelector('.slider-container');
-            
-            // Create navigation arrows
-            sliderContainer.insertAdjacentHTML('beforeend', `
-                <div class="slider-nav">
-                    <button class="prev-slide">❮</button>
-                    <button class="next-slide">❯</button>
-                </div>
-            `);
-            
-            // Add event listeners for arrows
-            document.querySelector('.prev-slide').addEventListener('click', () => showSlide(currentSlide - 1));
-            document.querySelector('.next-slide').addEventListener('click', nextSlide);
-        });
+                    // comment-text: dateSpan, ratingSpan, comment-text
+                    const commentTextBlock = document.createElement('div');
+                    commentTextBlock.className = 'comment-text';
+
+                    const dateSpan = document.createElement('span');
+                    dateSpan.className = 'comment-date';
+                    dateSpan.textContent = feedback.createdAt?.toDate().toLocaleDateString() || '';
+
+                    const ratingSpan = document.createElement('span');
+                    ratingSpan.className = `comment-rating ${feedback.rating === 'positive' ? 'positive-rating' : 'negative-rating'}`;
+                    ratingSpan.textContent = feedback.rating === 'positive' ? '👍 Liked' : '👎 Disliked';
+
+                    // Add date, rating, and comment text in order
+                    commentTextBlock.appendChild(document.createTextNode(feedback.comment));
+                    commentTextBlock.appendChild(document.createElement('br'));
+                    commentTextBlock.appendChild(dateSpan);
+                    commentTextBlock.appendChild(document.createTextNode(' ')); // space
+                    commentTextBlock.appendChild(ratingSpan);
+                    
+                    
+
+                    commentDiv.appendChild(commentHeader);
+                    commentDiv.appendChild(commentTextBlock);
+                    
+                    commentsContainer.appendChild(commentDiv);
+                });
+                
+                // Update feedback counts
+                document.getElementById('positiveFeedback').textContent = positiveCount;
+                document.getElementById('negativeFeedback').textContent = negativeCount;
+                
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+            }
+        }
     </script>
 </body>
 </html>

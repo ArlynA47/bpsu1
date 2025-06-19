@@ -3,39 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Employee Profile - HirNa!</title>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
-        /* Additional styles for sentiment results */
-        .sentiment-loading {
-            padding: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #666;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Add to existing styles */
+        .feedback-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
         }
         
-        .sentiment-result {
-            padding: 8px;
-            background: #e8f4ff;
-            border-radius: 4px;
-            margin-top: 5px;
-            font-size: 14px;
+        .like-btn, .dislike-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .sentiment-error {
-            padding: 8px;
-            background: #ffebee;
+        .like-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .dislike-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .comment-form {
+            margin-top: 20px;
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #c62828;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .submit-comment {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #2F4A62;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
-
 </head>
 <body>
     <header>
@@ -73,199 +96,317 @@
         <div class="profile-container">
             <div class="profile-header">
                 <div class="profile-header-left">
-                    <div class="name">Francis Daniel M. Genese</div>
-                    <div class="skills">
+                    <div class="name" id="employeeName">Francis Daniel M. Genese</div>
+                    <div class="skills" id="employeeSkills">
                         <div class="skill">Skill 1</div>
                         <div class="skill">Skill 2</div>
                     </div>
                 </div>
                 <div class="profile-header-right">
                     <div class="feedback">
-                        <button class="summarize-btn" id="summarizeReviewBtn">Summarize Review</button>
-                        <div class="icon thumbs-up"><span>3</span>  <img src="../images/likey.png"></div>
-                        <div class="icon thumbs-down"><span>2</span> <img src="../images/dislikey.png"> </div>
+                        <div class="icon thumbs-up"><span id="likeCount">3</span>  <img src="../images/likey.png"></div>
+                        <div class="icon thumbs-down"><span id="dislikeCount">2</span> <img src="../images/dislikey.png"> </div>
                     </div>
                 </div>
             </div>
-            <div class="comments">
-                <div class="comment">
-                    <div class="company-name">Company A</div>
-                    <div class="comment-text">Quick learner and cooperative! Will hire again!</div>
-                </div>
-                <div class="comment">
-                    <div class="company-name">Company B</div>
-                    <div class="comment-text">Strong communication skills.</div>
-                </div>
+            <div class="comments" id="commentsSection">
+                <!-- Comments will be loaded here -->
             </div>
-        </div>
-        <div id="summaryModal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Review Summary</h2>
-                <div class="modal-body">
-                <p id="sentimentdisplay">This is where the review summary will appear...</p>
+            
+            <!-- Feedback section for employers -->
+            <div id="employerFeedbackSection" style="display: none;">
+                <h3>Leave Feedback</h3>
+                <div class="feedback-actions">
+                    <button class="like-btn" id="likeBtn">
+                        <i class="fas fa-thumbs-up"></i> Like
+                    </button>
+                    <button class="dislike-btn" id="dislikeBtn">
+                        <i class="fas fa-thumbs-down"></i> Dislike
+                    </button>
                 </div>
-                <div class="modal-footer">
-                <button class="modal-close-btn">Close</button>
+                <div class="comment-form">
+                    <textarea class="comment-input" id="commentInput" placeholder="Write your comment about this employee..."></textarea>
+                    <button class="submit-comment" id="submitCommentBtn">Submit Comment</button>
                 </div>
             </div>
         </div>
     </main>
-    <!-- slider script -->
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
     <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        const sentimentdisplay = document.getElementById('sentimentdisplay');
-        let slideInterval;
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
 
-        function showSlide(index) {
-            // Wrap around if at ends
-            if (index >= slides.length) currentSlide = 0;
-            else if (index < 0) currentSlide = slides.length - 1;
-            else currentSlide = index;
-            
-            // Update slides
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === currentSlide);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Get employee ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const employeeId = urlParams.get('id');
+        
+        // DOM elements
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const submitCommentBtn = document.getElementById('submitCommentBtn');
+        const commentInput = document.getElementById('commentInput');
+        const likeCount = document.getElementById('likeCount');
+        const dislikeCount = document.getElementById('dislikeCount');
+        const commentsSection = document.getElementById('commentsSection');
+        const employerFeedbackSection = document.getElementById('employerFeedbackSection');
+
+        // Load employee profile data
+        function loadEmployeeProfile() {
+            if (!employeeId) return;
+
+            db.collection('careerstepEmployees').doc(employeeId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        // Update profile info
+                        document.getElementById('employeeName').textContent = data.personalInfo?.fullName || 'Unknown';
+                        
+                        // Update skills
+                        const skillsContainer = document.getElementById('employeeSkills');
+                        skillsContainer.innerHTML = '';
+                        if (data.jobPreferences?.skills) {
+                            data.jobPreferences.skills.forEach(skill => {
+                                const skillElement = document.createElement('div');
+                                skillElement.className = 'skill';
+                                skillElement.textContent = skill;
+                                skillsContainer.appendChild(skillElement);
+                            });
+                        }
+                        
+                        // Load feedback
+                        loadFeedback();
+                    }
+                });
+        }
+
+        // Load feedback (likes, dislikes, comments)
+        function loadFeedback() {
+            if (!employeeId) return;
+
+            // Load likes/dislikes
+            db.collection('employeeFeedback').doc(employeeId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        likeCount.textContent = data.likes || 0;
+                        dislikeCount.textContent = data.dislikes || 0;
+                    }
+                });
+
+            // Load comments
+            db.collection('employeeComments').where('employeeId', '==', employeeId)
+                .orderBy('createdAt', 'desc')
+                .get()
+                .then(querySnapshot => {
+                    commentsSection.innerHTML = '';
+                    querySnapshot.forEach(doc => {
+                        const comment = doc.data();
+                        addCommentToUI(comment);
+                    });
+                });
+        }
+
+        // Add comment to UI
+        function addCommentToUI(comment) {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment';
+            commentElement.innerHTML = `
+                <div class="company-name">${comment.companyName || 'Anonymous'}</div>
+                <div class="comment-text">${comment.text}</div>
+                <div class="comment-date">${comment.createdAt.toDate().toLocaleDateString()}</div>
+            `;
+            commentsSection.appendChild(commentElement);
+        }
+
+        // Check if current user is employer and show feedback section
+        function checkUserRole() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    db.collection('employers').doc(user.uid).get()
+                        .then(doc => {
+                            if (doc.exists) {
+                                employerFeedbackSection.style.display = 'block';
+                                setupFeedbackButtons(user.uid);
+                            }
+                        });
+                }
             });
-            
-            // Update dots
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlide);
+        }
+
+        // Setup feedback buttons
+        function setupFeedbackButtons(employerId) {
+            // Check if employer already gave feedback
+            db.collection('employeeFeedback').doc(employeeId).collection('votes')
+                .doc(employerId).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const vote = doc.data().vote;
+                        if (vote === 'like') {
+                            likeBtn.disabled = true;
+                        } else if (vote === 'dislike') {
+                            dislikeBtn.disabled = true;
+                        }
+                    }
+                });
+
+            // Like button handler
+            likeBtn.addEventListener('click', () => {
+                submitVote(employerId, 'like');
+            });
+
+            // Dislike button handler
+            dislikeBtn.addEventListener('click', () => {
+                submitVote(employerId, 'dislike');
+            });
+
+            // Comment submit handler
+            submitCommentBtn.addEventListener('click', () => {
+                submitComment(employerId);
             });
         }
 
-        function nextSlide() {
-            showSlide(currentSlide + 1);
-        }
+        // Submit vote (like/dislike)
+        function submitVote(employerId, voteType) {
+            const batch = db.batch();
+            const feedbackRef = db.collection('employeeFeedback').doc(employeeId);
+            const voteRef = feedbackRef.collection('votes').doc(employerId);
 
-        function startSlider() {
-            slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
-        }
-
-        function stopSlider() {
-            clearInterval(slideInterval);
-        }
-
-        // Initialize
-        showSlide(0);
-        startSlider();
-
-        // Pause on hover
-        document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
-        document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
-
-        // Click handlers for dots
-        dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-                showSlide(i);
+            // Get current feedback to update counts correctly
+            db.runTransaction(transaction => {
+                return transaction.get(feedbackRef).then(doc => {
+                    if (!doc.exists) {
+                        transaction.set(feedbackRef, {
+                            likes: voteType === 'like' ? 1 : 0,
+                            dislikes: voteType === 'dislike' ? 1 : 0
+                        });
+                    } else {
+                        const data = doc.data();
+                        const updates = {};
+                        
+                        // Check if user already voted
+                        return transaction.get(voteRef).then(voteDoc => {
+                            if (voteDoc.exists) {
+                                const prevVote = voteDoc.data().vote;
+                                if (prevVote === voteType) return; // Already voted same way
+                                
+                                // Remove previous vote
+                                updates[prevVote + 's'] = firebase.firestore.FieldValue.increment(-1);
+                            }
+                            
+                            // Add new vote
+                            updates[voteType + 's'] = firebase.firestore.FieldValue.increment(1);
+                            transaction.update(feedbackRef, updates);
+                            transaction.set(voteRef, { vote: voteType });
+                            
+                            // Update UI
+                            if (voteType === 'like') {
+                                likeCount.textContent = (data.likes || 0) + (updates.likes || 1);
+                                likeBtn.disabled = true;
+                                dislikeBtn.disabled = false;
+                            } else {
+                                dislikeCount.textContent = (data.dislikes || 0) + (updates.dislikes || 1);
+                                dislikeBtn.disabled = true;
+                                likeBtn.disabled = false;
+                            }
+                        });
+                    }
+                });
+            }).catch(error => {
+                console.error("Error submitting vote:", error);
             });
-        });
+        }
 
-        // Optional: Add arrow navigation
+        // Submit comment
+        function submitComment(employerId) {
+            const commentText = commentInput.value.trim();
+            if (!commentText) return;
+
+            // Get employer info
+            db.collection('employers').doc(employerId).get()
+                .then(employerDoc => {
+                    const employerData = employerDoc.data();
+                    
+                    // Add comment
+                    db.collection('employeeComments').add({
+                        employeeId: employeeId,
+                        employerId: employerId,
+                        companyName: employerData.companyInfo?.companyName || 'Unknown Company',
+                        text: commentText,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        commentInput.value = '';
+                        loadFeedback(); // Refresh comments
+                    });
+                });
+        }
+
+        // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
-            const sliderContainer = document.querySelector('.slider-container');
+            loadEmployeeProfile();
+            checkUserRole();
             
-            // Create navigation arrows
-            sliderContainer.insertAdjacentHTML('beforeend', `
-                <div class="slider-nav">
-                    <button class="prev-slide">❮</button>
-                    <button class="next-slide">❯</button>
-                </div>
-            `);
-            
-            // Add event listeners for arrows
-            document.querySelector('.prev-slide').addEventListener('click', () => showSlide(currentSlide - 1));
-            document.querySelector('.next-slide').addEventListener('click', nextSlide);
-        });
-    </script>
-    <!-- modal script -->
-    <script>
-       document.addEventListener('DOMContentLoaded', function() {
-        // Get modal elements
-        const modal = document.getElementById('summaryModal');
-        const summarizeBtn = document.querySelector('.summarize-btn');
-        const closeModal = document.querySelector('.close-modal');
-        const modalCloseBtn = document.querySelector('.modal-close-btn');
+            // Slider script remains the same
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let slideInterval;
 
-        // Open modal when summarize button is clicked
-        summarizeBtn.addEventListener('click', async function () {
-            // Disable the button and show "Analyzing..."
-            summarizeBtn.disabled = true;
-            const originalText = summarizeBtn.textContent;
-            summarizeBtn.textContent = 'Analyzing...';
-
-            try {
-                const results = await summarizeReview();
-
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                document.querySelector('.modal-body p').innerHTML = results;
-            } finally {
-                // Re-enable the button and restore original text
-                summarizeBtn.disabled = false;
-                summarizeBtn.textContent = originalText;
+            function showSlide(index) {
+                if (index >= slides.length) currentSlide = 0;
+                else if (index < 0) currentSlide = slides.length - 1;
+                else currentSlide = index;
+                
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === currentSlide);
+                });
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentSlide);
+                });
             }
-        });
 
-
-
-        // Close modal when X is clicked
-        closeModal.addEventListener('click', function() {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-
-        // Close modal when close button is clicked
-        modalCloseBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-
-        // Close modal when clicking outside content
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            function nextSlide() {
+                showSlide(currentSlide + 1);
             }
+
+            function startSlider() {
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+
+            function stopSlider() {
+                clearInterval(slideInterval);
+            }
+
+            showSlide(0);
+            startSlider();
+
+            document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
+            document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    showSlide(i);
+                });
+            });
         });
-        });
-
-async function summarizeReview() {
-    const commentElements = document.querySelectorAll('.comment-text');
-
-    // Combine all comment texts into one string
-    const allText = Array.from(commentElements)
-        .map(el => el.textContent.trim())
-        .filter(text => !!text)
-        .join(' ');
-
-    if (!allText) {
-        return 'No comment text available.';
-    }
-
-    try {
-        const response = await $.ajax({
-            url: "http://localhost:3000/sentiment-proxy",
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            data: JSON.stringify({ content: allText })
-        });
-
-        const content = response.content || 'No summary returned.';
-
-        // Replace the word "sentiment" with "feedback" (case-insensitive)
-        return content.replace(/sentiment/gi, 'feedback');
-
-        
-        
-    } catch (error) {
-        console.error('Sentiment API error:', error);
-        return 'Error analyzing comments.';
-    }
-}
-
     </script>
 </body>
 </html>
