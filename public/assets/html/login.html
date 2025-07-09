@@ -161,9 +161,7 @@
       setTimeout(() => { flash.style.display = 'none'; }, 5000);
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) await redirectUserBasedOnType(user.uid);
-    });
+
 
     // Modal logic
     document.addEventListener('DOMContentLoaded', () => {

@@ -6,6 +6,8 @@
     <title>Employee Profile</title>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         /* Additional styles for dynamic content */
         .profile-container {
@@ -201,6 +203,11 @@
         .employer .employer-only {
             display: block;
         }
+
+        .mb-4 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
         #workpref {
             display: none;
         }
@@ -282,6 +289,9 @@
             <!-- Employer Feedback Section (only visible to employers) -->
             <div class="feedback-section employer-only" id="employerFeedbackSection">
                 <h3>Leave Feedback</h3>
+                <button id="analyzeBtn" class="feedback-btn mb-4">
+                    <i class="fas fa-thumbs-up"></i> Analyze Feedbacks
+                </button>
                 <div class="feedback-actions">
                     <button id="likeBtn" class="feedback-btn like-btn">
                         <i class="fas fa-thumbs-up"></i> Like
@@ -300,6 +310,19 @@
             <div class="comments-section" id="employeeComments">
                 <h3>Employer Feedback</h3>
                 <!-- Comments will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div id="summaryModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Review Summary</h2>
+                <div class="modal-body">
+                <p id="sentimentdisplay">This is where the review summary will appear...</p>
+                </div>
+                <div class="modal-footer">
+                <button class="modal-close-btn">Close</button>
+                </div>
             </div>
         </div>
     </main>
@@ -333,10 +356,17 @@
         let isEmployer = false;
         let selectedRating = null;
         let employerData = null;
+        let analyzeBtn = document.getElementById('analyzeBtn');
         
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthState();
             
+            // Get modal elements
+            const modal = document.getElementById('summaryModal');
+            const summarizeBtn = document.querySelector('.summarize-btn');
+            const closeModal = document.querySelector('.close-modal');
+            const modalCloseBtn = document.querySelector('.modal-close-btn');
+
             // Slider script remains the same
             let currentSlide = 0;
             const slides = document.querySelectorAll('.slide');
@@ -391,6 +421,45 @@
             });
             
             document.getElementById('submitCommentBtn').addEventListener('click', submitFeedback);
+
+            analyzeBtn.addEventListener('click', async function () {
+                // Disable the button and show "Analyzing..."
+                analyzeBtn.disabled = true;
+                const originalText = analyzeBtn.textContent;
+                analyzeBtn.textContent = 'Analyzing...';
+
+                try {
+                    const results = await summarizeReview();
+
+                    modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                    document.querySelector('.modal-body p').innerHTML = results;
+                } finally {
+                    // Re-enable the button and restore original text
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = originalText;
+                }
+            });
+
+                // Close modal when X is clicked
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close modal when close button is clicked
+            modalCloseBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close modal when clicking outside content
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                }
+            });
         });
         
         async function checkAuthState() {
@@ -594,10 +663,10 @@
                     const feedback = doc.data();
                     if (feedback.rating === 'positive') positiveCount++;
                     else if (feedback.rating === 'negative') negativeCount++;
-                    
+
                     const commentDiv = document.createElement('div');
                     commentDiv.className = 'comment';
-                    
+
                     // comment-header: companySpan only
                     const commentHeader = document.createElement('div');
                     commentHeader.className = 'comment-header';
@@ -605,32 +674,38 @@
                     companySpan.textContent = feedback.employerName;
                     commentHeader.appendChild(companySpan);
 
-                    // comment-text: dateSpan, ratingSpan, comment-text
+                    // comment-text: wraps the full block
                     const commentTextBlock = document.createElement('div');
                     commentTextBlock.className = 'comment-text';
 
+                    // ✅ NEW: Wrap only the actual comment in its own <p>
+                    const commentBody = document.createElement('p');
+                    commentBody.className = 'comment-body';
+                    commentBody.textContent = feedback.comment;
+                    commentTextBlock.appendChild(commentBody);
+
+                    // Date
                     const dateSpan = document.createElement('span');
                     dateSpan.className = 'comment-date';
                     dateSpan.textContent = feedback.createdAt?.toDate().toLocaleDateString() || '';
 
+                    // Rating
                     const ratingSpan = document.createElement('span');
                     ratingSpan.className = `comment-rating ${feedback.rating === 'positive' ? 'positive-rating' : 'negative-rating'}`;
                     ratingSpan.textContent = feedback.rating === 'positive' ? '👍 Liked' : '👎 Disliked';
 
-                    // Add date, rating, and comment text in order
-                    commentTextBlock.appendChild(document.createTextNode(feedback.comment));
+                    // Append the rest (date and rating)
                     commentTextBlock.appendChild(document.createElement('br'));
                     commentTextBlock.appendChild(dateSpan);
-                    commentTextBlock.appendChild(document.createTextNode(' ')); // space
+                    commentTextBlock.appendChild(document.createTextNode(' '));
                     commentTextBlock.appendChild(ratingSpan);
-                    
-                    
 
+                    // Final assembly
                     commentDiv.appendChild(commentHeader);
                     commentDiv.appendChild(commentTextBlock);
-                    
                     commentsContainer.appendChild(commentDiv);
                 });
+
                 
                 // Update feedback counts
                 document.getElementById('positiveFeedback').textContent = positiveCount;
@@ -640,6 +715,40 @@
                 console.error('Error loading feedback:', error);
             }
         }
+
+        async function summarizeReview() {
+            const commentElements = document.querySelectorAll('.comment-body');
+
+            // Combine all comment texts into one string
+            const allText = Array.from(commentElements)
+                .map(el => el.textContent.trim())
+                .filter(text => !!text)
+                .join(' ');
+
+            if (!allText) {
+                return 'No comment text available.';
+            }
+
+            try {
+                const response = await $.ajax({
+                    url: "http://localhost:3000/sentiment-proxy",
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    data: JSON.stringify({ content: allText })
+                });
+
+                const content = response.content || 'No summary returned.';
+
+                // Replace the word "sentiment" with "feedback" (case-insensitive)
+                return content
+                    .replace(/sentiment/gi, 'feedback')
+                    .replace(/text/gi, 'comment(s)');
+            } catch (error) {
+                console.error('Sentiment API error:', error);
+                return 'Error analyzing comments.';
+            }
+        }
+
     </script>
 </body>
 </html>
