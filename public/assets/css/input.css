@@ -1,2 +1,11 @@
-@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
 
+* {
+  /* border: 2px solid red; */
+}
+
+body {
+  font-family: "Geist", sans-serif;
+}
+
+@import "tailwindcss";

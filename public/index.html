@@ -1,13 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/output.css">
     <title>HirNa!</title>
     <a href="assets/html/test.html">Go to test</a>
 </head>
+
 <body>
-    
+    <nav class="flex justify-between bg-[#232323] p-2.5">
+        <div class="flex flex-1 justify-start items-end gap-2 ">
+            <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-1 justify-between items-center gap-4">
+            <a href="#" class="text-white hover:text-gray-300">Home</a>
+            <a href="#" class="text-white hover:text-gray-300">Find Job</a>
+            <a href="#" class="text-white hover:text-gray-300">About Us</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <button class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">Login</button>
+        </div>
+    </nav>
+
+    <div class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+        <div class="basis-[40%] flex flex-col justify-center items-center">
+            <div class="flex flex-col">
+                <h1 class="text-7xl font-bold text-[#315A39]">HirNa!</h1>
+                <h2 class="text-2xl">Para sa Talentado. Hindi lang sa Pulido.</h2>
+
+                <button class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[40%] mt-4">Explore<i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        <div class="basis-[60%] flex justify-center items-center">
+            <img src="./assets/images/hero-img.png" alt="]Hero Image"   >
+        </div>
+    </div>
+
+    <div class="bg-[#F5FFF1] min-h-[150vh]"></div>
 </body>
+
 </html>
