@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/assets/css/output.css">
+    <link rel="stylesheet" href="./assets/css/output.css">
     <title>HirNa!</title>
 </head>
 
 <body>
     <!-- Navigation Bar -->
-    <nav class="flex justify-between bg-[#232323] p-2.5">
+    <nav class="flex justify-between bg-[#232323] p-2.5 sticky top-0 z-50">
         <div class="flex flex-1 justify-start items-end gap-2 ">
-            <img src="/public/assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+            <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
 
         <div class="flex flex-1 justify-between items-center gap-4">
             <a href="#" class="text-white hover:text-gray-300">Home</a>
-            <a href="#" class="text-white hover:text-gray-300">Find Job</a>
-            <a href="#" class="text-white hover:text-gray-300">About Us</a>
+            <a href="#findJobs" class="text-white hover:text-gray-300">Find Job</a>
+            <a href="#aboutUs" class="text-white hover:text-gray-300">About Us</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
@@ -28,7 +28,8 @@
     </nav>
 
     <!-- Hero Section -->
-    <div class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+    <div id="home"
+        class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         <div class="basis-[40%] flex flex-col justify-center items-center">
             <div class="flex flex-col">
                 <h1 class="text-7xl font-bold text-[#315A39]">HirNa!</h1>
@@ -40,12 +41,12 @@
             </div>
         </div>
         <div class="basis-[60%] flex justify-center items-center">
-            <img src="/public/assets/images/hero-img.png" alt="Hero Image">
+            <img src="./assets/images/hero-img.png" alt="]Hero Image">
         </div>
     </div>
 
     <!-- North Luzon Job Market Overview -->
-    <div class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-20 gap-15">
+    <div id="findJobs" class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-20 gap-15">
         <div class="flex flex-col items-center gap-8 w-[60%]">
             <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Job Market Overview</h1>
             <div class="flex justify-between items-center w-full">
@@ -73,7 +74,7 @@
 
         <div class="flex w-full gap-20 min-h-[50vh]">
             <div class="flex flex-col flex-1 gap-5">
-                <img src="/public/assets/images/north-luzon-map.png" alt="North Luzon Map" class="h-full w-full rounded-xl">
+                <img src="./assets/images/north-luzon-map.png" alt="North Luzon Map" class="h-full w-full rounded-xl">
             </div>
 
             <div class="flex flex-col flex-1 rounded-xl bg-[#f0f0f0] p-5 gap-6">
@@ -117,16 +118,46 @@
     </div>
 
     <!-- About Us -->
-    <div class="flex flex-col items-center py-20 px-20 gap-15 min-h-[70vh]">
+    <div id="aboutUs" class="flex flex-col items-center py-20 px-20 gap-15 min-h-[50vh]">
         <h1 class="text-[#3D3D3D] text-3xl font-bold">Why Choose HirNa?</h1>
 
-        <div class="flex justify-between items-center">
-            <div class="flex justify-center items-center p-4">
-                <img src="/public/assets/images/choose-logo-1.png" alt="Choose Logo 1" class="h-20 w-20">
-                <h2>Smart Job Matching</h2>
+        <div class="flex justify-between items-center gap-6 w-[90%]">
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-1.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Skill-based Matching</h2>
+                <p class="text-center text-[#828282]">Land jobs that match your skills with smart, precision-based
+                    matching that works for you.</p>
+            </div>
+
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-2.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Ease of Use</h2>
+                <p class="text-center text-[#828282]">A Tinder-style job hunt—just one tap and you're instantly swiping
+                    through tailored job listings.</p>
+            </div>
+
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-3.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Resume-CV Free</h2>
+                <p class="text-center text-[#828282]">No resume? No problem—start job hunting instantly, no CV required
+                </p>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="flex justify-between items-center bg-[#232323] text-white py-4 px-10 gap-4">
+
+        <div class="flex items-center gap-2">
+            <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-15 w-15">
+            <div class="flex flex-col">
+                <h1 class="text-lg font-bold">HirNa!</h1>
+                <p class="text-sm">Para sa Talentado. Hindi lang sa Pulido.</p>
+            </div>
+        </div>
+
+        <p class="text-sm">© 2025 HirNa! All rights reserved.</p>
+    </footer>
 </body>
 
 </html>
