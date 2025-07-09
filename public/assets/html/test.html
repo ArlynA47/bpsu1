@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #loading {
+            display: none;
+            margin: 10px 0;
+            color: #666;
+        }
+        #result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis Tester</h1>
+        <p>Now with Firebase Functions proxy</p>
+        
+        <label for="text-input">Enter text to analyze:</label>
+        <textarea id="text-input" placeholder="Type your text here..."></textarea>
+        
+        <button id="analyze-btn">Analyze Sentiment</button>
+        
+        <div id="loading">Analyzing... (This may take a few seconds)</div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('analyze-btn').addEventListener('click', async () => {
+            const textInput = document.getElementById('text-input').value.trim();
+            const resultDiv = document.getElementById('result');
+            const loadingIndicator = document.getElementById('loading');
+            
+            // Clear previous results
+            resultDiv.textContent = '';
+            resultDiv.className = '';
+            
+            if (!textInput) {
+                resultDiv.textContent = 'Please enter some text';
+                resultDiv.className = 'error';
+                return;
+            }
+            
+            try {
+                loadingIndicator.style.display = 'block';
+                
+                const response = await fetch('/api/analyze-sentiment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: textInput })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.textContent = `Sentiment Analysis Result:\n${JSON.stringify(data, null, 2)}`;
+                resultDiv.className = 'success';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `Error: ${error.message}<br><br>Try:<br>
+                1. Refreshing the page<br>
+                2. Checking your internet connection<br>
+                3. Contacting support if the problem persists`;
+                resultDiv.className = 'error';
+                console.error('Analysis error:', error);
+                
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -558,7 +558,6 @@
 
                     // Show success message
                     submitBtn.innerHTML = '<i class="fas fa-check"></i> Job Seed Created!';
-                    alert('Job seed created successfully with ID: ' + docRef.id);
 
                     // Reset form after success
                     document.getElementById('jobTitle').value = '';
@@ -569,6 +568,8 @@
                     charCounter.textContent = '0/150';
                     document.querySelector('.location-option.selected')?.classList.remove('selected');
                     document.getElementById('positionsNeeded').value = '';
+
+                    window.location.href = 'job-listings.html';
                     
                 } catch (error) {
                     console.error('Error adding job seed: ', error);
