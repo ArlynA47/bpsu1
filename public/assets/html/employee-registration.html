@@ -102,30 +102,9 @@
                                 <input type="hidden" id="skills" name="skills">
                             </div>
 
-
-
                             <div class="input-group">
-                                <label>Preferred Work Locations in North Luzon</label>
-                                <div class="checkbox-group">
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="preferredLocations" value="Abra"> Abra</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Apayao"> Apayao</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Benguet"> Benguet</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Cagayan"> Cagayan</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ifugao"> Ifugao</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Norte"> Ilocos Norte</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Sur"> Ilocos Sur</label>
-                                    </div>
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="preferredLocations" value="Isabela"> Isabela</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Kalinga"> Kalinga</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="La Union"> La Union</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Mountain Province"> Mountain Province</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Nueva Vizcaya"> Nueva Vizcaya</label>
-                                         <label><input type="checkbox" name="preferredLocations" value="Pangasinan"> Pangasinan</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Quirino"> Quirino</label>
-                                    </div>
-                                </div>
+                              <label>Preferred Work Locations in North Luzon</label>
+                              <div id="preferredLocationsContainer" class="checkbox-group"></div>
                             </div>
                         </div>
 
@@ -338,6 +317,69 @@
       alert(errorMap[error.code] || "Registration failed. Please try again.");
     }
   });
+
+  // North Luzon provinces
+  const northLuzonProvinces = [
+  // Column 1 (Left)       // Column 2 (Right)
+  "Ilocos Norte",          "Ilocos Sur",
+  "La Union",              "Pangasinan",
+  "Batanes",               "Cagayan",
+  "Isabela",               "Nueva Vizcaya",
+  "Quirino",               "Abra",
+  "Apayao",                "Benguet",
+  "Ifugao",                "Kalinga",
+  "Mountain Province",     "Aurora",
+  "Bataan",                "Bulacan",
+  "Nueva Ecija",           "Pampanga",
+  "Tarlac",                "Zambales"
+];
+
+  function renderPreferredLocationsCheckboxes() {
+    const container = document.getElementById("preferredLocationsContainer");
+    if (!container) return;
+
+    // Clear previous content
+    container.innerHTML = '';
+
+    // Create two columns
+    const leftColumn = document.createElement("div");
+    leftColumn.className = "checkbox-column";
+    const rightColumn = document.createElement("div");
+    rightColumn.className = "checkbox-column";
+
+    // Add provinces to columns in pairs
+    for (let i = 0; i < northLuzonProvinces.length; i += 2) {
+        // Left column item
+        if (northLuzonProvinces[i]) {
+            const leftLabel = document.createElement("label");
+            const leftCheckbox = document.createElement("input");
+            leftCheckbox.type = "checkbox";
+            leftCheckbox.name = "preferredLocations";
+            leftCheckbox.value = northLuzonProvinces[i];
+            leftLabel.appendChild(leftCheckbox);
+            leftLabel.appendChild(document.createTextNode(" " + northLuzonProvinces[i]));
+            leftColumn.appendChild(leftLabel);
+        }
+
+        // Right column item
+        if (northLuzonProvinces[i + 1]) {
+            const rightLabel = document.createElement("label");
+            const rightCheckbox = document.createElement("input");
+            rightCheckbox.type = "checkbox";
+            rightCheckbox.name = "preferredLocations";
+            rightCheckbox.value = northLuzonProvinces[i + 1];
+            rightLabel.appendChild(rightCheckbox);
+            rightLabel.appendChild(document.createTextNode(" " + northLuzonProvinces[i + 1]));
+            rightColumn.appendChild(rightLabel);
+        }
+    }
+
+    // Add columns to container
+    container.appendChild(leftColumn);
+    container.appendChild(rightColumn);
+}
+
+document.addEventListener("DOMContentLoaded", renderPreferredLocationsCheckboxes);
 
   // Initialize
   document.addEventListener("DOMContentLoaded", () => {
