@@ -293,6 +293,12 @@ body {
   .w-\[35\%\] {
     width: 35%;
   }
+  .w-\[50\%\] {
+    width: 50%;
+  }
+  .w-\[55\%\] {
+    width: 55%;
+  }
   .w-\[60\%\] {
     width: 60%;
   }
@@ -383,6 +389,12 @@ body {
   .gap-20 {
     gap: calc(var(--spacing) * 20);
   }
+  .self-center {
+    align-self: center;
+  }
+  .self-end {
+    align-self: flex-end;
+  }
   .self-start {
     align-self: flex-start;
   }
@@ -456,6 +468,9 @@ body {
   .bg-\[\#f0f0f0\] {
     background-color: #f0f0f0;
   }
+  .bg-transparent {
+    background-color: transparent;
+  }
   .bg-white {
     background-color: var(--color-white);
   }
@@ -498,8 +513,14 @@ body {
   .px-10 {
     padding-inline: calc(var(--spacing) * 10);
   }
+  .px-15 {
+    padding-inline: calc(var(--spacing) * 15);
+  }
   .px-20 {
     padding-inline: calc(var(--spacing) * 20);
+  }
+  .py-1 {
+    padding-block: calc(var(--spacing) * 1);
   }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
@@ -561,14 +582,8 @@ body {
   .text-\[\#5E5E5E\] {
     color: #5E5E5E;
   }
-  .text-\[\#5a7a52\] {
-    color: #5a7a52;
-  }
   .text-\[\#6B6B6B\] {
     color: #6B6B6B;
-  }
-  .text-\[\#8baf82\] {
-    color: #8baf82;
   }
   .text-\[\#315A39\] {
     color: #315A39;
@@ -587,9 +602,6 @@ body {
   }
   .text-\[\#828282\] {
     color: #828282;
-  }
-  .text-\[\#a3e792\] {
-    color: #a3e792;
   }
   .text-gray-500 {
     color: var(--color-gray-500);
