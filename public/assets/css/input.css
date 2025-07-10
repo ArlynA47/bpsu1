@@ -4,6 +4,10 @@
   /* border: 2px solid red; */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Geist", sans-serif;
 }

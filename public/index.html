@@ -11,15 +11,16 @@
 </head>
 
 <body>
-    <nav class="flex justify-between bg-[#232323] p-2.5">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] p-2.5 sticky top-0 z-50">
         <div class="flex flex-1 justify-start items-end gap-2 ">
             <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
 
         <div class="flex flex-1 justify-between items-center gap-4">
             <a href="#" class="text-white hover:text-gray-300">Home</a>
-            <a href="#" class="text-white hover:text-gray-300">Find Job</a>
-            <a href="#" class="text-white hover:text-gray-300">About Us</a>
+            <a href="#findJobs" class="text-white hover:text-gray-300">Find Job</a>
+            <a href="#aboutUs" class="text-white hover:text-gray-300">About Us</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
@@ -27,21 +28,137 @@
         </div>
     </nav>
 
-    <div class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+    <!-- Hero Section -->
+    <div id="home"
+        class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         <div class="basis-[40%] flex flex-col justify-center items-center">
             <div class="flex flex-col">
                 <h1 class="text-7xl font-bold text-[#315A39]">HirNa!</h1>
                 <h2 class="text-2xl">Para sa Talentado. Hindi lang sa Pulido.</h2>
 
-                <button class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[40%] mt-4">Explore<i class="fas fa-arrow-right"></i></button>
+                <button
+                    class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[40%] mt-4">Explore<i
+                        class="fas fa-arrow-right"></i></button>
             </div>
         </div>
         <div class="basis-[60%] flex justify-center items-center">
-            <img src="./assets/images/hero-img.png" alt="]Hero Image"   >
+            <img src="./assets/images/hero-img.png" alt="]Hero Image">
         </div>
     </div>
 
-    <div class="bg-[#F5FFF1] min-h-[150vh]"></div>
+    <!-- North Luzon Job Market Overview -->
+    <div id="findJobs" class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-20 gap-15">
+        <div class="flex flex-col items-center gap-8 w-[60%]">
+            <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Job Market Overview</h1>
+            <div class="flex justify-between items-center w-full">
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D33B3B]"></div>
+                    <span class="text-[#474747]">2000+ Jobs</span>
+                </div>
+
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D3733B]"></div>
+                    <span class="text-[#474747]">1000-1999 Jobs</span>
+                </div>
+
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#FFEA05]"></div>
+                    <span class="text-[#474747]">500-999 Jobs</span>
+                </div>
+
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#7FD33B]"></div>
+                    <span class="text-[#474747]">0-4999 Jobs</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex w-full gap-20 min-h-[50vh]">
+            <div class="flex flex-col flex-1 gap-5">
+                <img src="./assets/images/north-luzon-map.png" alt="North Luzon Map" class="h-full w-full rounded-xl">
+            </div>
+
+            <div class="flex flex-col flex-1 rounded-xl bg-[#f0f0f0] p-5 gap-6">
+                <div class="flex items-center w-full bg-white px-4 py-2 rounded-lg gap-3 shadow-xs">
+                    <i class="fas fa-search text-gray-500 text-xl"></i>
+                    <input type="text" placeholder="Search province..."
+                        class="flex-1 text-lg px-2 focus:outline-none" />
+                </div>
+
+                <div class="flex-1 flex flex-col gap-4 overflow-y-auto" id="provinceList">
+                    <!-- Dynamically generated province list will go here ID is "provinceList"-->
+                </div>
+            </div>
+        </div>
+
+        <div class="flex w-full justify-between gap-10">
+            <div class="bg-white flex-1 rounded-lg border-2 border-[#BABABA] p-4 gap-2">
+                <h3 class="text-[#5E5E5E]">Total Active Jobs</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="totalActiveJobs">10,146</span>
+                <!-- This will be dynamically updated -->
+            </div>
+
+            <div class="bg-white flex-1 rounded-lg border-2 border-[#BABABA] p-4 gap-2">
+                <h3 class="text-[#5E5E5E]">Top Job Market</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="topJobMarket">Bataan</span>
+                <!-- This will be dynamically updated -->
+            </div>
+
+            <div class="bg-white flex-1 rounded-lg border-2 border-[#BABABA] p-4 gap-2">
+                <h3 class="text-[#5E5E5E]">Unemployed Workers</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="unemployedWorkers">847</span>
+                <!-- This will be dynamically updated -->
+            </div>
+
+            <div class="bg-white flex-1 rounded-lg border-2 border-[#BABABA] p-4 gap-2">
+                <h3 class="text-[#5E5E5E]">Employed Workers</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="employedWorkers">21,764</span>
+                <!-- This will be dynamically updated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us -->
+    <div id="aboutUs" class="flex flex-col items-center py-20 px-20 gap-15 min-h-[50vh]">
+        <h1 class="text-[#3D3D3D] text-3xl font-bold">Why Choose HirNa?</h1>
+
+        <div class="flex justify-between items-center gap-6 w-[90%]">
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-1.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Skill-based Matching</h2>
+                <p class="text-center text-[#828282]">Land jobs that match your skills with smart, precision-based
+                    matching that works for you.</p>
+            </div>
+
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-2.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Ease of Use</h2>
+                <p class="text-center text-[#828282]">A Tinder-style job hunt—just one tap and you're instantly swiping
+                    through tailored job listings.</p>
+            </div>
+
+            <div class="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+                <img src="./assets/images/choose-logo-3.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
+                <h2 class="text-[#315E26] text-xl font-bold">Resume-CV Free</h2>
+                <p class="text-center text-[#828282]">No resume? No problem—start job hunting instantly, no CV required
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex justify-between items-center bg-[#232323] text-white py-4 px-10 gap-4">
+
+        <div class="flex items-center gap-2">
+            <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-15 w-15">
+            <div class="flex flex-col">
+                <h1 class="text-lg font-bold">HirNa!</h1>
+                <p class="text-sm">Para sa Talentado. Hindi lang sa Pulido.</p>
+            </div>
+        </div>
+
+        <p class="text-sm">© 2025 HirNa! All rights reserved.</p>
+    </footer>
 </body>
 
 </html>
