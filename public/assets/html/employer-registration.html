@@ -4,103 +4,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/employer-registration.css">
-
-
-    <script src="" defer></script>
-
-    <title>Career Step</title>
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
 </head>
 
-<body>
-    <main class="main-container">
-        <!-- Left Section for Design -->
-        <section class="left-section">
-            <a href="../html/login.html" class="back-btn">
-                <i   class="fas fa-arrow-left"></i> Back
-            </a>
-            <div class="design-container">
-                <img src="../images/careerstep-logo.png" alt="Logo">
-                <h1>HirNa!</h1>
+<body class="flex flex-col h-screen">
+    <div class="flex justify-between bg-[#232323] h-10"></div>
+
+    <div class="flex flex-col flex-1 items-center bg-[url(/public/assets/images/auth-bg.png)] bg-center p-4 gap-6">
+        <a href="./login.html"
+            class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer w-[8%] flex justify-center items-center gap-2 self-start">
+            <i class="fas fa-arrow-left"></i>
+            Back
+        </a>
+
+        <div class="flex flex-col flex-1 w-full items-center gap-4">
+            <div class="flex items-end gap-1">
+                <img src="../images/hirna-logo-green.png" alt="HirNa Logo" class="h-15 w-15">
+                <h1 class="text-4xl font-bold text-[#315A39]">HirNa!</h1>
             </div>
-        </section>
 
+            <div class="w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-15 flex flex-col justify-center">
+                <h3 class="text-[#3D3D3D] text-3xl font-semibold">Employer Registration</h3>
 
-        <!-- Right Section for Design -->
-        <section class="right-section">
-            <div class="registration-container">
-                <div class="header-container">
-                    <img src="../images/employer-reg-icon.png" alt="Logo">
-                    <h1>Employer Registration</h1>
-                </div>
+                <form id="loginForm" autocomplete="off" class="flex flex-col items-center mt-12 gap-10">
+                    <div class="flex w-full gap-15">
+                        <div class="flex flex-col gap-4 w-full">
+                            <h3 class="text-[#73976a] text-2xl font-bold">Account Details</h3>
 
-                <div class="form-container">
-                    <form id="registerEmployerForm" autocomplete="off">
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Email</label>
 
-                        <div class="input-group">
-                            <label>Email</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" name="email" required
-                                    placeholder="Enter company email..." />
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#6B6B6B]">
+                                    <i class="fas fa-envelope text-[#393E3A] text-xl"></i>
+                                    <input class="flex-1 text-lg px-2 focus:outline-none" type="email" id="email"
+                                        name="email" required placeholder="Enter your email..." />
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Password</label>
+
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
+                                    <i class="fas fa-key text-[#393E3A] text-xl"></i>
+                                    <input class="flex-1 text-lg px-2 focus:outline-none" type="password" id="password"
+                                        name="password" required placeholder="Enter your password..." />
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Confirm Password</label>
+
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
+                                    <i class="fas fa-key text-[#393E3A] text-xl"></i>
+                                    <input class="flex-1 text-lg px-2 focus:outline-none" type="password"
+                                        id="confirmPassword" name="confirmPassword" required
+                                        placeholder="Confirm your password..." />
+                                </div>
                             </div>
                         </div>
 
-                        <div class="input-group">
-                            <label>Password</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-key"></i>
-                                <input type="password" id="password" name="password" required
-                                    placeholder="Enter your password..." />
-                            </div>
-                            <div class="input-with-icon">
-                                <i class="fas fa-key"></i>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required
-                                    placeholder="Confirm your password..." />
-                            </div>
-                        </div>
+                        <div class="flex flex-col gap-4 w-full">
+                            <h3 class="text-[#73976a] text-2xl font-bold">Company Details</h3>
 
-                        <div class="input-group">
-                            <label>Company Name</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-building"></i>
-                                <input type="text" id="companyName" name="companyName" required
-                                    placeholder="Enter your company name..." />
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Company Name</label>
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#6B6B6B]">
+                                    <i class="fas fa-building text-[#393E3A] text-xl"></i>
+                                    <input class="flex-1 text-lg px-2 focus:outline-none" type="text" id="companyName"
+                                        name="companyName" required placeholder="Enter company name..." />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="input-group">
-                            <label>Contact Number</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-phone"></i>
-                                <input type="tel" id="contactNumber" name="contactNumber" required
-                                    placeholder="Enter company contact number..." />
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Contact Number</label>
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
+                                    <i class="fas fa-phone text-[#393E3A] text-xl"></i>
+                                    <input class="flex-1 text-lg px-2 focus:outline-none" type="tel" id="contactNumber"
+                                        name="contactNumber" required placeholder="Enter contact number..." />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="input-group">
-                            <label>Company Address</label>
-                            <div class="input-with-icon select-icon">
-                                <i class="fas fa-location"></i>
-                                <select id="companyAddress" name="companyAddress" required>
-                                    <option value="" disabled selected>Select company address</option>
-                                </select>
+                            <div class="flex flex-col gap-2">
+                                <label class="font-semibold text-[#393E3A] text-xl">Company Address</label>
+                                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
+                                    <i class="fas fa-map-marker-alt text-[#393E3A] text-xl"></i>
+                                    <select id="companyAddress" name="companyAddress"
+                                        class="flex-1 text-lg px-2 py-1 focus:outline-none bg-transparent" required>
+                                        <option value="" disabled selected>Select company address</option>
+                                        <!-- Add more options using js -->
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="submit-btn" id="registerEmployerBtn">Create Company</button>
-                    </form>
-                </div>
+                    <div class="flex flex-col gap-4 w-full">
+                        <button type="submit"
+                            class="bg-[#315E26] text-white text-xl font-semibold px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer"
+                            id="registerEmployerBtn">Create Account</button>
+                    </div>
+                </form>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</body>
 
-    <script type="module">
+</html>
+
+<!-- Script for employer registration -->
+<!-- <script type="module">
     // Import Firebase services
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import { 
@@ -264,7 +279,4 @@
             window.history.back();
         });
     });
-</script>
-</body>
-
-</html>
+</script> -->
