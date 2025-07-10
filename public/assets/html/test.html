@@ -69,16 +69,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>Sentiment Analysis Tester</h1>
-        <p>Now with Firebase Functions proxy</p>
-        
-        <label for="text-input">Enter text to analyze:</label>
+        <h1>Sentiment Analysis</h1>
         <textarea id="text-input" placeholder="Type your text here..."></textarea>
-        
-        <button id="analyze-btn">Analyze Sentiment</button>
-        
-        <div id="loading">Analyzing... (This may take a few seconds)</div>
-        
+        <button id="analyze-btn">Analyze</button>
         <div id="result"></div>
     </div>
 
@@ -86,48 +79,36 @@
         document.getElementById('analyze-btn').addEventListener('click', async () => {
             const textInput = document.getElementById('text-input').value.trim();
             const resultDiv = document.getElementById('result');
-            const loadingIndicator = document.getElementById('loading');
-            
-            // Clear previous results
-            resultDiv.textContent = '';
-            resultDiv.className = '';
-            
+
             if (!textInput) {
-                resultDiv.textContent = 'Please enter some text';
+                resultDiv.textContent = 'Please enter some text to analyze';
                 resultDiv.className = 'error';
                 return;
             }
-            
+
             try {
-                loadingIndicator.style.display = 'block';
-                
-                const response = await fetch('/api/analyze-sentiment', {
+                const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ content: textInput })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text: textInput  // Using 'text' as field name
+                    })
                 });
-                
+
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                    throw new Error(`API request failed with status ${response.status}`);
                 }
-                
+
                 const data = await response.json();
-                resultDiv.textContent = `Sentiment Analysis Result:\n${JSON.stringify(data, null, 2)}`;
+                
+                // Display the raw content in a readable format
+                resultDiv.textContent = data.content || JSON.stringify(data, null, 2);
                 resultDiv.className = 'success';
-                
+
             } catch (error) {
-                resultDiv.innerHTML = `Error: ${error.message}<br><br>Try:<br>
-                1. Refreshing the page<br>
-                2. Checking your internet connection<br>
-                3. Contacting support if the problem persists`;
+                resultDiv.textContent = `Error: ${error.message}`;
                 resultDiv.className = 'error';
-                console.error('Analysis error:', error);
-                
-            } finally {
-                loadingIndicator.style.display = 'none';
+                console.error('API Error:', error);
             }
         });
     </script>
