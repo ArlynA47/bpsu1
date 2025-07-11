@@ -106,6 +106,13 @@
                               <label>Preferred Work Locations in North Luzon</label>
                               <div id="preferredLocationsContainer" class="checkbox-group"></div>
                             </div>
+
+                            <div class="input-group">
+                                <label>
+                                    <input type="checkbox" id="willingToRelocate" name="willingToRelocate">
+                                    Willing to relocate to other locations
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Submit Button -->
@@ -224,7 +231,7 @@
       const experienceLevel = document.getElementById("experienceLevel")?.value || "";
       const educationLevel = document.getElementById("educationLevel")?.value || "";
       const certifications = document.getElementById("certifications")?.value || "None";
-      const willingToRelocate = document.querySelector("input[name='willingToRelocate']:checked")?.value || "No";
+      const willingToRelocate = document.getElementById("willingToRelocate").checked ? "Yes" : "No";
       const skills = skillsHiddenInput.value.split(",").filter(Boolean);
 
       if (password !== confirmPassword) {
