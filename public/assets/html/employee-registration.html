@@ -88,35 +88,51 @@
                 </div>
               </div>
 
-              <div class="flex flex-col gap-2">
-                <label class="font-semibold text-[#393E3A] text-xl">Home Address</label>
-                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
-                  <i class="fas fa-map-marker-alt text-[#393E3A] text-xl"></i>
-                  <select id="homeAddress" name="homeAddress"
-                    class="flex-1 text-lg px-2 py-1 focus:outline-none bg-transparent" required>
-                    <option value="" disabled selected>Select your home address</option>
-                    <!-- Add more options dynamically -->
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
+                            <div class="input-group">
+                                <label>Confirm Password</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-key"></i>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password...">
+                                </div>
+                            </div>
+                        </div>
 
-          <div class="w-full flex flex-col gap-4">
-            <h3 class="text-[#73976a] text-2xl font-bold">Skills</h3>
+                        <!-- Job Matching Information Section -->
+                        <div class="form-section">
+                            <h2>Job Matching Information</h2>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="skillsContainer">
-              <!-- Add more options dynamically -->
-            </div>
-          </div>
+                            <div class="input-group">
+                                <label>Skills</label>
+                                <div id="skillsContainer" class="skills-checkbox-group"></div>
+                                <input type="hidden" id="skills" name="skills">
+                            </div>
 
-          <div class="w-full flex flex-col gap-4">
-            <h3 class="text-[#73976a] text-2xl font-bold">Preffered Work Locations</h3>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
-              <!-- Add more options dynamically -->
-            </div>
-          </div>
+
+                            <div class="input-group">
+                                <label>Preferred Work Locations in North Luzon</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-column">
+                                        <label><input type="checkbox" name="preferredLocations" value="Abra"> Abra</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Apayao"> Apayao</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Benguet"> Benguet</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Cagayan"> Cagayan</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ifugao"> Ifugao</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Norte"> Ilocos Norte</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Sur"> Ilocos Sur</label>
+                                    </div>
+                                    <div class="checkbox-column">
+                                        <label><input type="checkbox" name="preferredLocations" value="Isabela"> Isabela</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Kalinga"> Kalinga</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="La Union"> La Union</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Mountain Province"> Mountain Province</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Nueva Vizcaya"> Nueva Vizcaya</label>
+                                         <label><input type="checkbox" name="preferredLocations" value="Pangasinan"> Pangasinan</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Quirino"> Quirino</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
           <div class="flex flex-col gap-4 w-full">
             <button type="submit"
@@ -412,4 +428,17 @@
       };
 
       alert(errorMap[error.code] || "Registration failed. Please try again.");
-    } -->
+    }
+  });
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", () => {
+    setDOBLimit();
+    loadSkillsChecklist();
+  });
+</script>
+
+
+
+</body>
+</html>

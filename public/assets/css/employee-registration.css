@@ -209,9 +209,21 @@
     margin-top: 8px;
   }
 
-  .checkbox-column {
+.checkbox-column {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-  }
+}
+
+.checkbox-column label {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-column input[type="checkbox"] {
+    margin-right: 8px;
+}
 
   .checkbox-group label {
     display: flex;
