@@ -26,10 +26,11 @@
                 <h1 class="text-4xl font-bold text-[#315A39]">HirNa!</h1>
             </div>
 
-            <div class="w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-15 flex flex-col justify-center">
+            <div
+                class="w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-15 flex flex-col justify-center">
                 <h3 class="text-[#3D3D3D] text-3xl font-semibold">Employer Registration</h3>
 
-                <form id="loginForm" autocomplete="off" class="flex flex-col items-center mt-12 gap-10">
+                <form id="employerRegistrationForm" autocomplete="off" class="flex flex-col items-center mt-12 gap-10">
                     <div class="flex w-full gap-15">
                         <div class="flex flex-col gap-4 w-full">
                             <h3 class="text-[#73976a] text-2xl font-bold">Account Details</h3>
@@ -110,173 +111,176 @@
             </div>
         </div>
     </div>
+
+    <script type="module">
+        // Import Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            sendEmailVerification,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Configure email sender
+        auth.useDeviceLanguage();
+        auth.settings.appVerificationDisabledForTesting = false;
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate company address dropdown
+            const companyAddress = document.getElementById('companyAddress');
+
+            const provinces = [
+                // Ilocos Region
+                "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+
+                // Cagayan Valley
+                "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+
+                // Cordillera Administrative Region
+                "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+
+                // Central Luzon
+                "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+            ];
+
+            provinces.sort();
+
+            provinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province;
+                option.textContent = province;
+                companyAddress.appendChild(option);
+            });
+
+            // Form submission handler
+            document.getElementById('employerRegistrationForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitBtn = document.getElementById('registerEmployerBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating Account...';
+
+                try {
+                    // Get form values
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    const companyName = document.getElementById('companyName').value;
+                    const contactNumber = document.getElementById('contactNumber').value;
+                    const companyAddress = document.getElementById('companyAddress').value;
+
+                    // Validate passwords match
+                    if (password !== confirmPassword) {
+                        throw new Error("Passwords don't match");
+                    }
+
+                    // Create user account
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    // Update user profile with display name (company name)
+                    await updateProfile(user, { displayName: companyName });
+
+                    // Send email verification
+                    await sendEmailVerification(user, {
+                        url: 'https://careerstep-bpsu1.firebaseapp.com/verify-redirect',
+                        handleCodeInApp: true
+                    });
+
+                    // Prepare employer data for Firestore
+                    const employerData = {
+                        metadata: {
+                            createdAt: new Date(),
+                            lastUpdated: new Date(),
+                            accountType: 'employer',
+                            accountStatus: 'active',
+                            emailVerified: false,
+                            registrationComplete: true
+                        },
+                        companyInfo: {
+                            companyName,
+                            contactNumber,
+                            companyAddress,
+                            region: 'North Luzon',
+                            verified: false
+                        },
+                        hiringPreferences: {
+                            preferredJobTypes: [],
+                            preferredLocations: [],
+                            notificationFrequency: 'weekly'
+                        },
+                        stats: {
+                            jobsPosted: 0,
+                            totalHires: 0,
+                            activeListings: 0
+                        }
+                    };
+
+                    // Save to Firestore under employers collection
+                    await setDoc(doc(db, 'employers', user.uid), employerData);
+
+                    // Create public company profile
+                    const publicProfile = {
+                        companyId: user.uid,
+                        companyName,
+                        companyAddress,
+                        region: 'North Luzon',
+                        verified: false,
+                        lastUpdated: new Date()
+                    };
+                    await setDoc(doc(db, 'employerPublicProfiles', user.uid), publicProfile);
+
+                    // Success - redirect to verification page
+                    window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
+
+                } catch (error) {
+                    console.error('Employer Registration Error:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Company';
+
+                    // Enhanced error handling
+                    const errorMap = {
+                        'auth/email-already-in-use': 'This email is already registered',
+                        'auth/invalid-email': 'Please enter a valid email address',
+                        'auth/weak-password': 'Password must be at least 6 characters',
+                        'auth/operation-not-allowed': 'Account creation is currently restricted',
+                        'auth/network-request-failed': 'Network error. Please check your connection'
+                    };
+
+                    alert(errorMap[error.code] || error.message || 'Registration failed. Please try again.');
+                } finally {
+                    // Show loading state
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
-
-<!-- Script for employer registration -->
-<!-- <script type="module">
-    // Import Firebase services
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { 
-        getAuth, 
-        createUserWithEmailAndPassword,
-        sendEmailVerification,
-        updateProfile
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { 
-        getFirestore,
-        doc,
-        setDoc
-    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-        authDomain: "careerstep-bpsu1.firebaseapp.com",
-        projectId: "careerstep-bpsu1",
-        storageBucket: "careerstep-bpsu1.firebasestorage.app",
-        messagingSenderId: "17047315291",
-        appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-        measurementId: "G-WH6DT9HQW2"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Configure email sender
-    auth.useDeviceLanguage();
-    auth.settings.appVerificationDisabledForTesting = false;
-
-    // Handle form submission
-    document.getElementById('registerEmployerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Show loading state
-        const submitBtn = document.getElementById('registerEmployerBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
-        
-        try {
-            // Get form values
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const companyName = document.getElementById('companyName').value;
-            const contactNumber = document.getElementById('contactNumber').value;
-            const companyAddress = document.getElementById('companyAddress').value;
-
-            // Validate passwords match
-            if (password !== confirmPassword) {
-                throw new Error("Passwords don't match");
-            }
-
-            // Create user account
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-            // Update user profile with display name (company name)
-            await updateProfile(user, { displayName: companyName });
-            
-            // Send email verification
-            await sendEmailVerification(user, {
-                url: 'https://careerstep-bpsu1.firebaseapp.com/verify-redirect',
-                handleCodeInApp: true
-            });
-            
-            // Prepare employer data for Firestore
-            const employerData = {
-                metadata: {
-                    createdAt: new Date(),
-                    lastUpdated: new Date(),
-                    accountType: 'employer',
-                    accountStatus: 'active',
-                    emailVerified: false,
-                    registrationComplete: true
-                },
-                companyInfo: {
-                    companyName,
-                    contactNumber,
-                    companyAddress,
-                    region: 'North Luzon',
-                    verified: false
-                },
-                hiringPreferences: {
-                    preferredJobTypes: [],
-                    preferredLocations: [],
-                    notificationFrequency: 'weekly'
-                },
-                stats: {
-                    jobsPosted: 0,
-                    totalHires: 0,
-                    activeListings: 0
-                }
-            };
-            
-            // Save to Firestore under employers collection
-            await setDoc(doc(db, 'employers', user.uid), employerData);
-            
-            // Create public company profile
-            const publicProfile = {
-                companyId: user.uid,
-                companyName,
-                companyAddress,
-                region: 'North Luzon',
-                verified: false,
-                lastUpdated: new Date()
-            };
-            await setDoc(doc(db, 'employerPublicProfiles', user.uid), publicProfile);
-            
-            // Success - redirect to verification page
-            window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
-            
-        } catch (error) {
-            console.error('Employer Registration Error:', error);
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Company';
-            
-            // Enhanced error handling
-            const errorMap = {
-                'auth/email-already-in-use': 'This email is already registered',
-                'auth/invalid-email': 'Please enter a valid email address',
-                'auth/weak-password': 'Password must be at least 6 characters',
-                'auth/operation-not-allowed': 'Account creation is currently restricted',
-                'auth/network-request-failed': 'Network error. Please check your connection'
-            };
-            
-            alert(errorMap[error.code] || error.message || 'Registration failed. Please try again.');
-        }
-    });
-
-    // Initialize form
-    document.addEventListener('DOMContentLoaded', () => {
-        // Populate company address dropdown (example for North Luzon provinces)
-        const companyAddress = document.getElementById('companyAddress');
-        
-        const provinces = [
-            // Ilocos Region
-            'Ilocos Norte', 'Ilocos Sur', 'La Union', 'Pangasinan',
-            // Cagayan Valley
-            'Batanes', 'Cagayan', 'Isabela', 'Nueva Vizcaya', 'Quirino',
-            // Cordillera Administrative Region
-            'Abra', 'Apayao', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province',
-            // Central Luzon
-            'Aurora', 'Bataan', 'Bulacan', 'Nueva Ecija', 'Pampanga', 'Tarlac', 'Zambales'
-        ];
-        
-        provinces.forEach(province => {
-            const option = document.createElement('option');
-            option.value = province;
-            option.textContent = province;
-            companyAddress.appendChild(option);
-        });
-
-        // Back button functionality
-        document.querySelector('.back-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            window.history.back();
-        });
-    });
-</script> -->
