@@ -110,20 +110,42 @@
             </div>
           </div>
 
-          <div class="w-full flex flex-col gap-4">
-            <h3 class="text-[#73976a] text-2xl font-bold">Preffered Work Locations</h3>
+                        <!-- Job Matching Information Section -->
+                        <div class="form-section">
+                            <h2>Job Matching Information</h2>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
-              <!-- Add more options dynamically -->
-            </div>
-          </div>
+                            <div class="input-group">
+                                <label>Skills</label>
+                                <div id="skillsContainer" class="skills-checkbox-group"></div>
+                                <input type="hidden" id="skills" name="skills">
+                            </div>
 
-          <div class="w-full flex gap-4">
-            <h3 class="text-[#73976a] text-2xl font-bold">Willing to relocate?</h3>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
-            </div>
-          </div>
+
+                            <div class="input-group">
+                                <label>Preferred Work Locations in North Luzon</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-column">
+                                        <label><input type="checkbox" name="preferredLocations" value="Abra"> Abra</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Apayao"> Apayao</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Benguet"> Benguet</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Cagayan"> Cagayan</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ifugao"> Ifugao</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Norte"> Ilocos Norte</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Sur"> Ilocos Sur</label>
+                                    </div>
+                                    <div class="checkbox-column">
+                                        <label><input type="checkbox" name="preferredLocations" value="Isabela"> Isabela</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Kalinga"> Kalinga</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="La Union"> La Union</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Mountain Province"> Mountain Province</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Nueva Vizcaya"> Nueva Vizcaya</label>
+                                         <label><input type="checkbox" name="preferredLocations" value="Pangasinan"> Pangasinan</label>
+                                        <label><input type="checkbox" name="preferredLocations" value="Quirino"> Quirino</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
           <div class="flex flex-col gap-4 w-full">
             <button type="submit"
@@ -277,27 +299,37 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating Account...';
 
-      // Fetch inputs
-      try {
-        // Get form values
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+    try {
+      const fullName = document.getElementById("fullName").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const accountEmail = document.getElementById("accountEmail").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const currentProvince = document.getElementById("currentProvince")?.value || "";
+      const dob = document.getElementById("dob")?.value || "";
+      const gender = document.querySelector("input[name='gender']:checked")?.value || "Not specified";
+      const jobTitle = document.getElementById("jobTitle")?.value || "";
+      const jobType = document.getElementById("jobType")?.value || "";
+      const workArrangement = document.getElementById("workArrangement")?.value || "";
+      const salaryExpectation = document.getElementById("salaryExpectation")?.value || "";
+      const experienceLevel = document.getElementById("experienceLevel")?.value || "";
+      const educationLevel = document.getElementById("educationLevel")?.value || "";
+      const certifications = document.getElementById("certifications")?.value || "None";
+      const willingToRelocate = document.querySelector("input[name='willingToRelocate']:checked")?.value || "No";
+      const skills = skillsHiddenInput.value.split(",").filter(Boolean);
 
-        const fullName = document.getElementById('fullName').value;
-        const contactNumber = document.getElementById('contactNumber').value;
-        const homeAddress = document.getElementById('homeAddress').value;
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Complete Registration";
+        return;
+      }
 
-        // Collect checked skills
-        const selectedSkills = Array.from(document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
-
-        // Collect preferred work locations
-        const selectedWorkLocations = Array.from(document.querySelectorAll('#workLocationsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
-
-        // Validate passwords match
-        if (password !== confirmPassword) {
-          throw new Error("Passwords don't match");
-        }
+      const preferredLocations = [];
+      document.querySelectorAll("input[name='preferredLocations']:checked").forEach(cb => {
+        preferredLocations.push(cb.value);
+      });
 
         // Create user
         const userCredential = await createUserWithEmailAndPassword(auth, accountEmail, password);
@@ -418,4 +450,17 @@
       };
 
       alert(errorMap[error.code] || "Registration failed. Please try again.");
-    } -->
+    }
+  });
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", () => {
+    setDOBLimit();
+    loadSkillsChecklist();
+  });
+</script>
+
+
+
+</body>
+</html>

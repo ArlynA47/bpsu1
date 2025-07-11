@@ -359,247 +359,280 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-            authDomain: "careerstep-bpsu1.firebaseapp.com",
-            projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.appspot.com",
-            messagingSenderId: "17047315291",
-            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-            measurementId: "G-WH6DT9HQW2"
-        };
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+        authDomain: "careerstep-bpsu1.firebaseapp.com",
+        projectId: "careerstep-bpsu1",
+        storageBucket: "careerstep-bpsu1.appspot.com",
+        messagingSenderId: "17047315291",
+        appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+        measurementId: "G-WH6DT9HQW2"
+    };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-        // North Luzon provinces
-        const provinces = [
-            // Ilocos Region
-            "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+    // North Luzon provinces
+    const provinces = [
+        // Ilocos Region
+        "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
 
-            // Cagayan Valley
-            "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+        // Cagayan Valley
+        "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
 
-            // Cordillera Administrative Region
-            "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+        // Cordillera Administrative Region
+        "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
 
-            // Central Luzon
-            "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
-        ];
+        // Central Luzon
+        "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+    ];
 
-        // Fetch skills from Firebase
-        function fetchSkills() {
-            db.collection("skills").doc("skilled_worker_skills").get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        const skills = doc.data().items;
-                        populateSkills(skills);
-                    } else {
-                        console.log("No skills document found!");
-                        // Fallback to default skills
-                        const defaultSkills = [
-                            "Welding", "Carpentry", "Plumbing", "Electrical", "Machining",
-                            "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
-                        ];
-                        populateSkills(defaultSkills);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error fetching skills:", error);
-                    // Fallback to default skills if there's an error
+    // Content moderation check
+    async function checkContentModeration(text) {
+        try {
+            const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/contentModeration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: text })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to check content moderation');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Moderation check failed:', error);
+            return { safe: false, category: 'Moderation service unavailable' };
+        }
+    }
+
+    // Fetch skills from Firebase
+    function fetchSkills() {
+        db.collection("skills").doc("skilled_worker_skills").get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const skills = doc.data().items;
+                    populateSkills(skills);
+                } else {
+                    console.log("No skills document found!");
+                    // Fallback to default skills
                     const defaultSkills = [
                         "Welding", "Carpentry", "Plumbing", "Electrical", "Machining",
                         "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
                     ];
                     populateSkills(defaultSkills);
-                });
-        }
-
-        // Populate skills checklist
-        function populateSkills(skills) {
-            const skillsContainer = document.getElementById('skillsContainer');
-            skillsContainer.innerHTML = ''; // Clear loading message
-
-            skills.forEach(skill => {
-                const skillItem = document.createElement('div');
-                skillItem.className = 'skill-item';
-                skillItem.innerHTML = `
-                    <input type="checkbox" id="skill-${skill.replace(/\s+/g, '-')}" value="${skill}">
-                    <label for="skill-${skill.replace(/\s+/g, '-')}">${skill}</label>
-                `;
-                skillsContainer.appendChild(skillItem);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching skills:", error);
+                // Fallback to default skills if there's an error
+                const defaultSkills = [
+                    "Welding", "Carpentry", "Plumbing", "Electrical", "Machining",
+                    "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
+                ];
+                populateSkills(defaultSkills);
             });
-        }
+    }
 
-        // Populate location options
-        function populateLocations() {
-            const locationGrid = document.getElementById('locationGrid');
-            provinces.forEach(province => {
-                const locationOption = document.createElement('div');
-                locationOption.className = 'location-option';
-                locationOption.dataset.value = province;
-                locationOption.innerHTML = `
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div class="location-name">${province}</div>
-                `;
-                locationOption.addEventListener('click', () => {
-                    // Remove selected class from all options
-                    document.querySelectorAll('.location-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    // Add selected class to clicked option
-                    locationOption.classList.add('selected');
-                });
-                locationGrid.appendChild(locationOption);
-            });
-        }
+    // Populate skills checklist
+    function populateSkills(skills) {
+        const skillsContainer = document.getElementById('skillsContainer');
+        skillsContainer.innerHTML = ''; // Clear loading message
 
-        // Character counter for offer textarea
-        function setupCharCounter() {
-            const offerTextarea = document.getElementById('offer');
-            const charCounter = document.getElementById('charCounter');
-
-            offerTextarea.addEventListener('input', () => {
-                const charCount = offerTextarea.value.length;
-                charCounter.textContent = `${charCount}/150`;
-
-                if (charCount > 135) {
-                    charCounter.classList.add('warning');
-                } else {
-                    charCounter.classList.remove('warning');
-                }
-
-                // Enforce max length (though maxlength attribute should handle this)
-                if (charCount > 150) {
-                    offerTextarea.value = offerTextarea.value.substring(0, 150);
-                    charCounter.textContent = "150/150";
-                }
-            });
-        }
-
-        // Submit button handler
-        function setupSubmitButton() {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.addEventListener('click', async () => {
-                // Get form values
-                const jobTitle = document.getElementById('jobTitle').value.trim();
-
-                const selectedSkills = [];
-                document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
-                    selectedSkills.push(checkbox.value);
-                });
-
-                const offer = document.getElementById('offer').value.trim();
-
-                const selectedLocation = document.querySelector('.location-option.selected');
-                const location = selectedLocation ? selectedLocation.dataset.value : '';
-                
-                const positionsNeeded = parseInt(document.getElementById('positionsNeeded').value, 10);
-                
-                // Get current timestamp
-                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-
-                // Validation
-                if (!jobTitle) {
-                    alert('Please enter a job title');
-                    return;
-                }
-
-                if (selectedSkills.length === 0) {
-                    alert('Please select at least one required skill');
-                    return;
-                }
-
-                if (!offer) {
-                    alert('Please enter a job offer description');
-                    return;
-                }
-
-                if (!location) {
-                    alert('Please select a location');
-                    return;
-                }
-                
-                if (!positionsNeeded || positionsNeeded < 1) {
-                    alert('Please enter the number of needed workers (at least 1)');
-                    return;
-                }
-                
-                // Show loading state
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Job Seed...';
-                submitBtn.disabled = true;
-
-                try {
-                    // Check if user is authenticated
-                    const user = auth.currentUser;
-                    if (!user) {
-                        alert('You must be logged in to create a job listing.');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
-                        return;
-                    }
-
-                    // Save to Firestore
-                    const docRef = await db.collection('jobSeeds').add({
-                        jobTitle,
-                        skills: selectedSkills,
-                        offer,
-                        location,
-                        createdAt: timestamp,
-                        status: 'active', // You can add other statuses like 'filled', 'expired' later
-                        employerId: user.uid,
-                        employerEmail: user.email || null,
-                        positionsNeeded,
-                        positionsAvailable: positionsNeeded
-                    });
-
-                    // Show success message
-                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Job Seed Created!';
-
-                    // Reset form after success
-                    document.getElementById('jobTitle').value = '';
-                    document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-                    document.getElementById('offer').value = '';
-                    charCounter.textContent = '0/150';
-                    document.querySelector('.location-option.selected')?.classList.remove('selected');
-                    document.getElementById('positionsNeeded').value = '';
-
-                    window.location.href = 'job-listings.html';
-                    
-                } catch (error) {
-                    console.error('Error adding job seed: ', error);
-                    alert('Error creating job seed. Please try again.');
-                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
-                } finally {
-                    submitBtn.disabled = false;
-                    setTimeout(() => {
-                        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
-                    }, 2000);
-                }
-            });
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchSkills();
-            populateLocations();
-            setupCharCounter();
-            setupSubmitButton();
-
-            // Check auth state
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    // User is not signed in, you might want to redirect to login
-                    console.log("User is not authenticated");
-                }
-            });
+        skills.forEach(skill => {
+            const skillItem = document.createElement('div');
+            skillItem.className = 'skill-item';
+            skillItem.innerHTML = `
+                <input type="checkbox" id="skill-${skill.replace(/\s+/g, '-')}" value="${skill}">
+                <label for="skill-${skill.replace(/\s+/g, '-')}">${skill}</label>
+            `;
+            skillsContainer.appendChild(skillItem);
         });
-    </script>
+    }
+
+    // Populate location options
+    function populateLocations() {
+        const locationGrid = document.getElementById('locationGrid');
+        provinces.forEach(province => {
+            const locationOption = document.createElement('div');
+            locationOption.className = 'location-option';
+            locationOption.dataset.value = province;
+            locationOption.innerHTML = `
+                <i class="fas fa-map-marker-alt"></i>
+                <div class="location-name">${province}</div>
+            `;
+            locationOption.addEventListener('click', () => {
+                // Remove selected class from all options
+                document.querySelectorAll('.location-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                // Add selected class to clicked option
+                locationOption.classList.add('selected');
+            });
+            locationGrid.appendChild(locationOption);
+        });
+    }
+
+    // Character counter for offer textarea
+    function setupCharCounter() {
+        const offerTextarea = document.getElementById('offer');
+        const charCounter = document.getElementById('charCounter');
+
+        offerTextarea.addEventListener('input', () => {
+            const charCount = offerTextarea.value.length;
+            charCounter.textContent = `${charCount}/150`;
+
+            if (charCount > 135) {
+                charCounter.classList.add('warning');
+            } else {
+                charCounter.classList.remove('warning');
+            }
+
+            // Enforce max length (though maxlength attribute should handle this)
+            if (charCount > 150) {
+                offerTextarea.value = offerTextarea.value.substring(0, 150);
+                charCounter.textContent = "150/150";
+            }
+        });
+    }
+
+    // Submit button handler
+    function setupSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.addEventListener('click', async () => {
+            // Get form values
+            const jobTitle = document.getElementById('jobTitle').value.trim();
+
+            const selectedSkills = [];
+            document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                selectedSkills.push(checkbox.value);
+            });
+
+            const offer = document.getElementById('offer').value.trim();
+
+            const selectedLocation = document.querySelector('.location-option.selected');
+            const location = selectedLocation ? selectedLocation.dataset.value : '';
+            
+            const positionsNeeded = parseInt(document.getElementById('positionsNeeded').value, 10);
+            
+            // Get current timestamp
+            const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+            // Validation
+            if (!jobTitle) {
+                alert('Please enter a job title');
+                return;
+            }
+
+            if (selectedSkills.length === 0) {
+                alert('Please select at least one required skill');
+                return;
+            }
+
+            if (!offer) {
+                alert('Please enter a job offer description');
+                return;
+            }
+
+            if (!location) {
+                alert('Please select a location');
+                return;
+            }
+            
+            if (!positionsNeeded || positionsNeeded < 1) {
+                alert('Please enter the number of needed workers (at least 1)');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking content...';
+            submitBtn.disabled = true;
+
+            try {
+                // Check content moderation first
+                const moderationResult = await checkContentModeration(offer);
+                
+                if (!moderationResult.safe) {
+                    alert(`Job offer contains inappropriate content: ${moderationResult.category}`);
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // Check if user is authenticated
+                const user = auth.currentUser;
+                if (!user) {
+                    alert('You must be logged in to create a job listing.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                    return;
+                }
+
+                // Update loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Job Seed...';
+
+                // Save to Firestore
+                const docRef = await db.collection('jobSeeds').add({
+                    jobTitle,
+                    skills: selectedSkills,
+                    offer,
+                    location,
+                    createdAt: timestamp,
+                    status: 'active',
+                    employerId: user.uid,
+                    employerEmail: user.email || null,
+                    positionsNeeded,
+                    positionsAvailable: positionsNeeded
+                });
+
+                // Show success message
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Job Seed Created!';
+
+                // Reset form after success
+                document.getElementById('jobTitle').value = '';
+                document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                document.getElementById('offer').value = '';
+                charCounter.textContent = '0/150';
+                document.querySelector('.location-option.selected')?.classList.remove('selected');
+                document.getElementById('positionsNeeded').value = '';
+
+                window.location.href = 'job-listings.html';
+                
+            } catch (error) {
+                console.error('Error adding job seed: ', error);
+                alert('Error creating job seed. Please try again.');
+                submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+            } finally {
+                submitBtn.disabled = false;
+                setTimeout(() => {
+                    submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Job Seed';
+                }, 2000);
+            }
+        });
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchSkills();
+        populateLocations();
+        setupCharCounter();
+        setupSubmitButton();
+
+        // Check auth state
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                // User is not signed in, you might want to redirect to login
+                console.log("User is not authenticated");
+            }
+        });
+    });
+</script>
 </body>
 
 </html>

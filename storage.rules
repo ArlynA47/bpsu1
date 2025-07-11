@@ -1,12 +1,17 @@
 rules_version = '2';
-
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    // Employee gallery rules
+    match /employee_gallery/{userId}/{imageName} {
+      // Allow public read access to images (if you want them publicly accessible)
+      allow read: if true;
+      // Only allow the owner to write/delete
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Default rule - only authenticated users can access other paths
     match /{allPaths=**} {
-      allow read, write: if false;
+      allow read, write: if request.auth != null;
     }
   }
 }

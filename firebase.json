@@ -27,7 +27,9 @@
   "functions": {
     "source": "functions",
     "codebase": "default",
+     "runtime": "nodejs18",
     "ignore": [
+      ".env",
       "node_modules",
       ".git",
       "firebase-debug.log",
