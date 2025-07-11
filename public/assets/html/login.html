@@ -27,7 +27,7 @@
       </div>
 
       <div
-        class="w-[35%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-4 py-15 flex flex-col items-center justify-center">
+        class="w-[35%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-4 py-15 flex flex-col items-center justify-center shadow-xl">
         <h3 class="text-[#3D3D3D] text-3xl font-semibold">Login</h3>
 
         <form id="loginForm" autocomplete="off" class="flex flex-col items-center mt-12 w-[80%] gap-10">
@@ -48,8 +48,8 @@
 
               <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
                 <i class="fas fa-key text-[#393E3A] text-xl"></i>
-                <input class="flex-1 text-lg px-2 focus:outline-none" type="password" id="password" name="password" required
-                  placeholder="Enter your password..." />
+                <input class="flex-1 text-lg px-2 focus:outline-none" type="password" id="password" name="password"
+                  required placeholder="Enter your password..." />
               </div>
             </div>
           </div>
@@ -61,8 +61,10 @@
             <div class="flex flex-col gap-2">
               <p class="text-[#6B6B6B] text-md text-center">Don't have an account? Register as</p>
               <p class="text-[#6B6B6B] text-md text-center">
-                <a class="text-[#73976a] hover:underline text-md text-center font-semibold" href="./employee-registration.html">Employee</a> or
-                <a class="text-[#73976a] hover:underline text-md text-center font-semibold" href="./employer-registration.html">Employer</a>
+                <a class="text-[#73976a] hover:underline text-md text-center font-semibold"
+                  href="./employee-registration.html">Employee</a> or
+                <a class="text-[#73976a] hover:underline text-md text-center font-semibold"
+                  href="./employer-registration.html">Employer</a>
               </p>
             </div>
           </div>
@@ -70,107 +72,92 @@
       </div>
     </div>
   </div>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+      authDomain: "careerstep-bpsu1.firebaseapp.com",
+      projectId: "careerstep-bpsu1",
+      storageBucket: "careerstep-bpsu1.appspot.com",
+      messagingSenderId: "17047315291",
+      appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+      measurementId: "G-WH6DT9HQW2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Show loading state
+      const submitBtn = document.getElementById('loginBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Logging in...';
+
+      try {
+        // Fetch inputs
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // If email is not verified prompt user to verify
+        if (!user.emailVerified) throw new Error("Please verify your email before logging in.");
+
+        // Redirect
+        await redirectUserBasedOnType(user.uid);
+      } catch (error) {
+
+        const errorMap = {
+          'auth/invalid-email': 'Invalid email address',
+          'auth/user-disabled': 'This account has been disabled',
+          'auth/user-not-found': 'No account found with this email',
+          'auth/wrong-password': 'Incorrect password',
+          'auth/too-many-requests': 'Too many attempts. Try again later.'
+        };
+
+        showFlashMessage(errorMap[error.code] || error.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+      }
+    });
+
+    async function redirectUserBasedOnType(userId) {
+      try {
+        const employerDoc = await getDoc(doc(db, 'employers', userId));
+        if (employerDoc.exists()) return window.location.href = 'employer-home.html';
+
+        const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
+        if (employeeDoc.exists()) return window.location.href = 'explore-garden.html';
+
+        throw new Error("Account type not recognized. Please contact support.");
+      } catch (error) {
+        showFlashMessage(error.message, 'error');
+        await auth.signOut();
+      }
+    }
+
+    function showFlashMessage(message, type = 'success') {
+      alert(message);
+    }
+  </script>
 </body>
 
 </html>
-
-<!-- Firebase & Modal Script -->
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-    authDomain: "careerstep-bpsu1.firebaseapp.com",
-    projectId: "careerstep-bpsu1",
-    storageBucket: "careerstep-bpsu1.appspot.com",
-    messagingSenderId: "17047315291",
-    appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-    measurementId: "G-WH6DT9HQW2"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  document.getElementById('loginForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const btn = document.getElementById('loginBtn');
-    const originalText = btn.textContent;
-
-    btn.disabled = true;
-    btn.textContent = "Logging in...";
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      if (!user.emailVerified) throw new Error("Please verify your email before logging in.");
-      await redirectUserBasedOnType(user.uid);
-    } catch (error) {
-      const errorMap = {
-        'auth/invalid-email': 'Invalid email address',
-        'auth/user-disabled': 'This account has been disabled',
-        'auth/user-not-found': 'No account found with this email',
-        'auth/wrong-password': 'Incorrect password',
-        'auth/too-many-requests': 'Too many attempts. Try again later.'
-      };
-      showFlashMessage(errorMap[error.code] || error.message, 'error');
-      btn.disabled = false;
-      btn.textContent = originalText;
-    }
-  });
-
-  async function redirectUserBasedOnType(userId) {
-    try {
-      const employerDoc = await getDoc(doc(db, 'employers', userId));
-      if (employerDoc.exists()) return window.location.href = 'employer-home.html';
-
-      const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
-      if (employeeDoc.exists()) return window.location.href = 'explore-garden.html';
-
-      throw new Error("Account type not recognized. Please contact support.");
-    } catch (error) {
-      showFlashMessage(error.message, 'error');
-      await auth.signOut();
-    }
-  }
-
-  function showFlashMessage(message, type = 'success') {
-    const flash = document.getElementById('flashMessage');
-    flash.textContent = message;
-    flash.style.display = 'block';
-    flash.className = `flash-message ${type}`;
-    setTimeout(() => { flash.style.display = 'none'; }, 5000);
-  }
-
-
-
-  // Modal logic
-  document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('registrationModal');
-    const closeModal = document.getElementById('closeModal');
-    const registerLink = document.querySelector('.register-link a');
-
-    registerLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      modal.style.display = 'flex';
-    });
-
-    closeModal.addEventListener('click', () => modal.style.display = 'none');
-    window.addEventListener('click', (event) => {
-      if (event.target === modal) modal.style.display = 'none';
-    });
-  });
-</script>
