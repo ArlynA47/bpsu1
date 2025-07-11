@@ -118,6 +118,13 @@
             </div>
           </div>
 
+          <div class="w-full flex gap-4">
+            <h3 class="text-[#73976a] text-2xl font-bold">Willing to relocate?</h3>
+
+            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
+            </div>
+          </div>
+
           <div class="flex flex-col gap-4 w-full">
             <button type="submit"
               class="bg-[#315E26] text-white text-xl font-semibold px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer"
@@ -263,87 +270,86 @@
 
     // Handle form submit
     document.getElementById("employeeRegistrationForm").addEventListener("submit", async function (e) {
-      alert("CK is currently talking to arlyn about the logic of this registration!");
-      // e.preventDefault();
+      e.preventDefault();
 
-      // // Show loading state
-      // const submitBtn = document.getElementById('registerEmployeeBtn');
-      // submitBtn.disabled = true;
-      // submitBtn.textContent = 'Creating Account...';
+      // Show loading state
+      const submitBtn = document.getElementById('registerEmployeeBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating Account...';
 
-      // // Fetch inputs
-      // try {
-      //   // Get form values
-      //   const email = document.getElementById('email').value;
-      //   const password = document.getElementById('password').value;
-      //   const confirmPassword = document.getElementById('confirmPassword').value;
+      // Fetch inputs
+      try {
+        // Get form values
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-      //   const fullName = document.getElementById('fullName').value;
-      //   const contactNumber = document.getElementById('contactNumber').value;
-      //   const homeAddress = document.getElementById('homeAddress').value;
+        const fullName = document.getElementById('fullName').value;
+        const contactNumber = document.getElementById('contactNumber').value;
+        const homeAddress = document.getElementById('homeAddress').value;
 
-      //   // Collect checked skills
-      //   const selectedSkills = Array.from(document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+        // Collect checked skills
+        const selectedSkills = Array.from(document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
 
-      //   // Collect preferred work locations
-      //   const selectedWorkLocations = Array.from(document.querySelectorAll('#workLocationsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+        // Collect preferred work locations
+        const selectedWorkLocations = Array.from(document.querySelectorAll('#workLocationsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
 
-      //   // Validate passwords match
-      //   if (password !== confirmPassword) {
-      //     throw new Error("Passwords don't match");
-      //   }
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          throw new Error("Passwords don't match");
+        }
 
-      //   // Create user
-      //   const userCredential = await createUserWithEmailAndPassword(auth, accountEmail, password);
-      //   const user = userCredential.user;
+        // Create user
+        const userCredential = await createUserWithEmailAndPassword(auth, accountEmail, password);
+        const user = userCredential.user;
 
-      //   // Update profile
-      //   await updateProfile(user, { displayName: fullName });
+        // Update profile
+        await updateProfile(user, { displayName: fullName });
 
-      //   // Send email verification
-      //   await sendEmailVerification(user, {
-      //     url: "https://careerstep-bpsu1.firebaseapp.com/verify-redirect",
-      //     handleCodeInApp: true
-      //   });
+        // Send email verification
+        await sendEmailVerification(user, {
+          url: "https://careerstep-bpsu1.firebaseapp.com/verify-redirect",
+          handleCodeInApp: true
+        });
 
-      //   const userData = {
-      //     metadata: {
-      //       createdAt: new Date(),
-      //       lastUpdated: new Date(),
-      //       accountType: "employee",
-      //       region: "North Luzon"
-      //     },
-      //     personalInfo: {
-      //       fullName,
-      //       contactEmail: email,
-      //       phone,
-      //       currentProvince,
-      //       dob,
-      //       gender
-      //     },
-      //     jobPreferences: {
-      //       jobTitle,
-      //       jobType,
-      //       workArrangement,
-      //       salaryExpectation,
-      //       experienceLevel,
-      //       educationLevel,
-      //       skills,
-      //       certifications,
-      //       preferredLocations,
-      //       willingToRelocate
-      //     },
-      //     accountStatus: {
-      //       emailVerified: false,
-      //       profileComplete: true,
-      //       jobAlertsEnabled: true
-      //     }
-      //   };
+        const userData = {
+          metadata: {
+            createdAt: new Date(),
+            lastUpdated: new Date(),
+            accountType: "employee",
+            region: "North Luzon"
+          },
+          personalInfo: {
+            fullName,
+            contactEmail: email,
+            phone,
+            currentProvince,
+            dob,
+            gender
+          },
+          jobPreferences: {
+            jobTitle,
+            jobType,
+            workArrangement,
+            salaryExpectation,
+            experienceLevel,
+            educationLevel,
+            skills,
+            certifications,
+            preferredLocations,
+            willingToRelocate
+          },
+          accountStatus: {
+            emailVerified: false,
+            profileComplete: true,
+            jobAlertsEnabled: true
+          }
+        };
 
 
-      // } catch (error) {
+      } catch (error) {
 
-      // }
+      }
     });
   });
 </script>
