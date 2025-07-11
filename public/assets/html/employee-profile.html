@@ -6,6 +6,7 @@
     <title>Employee Profile</title>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
@@ -248,18 +249,17 @@
             
             <div class="profile-details">
                 <div class="detail-card">
-                    <h3>Contact Information</h3>
-                    <div><strong>Email:</strong> <span id="employeeEmail">Loading...</span></div>
-                    <div><strong>Phone:</strong> <span id="employeePhone">Loading...</span></div>
-                    <div><strong>Location:</strong> <span id="employeeLocation">Loading...</span></div>
+                    <h3><i class="fas fa-address-card"></i> Contact Information</h3>
+                    <div><i class="fas fa-envelope"></i> <strong>Email:</strong> <span id="employeeEmail">Loading...</span></div>
+                    <div><i class="fas fa-phone"></i> <strong>Phone:</strong> <span id="employeePhone">Loading...</span></div>
+                    <div><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> <span id="employeeLocation">Loading...</span></div>
                 </div>
                 
                 <div class="detail-card" id="workpref">
-                    <h3>Work Preferences</h3>
-                    <div><strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
-                    <div><strong>Work Arrangement:</strong> <span id="employeeWorkArrangement">Loading...</span></div>
-                    <div><strong>Experience Level:</strong> <span id="employeeExperience">Loading...</span></div>
-                    <div><strong>Willing to Relocate:</strong> <span id="employeeWillingToRelocate">Loading...</span></div>
+                    <h3><i class="fas fa-briefcase"></i> Work Preferences</h3>
+                    <div><i class="fas fa-user-tie"></i> <strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
+                    <div><i class="fas fa-exchange-alt"></i> <strong>Willing to Relocate:</strong> <span id="employeeWillingToRelocate">Loading...</span></div>
+                    <div><i class="fas fa-user-check"></i> <strong>Available for Work:</strong> <span id="employeeAvailableForWork">Loading...</span></div>
                 </div>
                 
                 <div class="detail-card">
@@ -353,6 +353,61 @@
         let selectedRating = null;
         let employerData = null;
         let analyzeBtn = document.getElementById('analyzeBtn');
+
+        class ImageSlider {
+            constructor() {
+                this.currentSlide = 0;
+                this.slideInterval = null;
+            }
+
+            init(sliderContainer) {
+                this.slides = sliderContainer.querySelectorAll('.slide');
+                this.dots = sliderContainer.querySelectorAll('.dot');
+                
+                if (this.slides.length === 0) return;
+
+                this.showSlide(0);
+                this.startSlider();
+
+                // Pause on hover
+                sliderContainer.addEventListener('mouseenter', () => this.stopSlider());
+                sliderContainer.addEventListener('mouseleave', () => this.startSlider());
+
+                // Dot navigation
+                this.dots.forEach((dot, i) => {
+                    dot.addEventListener('click', () => this.showSlide(i));
+                });
+            }
+
+            showSlide(index) {
+                if (index >= this.slides.length) this.currentSlide = 0;
+                else if (index < 0) this.currentSlide = this.slides.length - 1;
+                else this.currentSlide = index;
+                
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                });
+                
+                this.dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+            
+            nextSlide() {
+                this.showSlide(this.currentSlide + 1);
+            }
+            
+            startSlider() {
+                this.stopSlider(); // Clear any existing interval
+                this.slideInterval = setInterval(() => this.nextSlide(), 5000);
+            }
+            
+            stopSlider() {
+                if (this.slideInterval) {
+                    clearInterval(this.slideInterval);
+                }
+            }
+        }
         
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthState();
@@ -362,50 +417,6 @@
             const summarizeBtn = document.querySelector('.summarize-btn');
             const closeModal = document.querySelector('.close-modal');
             const modalCloseBtn = document.querySelector('.modal-close-btn');
-
-            // Slider script remains the same
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.dot');
-            let slideInterval;
-            
-            function showSlide(index) {
-                if (index >= slides.length) currentSlide = 0;
-                else if (index < 0) currentSlide = slides.length - 1;
-                else currentSlide = index;
-                
-                slides.forEach((slide, i) => {
-                    slide.classList.toggle('active', i === currentSlide);
-                });
-                
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === currentSlide);
-                });
-            }
-            
-            function nextSlide() {
-                showSlide(currentSlide + 1);
-            }
-            
-            function startSlider() {
-                slideInterval = setInterval(nextSlide, 5000);
-            }
-            
-            function stopSlider() {
-                clearInterval(slideInterval);
-            }
-            
-            showSlide(0);
-            startSlider();
-            
-            document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
-            document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
-            
-            dots.forEach((dot, i) => {
-                dot.addEventListener('click', () => {
-                    showSlide(i);
-                });
-            });
             
             // Feedback button event listeners
             document.getElementById('likeBtn').addEventListener('click', () => {
@@ -530,10 +541,8 @@
                 document.getElementById('employeePhone').textContent = profileData.personalInfo?.phone || 'Not provided';
                 document.getElementById('employeeLocation').textContent = profileData.currentProvince || profileData.personalInfo?.currentProvince || 'Location not specified';
                 document.getElementById('employeeJobType').textContent = profileData.jobType || profileData.jobPreferences?.jobType || 'Not specified';
-                document.getElementById('employeeWorkArrangement').textContent = profileData.workArrangement || profileData.jobPreferences?.workArrangement || 'Not specified';
-                document.getElementById('employeeExperience').textContent = profileData.experienceLevel || profileData.jobPreferences?.experienceLevel || 'Not specified';
                 document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'No';
-                
+                document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'Not specified';
                 // Update skills
                 const skillsContainer = document.getElementById('employeeSkills');
                 skillsContainer.innerHTML = '';
@@ -567,7 +576,7 @@
                 
                 // Load feedback/comments
                 loadEmployeeFeedback(profileUserIdToLoad);
-                loadProfileGallery();
+                loadProfileGallery(profileUserIdToLoad);
                 
             } catch (error) {
                 console.error('Error loading profile data:', error);
@@ -634,6 +643,7 @@
                 
                 // Reload feedback
                 loadEmployeeFeedback(profileUserId);
+                loadEmployeeFeedback();
                 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
@@ -758,11 +768,11 @@
             }
         }
 
-        async function loadProfileGallery() {
+        async function loadProfileGallery(employeeid) {
             try {
-                if (!profileUserId) return;
-                
-                const galleryRef = collection(db, 'employeeGallery', profileUserId, 'images');
+                if (!employeeid) return;
+            
+                const galleryRef = collection(db, 'employeeGallery', employeeid, 'images');
                 const querySnapshot = await getDocs(galleryRef);
                 const slider = document.getElementById('profileSlider');
                 const pagination = document.getElementById('sliderPagination');
@@ -776,89 +786,60 @@
                 }
                 
                 // Process each image document
-                const images = [];
-                querySnapshot.forEach(doc => {
+                querySnapshot.forEach((doc, index) => {
                     const imageData = doc.data();
                     if (imageData.url) {
-                        images.push({
-                            url: imageData.url,
-                            id: doc.id
-                        });
+                        const slide = document.createElement('div');
+                        slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                        slide.innerHTML = `<img src="${imageData.url}" alt="Profile image ${index + 1}" loading="lazy">`;
+                        slider.appendChild(slide);
+                        
+                        const dot = document.createElement('span');
+                        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                        pagination.appendChild(dot);
                     }
                 });
 
-                // Debug: log the images
-                console.log("Gallery images loaded:", images);
-
-                if (images.length === 0) {
-                    showDefaultImages();
-                    return;
-                }
+                // Initialize slider only after all images are loaded
+                const sliderContainer = document.querySelector('.slider-container');
+                const imageSlider = new ImageSlider();
+                imageSlider.init(sliderContainer);
                 
-                // Create slides and pagination dots
-                images.forEach((image, index) => {
-                    const slide = document.createElement('div');
-                    slide.className = `slide ${index === 0 ? 'active' : ''}`;
-                    slide.innerHTML = `<img src="${image.url}" alt="Profile image ${index + 1}" loading="lazy">`;
-                    slider.appendChild(slide);
-                    
-                    const dot = document.createElement('span');
-                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
-                    dot.onclick = () => showSlide(index);
-                    pagination.appendChild(dot);
-                });
-                
-                initSlider();
             } catch (error) {
                 console.error('Error loading gallery:', error);
                 showDefaultImages();
             }
         }
 
-        function showDefaultImages() {
+       function showDefaultImages() {
             const slider = document.getElementById('profileSlider');
             const pagination = document.getElementById('sliderPagination');
             
             slider.innerHTML = `
                 <div class="slide active">
-                    <img src="../images/onsite.png" alt="Employee Profile 1">
+                    <img src="../images/hero-img.png" alt="Employee Profile 1">
                 </div>
                 <div class="slide">
-                    <img src="../images/employee-profile-2.jpg" alt="Employee Profile 2">
+                    <img src="../images/empty-folder.jpg" alt="Employee Profile 2">
                 </div>
                 <div class="slide">
-                    <img src="../images/employee-profile-3.jpg" alt="Employee Profile 3">
+                    <img src="../images/choose-logo-3.jpg" alt="Employee Profile 3">
                 </div>
             `;
             
             pagination.innerHTML = `
-                <span class="dot active" onclick="showSlide(0)"></span>
-                <span class="dot" onclick="showSlide(1)"></span>
-                <span class="dot" onclick="showSlide(2)"></span>
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
             `;
             
-            initSlider();
+            // Initialize slider
+            const sliderContainer = document.querySelector('.slider-container');
+            const imageSlider = new ImageSlider();
+            imageSlider.init(sliderContainer);
         }
 
         function initSlider() {
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.dot');
-            let slideInterval;
-
-            function showSlide(index) {
-                if (index >= slides.length) currentSlide = 0;
-                else if (index < 0) currentSlide = slides.length - 1;
-                else currentSlide = index;
-                
-                slides.forEach((slide, i) => {
-                    slide.classList.toggle('active', i === currentSlide);
-                });
-                
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === currentSlide);
-                });
-            }
             
             function nextSlide() {
                 showSlide(currentSlide + 1);

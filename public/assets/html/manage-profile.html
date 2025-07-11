@@ -112,6 +112,13 @@
                         <i class="fas fa-truck-moving"></i> Willing to relocate to other locations
                     </label>
                 </div>
+
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="availableForWork" checked>
+                        <i class="fas fa-user-clock"></i> Available for work
+                    </label>
+                </div>
                 
                 <button type="submit" class="submit-comment-btn">
                     <i class="fas fa-save"></i> Save Changes
@@ -435,6 +442,7 @@
                 // Collect form data
                 const jobTitle = document.getElementById('jobTitle').value;
                 const willingToRelocate = document.getElementById('willingToRelocate').checked ? 'Yes' : 'No';
+                const availableForWork = document.getElementById('availableForWork').checked ? 'Yes' : 'No';
                 
                 const skills = [];
                 document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked').forEach(cb => {
@@ -453,6 +461,7 @@
                         'jobPreferences.skills': skills,
                         'jobPreferences.preferredLocations': preferredLocations,
                         'jobPreferences.willingToRelocate': willingToRelocate,
+                        'jobPreferences.availableForWork': availableForWork,
                         'metadata.lastUpdated': serverTimestamp()
                     }),
                     
@@ -461,6 +470,7 @@
                         skills,
                         preferredLocations,
                         willingToRelocate,
+                        availableForWork,
                         lastUpdated: serverTimestamp()
                     })
                 ]);
