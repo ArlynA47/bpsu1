@@ -276,35 +276,14 @@ body {
   .h-20 {
     height: calc(var(--spacing) * 20);
   }
-  .h-\[90\%\] {
-    height: 90%;
-  }
-  .h-\[100vh\] {
-    height: 100vh;
-  }
   .h-full {
     height: 100%;
   }
   .h-screen {
     height: 100vh;
   }
-  .max-h-\[30vh\] {
-    max-height: 30vh;
-  }
-  .max-h-\[40vh\] {
-    max-height: 40vh;
-  }
   .max-h-\[50vh\] {
     max-height: 50vh;
-  }
-  .max-h-\[60vh\] {
-    max-height: 60vh;
-  }
-  .max-h-\[70vh\] {
-    max-height: 70vh;
-  }
-  .max-h-\[100vh\] {
-    max-height: 100vh;
   }
   .max-h-\[300px\] {
     max-height: 300px;
@@ -351,9 +330,6 @@ body {
   .w-\[80\%\] {
     width: 80%;
   }
-  .w-\[90\%\] {
-    width: 90%;
-  }
   .w-full {
     width: 100%;
   }
@@ -383,9 +359,6 @@ body {
   }
   .scroll-m-0 {
     scroll-margin: calc(var(--spacing) * 0);
-  }
-  .scroll-m-0\.5 {
-    scroll-margin: calc(var(--spacing) * 0.5);
   }
   .scroll-m-10 {
     scroll-margin: calc(var(--spacing) * 10);
@@ -541,9 +514,6 @@ body {
   .bg-\[\#FFEA05\] {
     background-color: #FFEA05;
   }
-  .bg-\[\#f0f0f0\] {
-    background-color: #f0f0f0;
-  }
   .bg-transparent {
     background-color: transparent;
   }
@@ -552,9 +522,6 @@ body {
   }
   .bg-\[url\(\'\.\/assets\/images\/hero-bg\.png\'\)\] {
     background-image: url('./assets/images/hero-bg.png');
-  }
-  .bg-\[url\(\'\/public\/assets\/images\/hero-bg\.png\'\)\] {
-    background-image: url('/public/assets/images/hero-bg.png');
   }
   .bg-\[url\(\/public\/assets\/images\/auth-bg\.png\)\] {
     background-image: url(/public/assets/images/auth-bg.png);
@@ -726,13 +693,6 @@ body {
     &:hover {
       @media (hover: hover) {
         background-color: #3F742F;
-      }
-    }
-  }
-  .hover\:bg-\[\#f4f8f3\] {
-    &:hover {
-      @media (hover: hover) {
-        background-color: #f4f8f3;
       }
     }
   }
