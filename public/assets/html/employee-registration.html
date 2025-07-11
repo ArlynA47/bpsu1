@@ -88,51 +88,35 @@
                 </div>
               </div>
 
-                            <div class="input-group">
-                                <label>Confirm Password</label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-key"></i>
-                                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password...">
-                                </div>
-                            </div>
-                        </div>
+              <div class="flex flex-col gap-2">
+                <label class="font-semibold text-[#393E3A] text-xl">Home Address</label>
+                <div class="flex items-center gap-1 border-b-2 border-b-[#696666]">
+                  <i class="fas fa-map-marker-alt text-[#393E3A] text-xl"></i>
+                  <select id="homeAddress" name="homeAddress"
+                    class="flex-1 text-lg px-2 py-1 focus:outline-none bg-transparent" required>
+                    <option value="" disabled selected>Select your home address</option>
+                    <!-- Add more options dynamically -->
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                        <!-- Job Matching Information Section -->
-                        <div class="form-section">
-                            <h2>Job Matching Information</h2>
+          <div class="w-full flex flex-col gap-4">
+            <h3 class="text-[#73976a] text-2xl font-bold">Skills</h3>
 
-                            <div class="input-group">
-                                <label>Skills</label>
-                                <div id="skillsContainer" class="skills-checkbox-group"></div>
-                                <input type="hidden" id="skills" name="skills">
-                            </div>
+            <div class="grid grid-cols-3 gap-4 w-full" id="skillsContainer">
+              <!-- Add more options dynamically -->
+            </div>
+          </div>
 
+          <div class="w-full flex flex-col gap-4">
+            <h3 class="text-[#73976a] text-2xl font-bold">Preffered Work Locations</h3>
 
-
-                            <div class="input-group">
-                                <label>Preferred Work Locations in North Luzon</label>
-                                <div class="checkbox-group">
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="preferredLocations" value="Abra"> Abra</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Apayao"> Apayao</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Benguet"> Benguet</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Cagayan"> Cagayan</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ifugao"> Ifugao</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Norte"> Ilocos Norte</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Ilocos Sur"> Ilocos Sur</label>
-                                    </div>
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="preferredLocations" value="Isabela"> Isabela</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Kalinga"> Kalinga</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="La Union"> La Union</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Mountain Province"> Mountain Province</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Nueva Vizcaya"> Nueva Vizcaya</label>
-                                         <label><input type="checkbox" name="preferredLocations" value="Pangasinan"> Pangasinan</label>
-                                        <label><input type="checkbox" name="preferredLocations" value="Quirino"> Quirino</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
+              <!-- Add more options dynamically -->
+            </div>
+          </div>
 
           <div class="flex flex-col gap-4 w-full">
             <button type="submit"
@@ -143,144 +127,150 @@
       </div>
     </div>
   </div>
+
+  <script type="module">
+    // Firebase SDK imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      sendEmailVerification,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+      authDomain: "careerstep-bpsu1.firebaseapp.com",
+      projectId: "careerstep-bpsu1",
+      storageBucket: "careerstep-bpsu1.firebasestorage.app",
+      messagingSenderId: "17047315291",
+      appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+      measurementId: "G-WH6DT9HQW2"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const analytics = getAnalytics(app);
+
+    // Form DOM elements
+    const form = document.getElementById("employeeRegistrationForm");
+    const skillsHiddenInput = document.getElementById("skills");
+
+    // Load skills from Firestore and render as checkboxes
+    async function loadSkillsChecklist() {
+      const skillsContainer = document.getElementById("skillsContainer");
+      const docRef = doc(db, "skills", "skilled_worker_skills");
+      const docSnap = await getDoc(docRef);
+      let selectedSkills = [];
+
+      if (docSnap.exists()) {
+        const skills = docSnap.data().items;
+
+        skills.sort();
+
+        skills.forEach(skill => {
+          const label = document.createElement("label");
+          label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = skill;
+          checkbox.className = "accent-[#73976a] w-5 h-5";
+
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              selectedSkills.push(checkbox.value);
+            } else {
+              selectedSkills = selectedSkills.filter(s => s !== checkbox.value);
+            }
+            skillsHiddenInput.value = selectedSkills.join(",");
+          });
+
+          const span = document.createElement("span");
+          span.textContent = skill;
+          span.className = "text-md font-medium text-[#393E3A]";
+
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          skillsContainer.appendChild(label);
+        });
+      } else {
+        skillsContainer.innerHTML = "<p class='text-red-500 text-md font-medium'>Error loading skills.</p>";
+      }
+    }
+
+    function loadAddress() {
+      const homeAddress = document.getElementById('homeAddress');
+      const workLocationsContainer = document.getElementById('workLocationsContainer');
+
+      const provinces = [
+        // Ilocos Region
+        "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+        // Cagayan Valley
+        "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+        // CAR
+        "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+        // Central Luzon
+        "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+      ];
+
+      provinces.sort();
+
+      provinces.forEach(province => {
+        // For dropdown (home address)
+        const option = document.createElement('option');
+        option.value = province;
+        option.textContent = province;
+        homeAddress.appendChild(option);
+
+        // For checkbox (preferred work locations)
+        const label = document.createElement('label');
+        label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
+
+        const checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.value = province;
+        checkbox.name = "preferredWorkLocations";
+        checkbox.className = "accent-[#73976a] w-5 h-5";
+
+        const span = document.createElement('span');
+        span.className = "text-md font-medium text-[#393E3A]";
+        span.textContent = province;
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        workLocationsContainer.appendChild(label);
+      });
+    }
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSkillsChecklist();
+      loadAddress();
+
+      // Handle form submit
+      document.getElementById("employeeRegistrationForm").addEventListener("submit", async function (e) {
+        alert("CK is currently talking to arlyn about the logic of this registration!");
+      });
+    });
+  </script>
 </body>
 
 </html>
 
-<script type="module">
-  // Firebase SDK imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-    updateProfile
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+<!-- WIP EMPLOYEE REGISTRATION JS -->
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-    authDomain: "careerstep-bpsu1.firebaseapp.com",
-    projectId: "careerstep-bpsu1",
-    storageBucket: "careerstep-bpsu1.firebasestorage.app",
-    messagingSenderId: "17047315291",
-    appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-    measurementId: "G-WH6DT9HQW2"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const analytics = getAnalytics(app);
-
-  // Form DOM elements
-  const form = document.getElementById("employeeRegistrationForm");
-  const skillsHiddenInput = document.getElementById("skills");
-
-  // Load skills from Firestore and render as checkboxes
-  async function loadSkillsChecklist() {
-    const skillsContainer = document.getElementById("skillsContainer");
-    const docRef = doc(db, "skills", "skilled_worker_skills");
-    const docSnap = await getDoc(docRef);
-    let selectedSkills = [];
-
-    if (docSnap.exists()) {
-      const skills = docSnap.data().items;
-
-      skills.sort();
-
-      skills.forEach(skill => {
-        const label = document.createElement("label");
-        label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = skill;
-        checkbox.className = "accent-[#73976a] w-5 h-5";
-
-        checkbox.addEventListener("change", () => {
-          if (checkbox.checked) {
-            selectedSkills.push(checkbox.value);
-          } else {
-            selectedSkills = selectedSkills.filter(s => s !== checkbox.value);
-          }
-          skillsHiddenInput.value = selectedSkills.join(",");
-        });
-
-        const span = document.createElement("span");
-        span.textContent = skill;
-        span.className = "text-md font-medium text-[#393E3A]";
-
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        skillsContainer.appendChild(label);
-      });
-    } else {
-      skillsContainer.innerHTML = "<p class='text-red-500 text-md font-medium'>Error loading skills.</p>";
-    }
-  }
-
-  function loadAddress() {
-    const homeAddress = document.getElementById('homeAddress');
-    const workLocationsContainer = document.getElementById('workLocationsContainer');
-
-    const provinces = [
-      // Ilocos Region
-      "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
-      // Cagayan Valley
-      "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
-      // CAR
-      "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
-      // Central Luzon
-      "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
-    ];
-
-    provinces.sort();
-
-    provinces.forEach(province => {
-      // For dropdown (home address)
-      const option = document.createElement('option');
-      option.value = province;
-      option.textContent = province;
-      homeAddress.appendChild(option);
-
-      // For checkbox (preferred work locations)
-      const label = document.createElement('label');
-      label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
-
-      const checkbox = document.createElement('input');
-      checkbox.type = "checkbox";
-      checkbox.value = province;
-      checkbox.name = "preferredWorkLocations";
-      checkbox.className = "accent-[#73976a] w-5 h-5";
-
-      const span = document.createElement('span');
-      span.className = "text-md font-medium text-[#393E3A]";
-      span.textContent = province;
-
-      label.appendChild(checkbox);
-      label.appendChild(span);
-      workLocationsContainer.appendChild(label);
-    });
-  }
-
-  // Initialize
-  document.addEventListener("DOMContentLoaded", () => {
-    loadSkillsChecklist();
-    loadAddress();
-
-    // Handle form submit
-    document.getElementById("employeeRegistrationForm").addEventListener("submit", async function (e) {
-      alert("CK is currently talking to arlyn about the logic of this registration!");
-      // e.preventDefault();
+<!-- e.preventDefault();
 
       // // Show loading state
       // const submitBtn = document.getElementById('registerEmployeeBtn');
@@ -359,86 +349,4 @@
 
       // } catch (error) {
 
-      // }
-    });
-  });
-</script>
-
-<!-- try {
-      // Save to Firestore
-      const userData = {
-        metadata: {
-          createdAt: new Date(),
-          lastUpdated: new Date(),
-          accountType: "employee",
-          region: "North Luzon"
-        },
-        personalInfo: {
-          fullName,
-          contactEmail: email,
-          phone,
-          currentProvince,
-          dob,
-          gender
-        },
-        jobPreferences: {
-          jobTitle,
-          jobType,
-          workArrangement,
-          salaryExpectation,
-          experienceLevel,
-          educationLevel,
-          skills,
-          certifications,
-          preferredLocations,
-          willingToRelocate
-        },
-        accountStatus: {
-          emailVerified: false,
-          profileComplete: true,
-          jobAlertsEnabled: true
-        }
-      };
-
-      await setDoc(doc(db, "careerstepEmployees", user.uid), userData);
-
-      const publicProfile = {
-        userId: user.uid,
-        displayName: fullName,
-        ...userData.jobPreferences,
-        currentProvince,
-        lastUpdated: new Date()
-      };
-
-      await setDoc(doc(db, "careerstepPublicProfiles", user.uid), publicProfile);
-
-      // Redirect
-      window.location.href = `verify-email.html?email=${encodeURIComponent(accountEmail)}`;
-    } catch (error) {
-      console.error("CareerStep Registration Error:", error);
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Complete Registration";
-
-      const errorMap = {
-        "auth/email-already-in-use": "This email is already registered with CareerStep",
-        "auth/invalid-email": "Please enter a valid email",
-        "auth/weak-password": "Password must be at least 6 characters",
-        "auth/operation-not-allowed": "Account creation is currently restricted",
-        "auth/network-request-failed": "Network error. Please check your connection"
-      };
-
-      alert(errorMap[error.code] || "Registration failed. Please try again.");
-    }
-  });
-
-  // Initialize
-  document.addEventListener("DOMContentLoaded", () => {
-    setDOBLimit();
-    loadSkillsChecklist();
-  });
-</script>
-
-
-
-</body>
-</html>
+      // } -->
