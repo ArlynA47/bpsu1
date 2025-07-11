@@ -208,9 +208,6 @@
             margin-top: 10px;
             margin-bottom: 5px;
         }
-        #workpref {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -221,25 +218,18 @@
         </div>
         <nav>
             <button class="profile-btn" onclick="window.location.href='#'">Profile</button>
+            <button class="manage-btn" id="manageProfileBtn" style="display: none;">
+                <i class="fas fa-cog"></i> Manage Profile
+            </button>
         </nav>
     </header>
     <main>
         <div class="slider-container">
-            <div class="slider">
-                <div class="slide active">
-                    <img src="../images/onsite.png" alt="Employee Profile 1">
-                </div>
-                <div class="slide">
-                    <img src="../images/employee-profile-2.jpg" alt="Employee Profile 2">
-                </div>
-                <div class="slide">
-                    <img src="../images/employee-profile-3.jpg" alt="Employee Profile 3">
-                </div>
+            <div class="slider" id="profileSlider">
+                <!-- Slides will be added dynamically -->
             </div>
-            <div class="pagination">
-                <span class="dot active" onclick="showSlide(0)"></span>
-                <span class="dot" onclick="showSlide(1)"></span>
-                <span class="dot" onclick="showSlide(2)"></span>
+            <div class="pagination" id="sliderPagination">
+                <!-- Dots will be added dynamically -->
             </div>
         </div>
         <div class="profile-container">
@@ -269,6 +259,7 @@
                     <div><strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
                     <div><strong>Work Arrangement:</strong> <span id="employeeWorkArrangement">Loading...</span></div>
                     <div><strong>Experience Level:</strong> <span id="employeeExperience">Loading...</span></div>
+                    <div><strong>Willing to Relocate:</strong> <span id="employeeWillingToRelocate">Loading...</span></div>
                 </div>
                 
                 <div class="detail-card">
@@ -332,12 +323,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-        
+        import { 
+            getStorage,
+            ref,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
             authDomain: "careerstep-bpsu1.firebaseapp.com",
             projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.appspot.com",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
             messagingSenderId: "17047315291",
             appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
             measurementId: "G-WH6DT9HQW2"
@@ -346,6 +341,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         
         // Get user ID from URL or current user
         const urlParams = new URLSearchParams(window.location.search);
@@ -485,6 +481,13 @@
                     // Not logged in, but still allow viewing profile
                     loadProfileData();
                 }
+
+                if (user && !isEmployer && (!profileUserId || profileUserId === user.uid)) {
+                    document.getElementById('manageProfileBtn').style.display = 'block';
+                    document.getElementById('manageProfileBtn').onclick = () => {
+                        window.location.href = 'manage-profile.html';
+                    };
+                }
             } catch (error) {
                 console.error('Error checking auth state:', error);
                 loadProfileData();
@@ -503,14 +506,16 @@
                 
                 // Viewing another user's profile or own profile
                 const profileDoc = await getDoc(doc(db, 'careerstepPublicProfiles', profileUserIdToLoad));
+                const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', profileUserIdToLoad));
+                
                 if (profileDoc.exists()) {
                     profileData = profileDoc.data();
-                } else {
-                    // Fallback to employee document if public profile doesn't exist
-                    const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', profileUserIdToLoad));
+                    // Merge with employee doc if it exists
                     if (employeeDoc.exists()) {
-                        profileData = employeeDoc.data();
+                        profileData = {...employeeDoc.data(), ...profileData};
                     }
+                } else if (employeeDoc.exists()) {
+                    profileData = employeeDoc.data();
                 }
                 
                 if (!profileData) {
@@ -520,22 +525,24 @@
                 
                 // Update profile information
                 document.getElementById('employeeName').textContent = profileData.personalInfo?.fullName || profileData.displayName || 'No name provided';
-                document.getElementById('employeeJobTitle').textContent = profileData.jobTitle || 'Skilled Worker';
-                document.getElementById('employeeEmail').textContent = profileData.personalInfo?.contactEmail || 'Not provided';
+                document.getElementById('employeeJobTitle').textContent = profileData.jobTitle || profileData.jobPreferences?.jobTitle || 'Skilled Worker';
+                document.getElementById('employeeEmail').textContent = profileData.personalInfo?.contactEmail || profileData.email || 'Not provided';
                 document.getElementById('employeePhone').textContent = profileData.personalInfo?.phone || 'Not provided';
-                document.getElementById('employeeLocation').textContent = profileData.currentProvince || 'Location not specified';
-                document.getElementById('employeeJobType').textContent = profileData.jobType || 'Not specified';
-                document.getElementById('employeeWorkArrangement').textContent = profileData.workArrangement || 'Not specified';
-                document.getElementById('employeeExperience').textContent = profileData.experienceLevel || 'Not specified';
+                document.getElementById('employeeLocation').textContent = profileData.currentProvince || profileData.personalInfo?.currentProvince || 'Location not specified';
+                document.getElementById('employeeJobType').textContent = profileData.jobType || profileData.jobPreferences?.jobType || 'Not specified';
+                document.getElementById('employeeWorkArrangement').textContent = profileData.workArrangement || profileData.jobPreferences?.workArrangement || 'Not specified';
+                document.getElementById('employeeExperience').textContent = profileData.experienceLevel || profileData.jobPreferences?.experienceLevel || 'Not specified';
+                document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'No';
                 
                 // Update skills
                 const skillsContainer = document.getElementById('employeeSkills');
                 skillsContainer.innerHTML = '';
-                if (profileData.skills && profileData.skills.length > 0) {
-                    profileData.skills.forEach(skill => {
+                const skills = profileData.skills || profileData.jobPreferences?.skills || [];
+                if (skills.length > 0) {
+                    skills.forEach(skill => {
                         const skillBadge = document.createElement('div');
                         skillBadge.className = 'skill-badge';
-                        skillBadge.textContent = skill;
+                        skillBadge.innerHTML = `<i class="fas fa-check-circle"></i> ${skill}`;
                         skillsContainer.appendChild(skillBadge);
                     });
                 } else {
@@ -545,11 +552,12 @@
                 // Update preferred locations
                 const locationsContainer = document.getElementById('employeePreferredLocations');
                 locationsContainer.innerHTML = '';
-                if (profileData.preferredLocations && profileData.preferredLocations.length > 0) {
+                const locations = profileData.preferredLocations || profileData.jobPreferences?.preferredLocations || [];
+                if (locations.length > 0) {
                     const locationsList = document.createElement('ul');
-                    profileData.preferredLocations.forEach(location => {
+                    locations.forEach(location => {
                         const locationItem = document.createElement('li');
-                        locationItem.textContent = location;
+                        locationItem.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${location}`;
                         locationsList.appendChild(locationItem);
                     });
                     locationsContainer.appendChild(locationsList);
@@ -559,6 +567,7 @@
                 
                 // Load feedback/comments
                 loadEmployeeFeedback(profileUserIdToLoad);
+                loadProfileGallery();
                 
             } catch (error) {
                 console.error('Error loading profile data:', error);
@@ -748,6 +757,128 @@
                 return 'Error analyzing comments.';
             }
         }
+
+        async function loadProfileGallery() {
+            try {
+                if (!profileUserId) return;
+                
+                const galleryRef = collection(db, 'employeeGallery', profileUserId, 'images');
+                const querySnapshot = await getDocs(galleryRef);
+                const slider = document.getElementById('profileSlider');
+                const pagination = document.getElementById('sliderPagination');
+                
+                slider.innerHTML = '';
+                pagination.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    showDefaultImages();
+                    return;
+                }
+                
+                // Process each image document
+                const images = [];
+                querySnapshot.forEach(doc => {
+                    const imageData = doc.data();
+                    if (imageData.url) {
+                        images.push({
+                            url: imageData.url,
+                            id: doc.id
+                        });
+                    }
+                });
+
+                // Debug: log the images
+                console.log("Gallery images loaded:", images);
+
+                if (images.length === 0) {
+                    showDefaultImages();
+                    return;
+                }
+                
+                // Create slides and pagination dots
+                images.forEach((image, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                    slide.innerHTML = `<img src="${image.url}" alt="Profile image ${index + 1}" loading="lazy">`;
+                    slider.appendChild(slide);
+                    
+                    const dot = document.createElement('span');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dot.onclick = () => showSlide(index);
+                    pagination.appendChild(dot);
+                });
+                
+                initSlider();
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                showDefaultImages();
+            }
+        }
+
+        function showDefaultImages() {
+            const slider = document.getElementById('profileSlider');
+            const pagination = document.getElementById('sliderPagination');
+            
+            slider.innerHTML = `
+                <div class="slide active">
+                    <img src="../images/onsite.png" alt="Employee Profile 1">
+                </div>
+                <div class="slide">
+                    <img src="../images/employee-profile-2.jpg" alt="Employee Profile 2">
+                </div>
+                <div class="slide">
+                    <img src="../images/employee-profile-3.jpg" alt="Employee Profile 3">
+                </div>
+            `;
+            
+            pagination.innerHTML = `
+                <span class="dot active" onclick="showSlide(0)"></span>
+                <span class="dot" onclick="showSlide(1)"></span>
+                <span class="dot" onclick="showSlide(2)"></span>
+            `;
+            
+            initSlider();
+        }
+
+        function initSlider() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let slideInterval;
+
+            function showSlide(index) {
+                if (index >= slides.length) currentSlide = 0;
+                else if (index < 0) currentSlide = slides.length - 1;
+                else currentSlide = index;
+                
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === currentSlide);
+                });
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentSlide);
+                });
+            }
+            
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+            
+            function startSlider() {
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+            
+            function stopSlider() {
+                clearInterval(slideInterval);
+            }
+            
+            showSlide(0);
+            startSlider();
+            
+            document.querySelector('.slider-container').addEventListener('mouseenter', stopSlider);
+            document.querySelector('.slider-container').addEventListener('mouseleave', startSlider);
+        }
+
 
     </script>
 </body>
