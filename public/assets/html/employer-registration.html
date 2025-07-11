@@ -261,9 +261,7 @@
 
                 } catch (error) {
                     console.error('Employer Registration Error:', error);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Create Company';
-
+                    
                     // Enhanced error handling
                     const errorMap = {
                         'auth/email-already-in-use': 'This email is already registered',
