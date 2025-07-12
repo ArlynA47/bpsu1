@@ -513,3 +513,60 @@ nav ul li a:active {
 .dot.active {
     background-color: #3D6585;
 }
+
+/* Reputation Score Styles */
+.reputation-score {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.score-value {
+    font-weight: bold;
+    color: #3D6585;
+}
+
+.score-bar {
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.5s ease;
+}
+
+/* Feedback Highlights */
+.feedback-highlights {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.feedback-highlights h3 {
+    margin-top: 0;
+}
+
+.feedback-highlights ul {
+    padding-left: 20px;
+}
+
+/* Sentiment Analysis */
+.sentiment-analysis {
+    margin: 20px 0;
+}
+
+.sentiment-analysis h3 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Modal adjustments */
+.modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}

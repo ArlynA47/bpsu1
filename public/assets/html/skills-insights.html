@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills Insights - HirNa!</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3D6585;
+            --secondary-color: #2b4a66;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .logo {
+            width: 150px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #7C8A97;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .dashboard-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title h2 {
+            margin: 0;
+        }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .insight-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .card-content {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .skill-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 3px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .primary-badge {
+            background-color: #e6f0ff;
+            color: var(--primary-color);
+        }
+        
+        .success-badge {
+            background-color: #d4edda;
+            color: var(--success-color);
+        }
+        
+        .danger-badge {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+        }
+        
+        .warning-badge {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .info-badge {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.6s ease;
+        }
+        
+        .training-list {
+            margin-top: 15px;
+        }
+        
+        .training-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .training-item:last-child {
+            border-bottom: none;
+        }
+        
+        .training-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .training-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .feedback-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .feedback-employer {
+            font-weight: 600;
+        }
+        
+        .feedback-date {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .feedback-content {
+            color: #555;
+        }
+        
+        .positive-feedback {
+            border-left: 3px solid var(--success-color);
+            padding-left: 10px;
+        }
+        
+        .negative-feedback {
+            border-left: 3px solid var(--danger-color);
+            padding-left: 10px;
+        }
+        
+        .skill-combo {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .skill-combo-badge {
+            margin: 0 5px;
+        }
+        
+        .trend-indicator {
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .trend-up {
+            color: var(--success-color);
+        }
+        
+        .trend-down {
+            color: var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-header">
+            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" width="50px" height="50px"> 
+            <h1>HirNa!</h1>
+        </div>
+        <nav>
+            <button class="profile-btn" onclick="window.location.href='employee-profile.html'">
+                <i class="fas fa-arrow-left"></i> Back to Profile
+            </button>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <h1><i class="fas fa-lightbulb"></i> Skills Insights</h1>
+        <p>Personalized recommendations to improve your employability and skills</p>
+        
+        <div class="dashboard-section">
+            <div class="section-title">
+                <h2><i class="fas fa-chart-line"></i> Skills Analysis</h2>
+                <button class="refresh-btn" id="refreshAnalysis">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            
+            <div id="skillsAnalysisContainer">
+                <div class="loading-spinner"></div>
+                <p class="text-center">Analyzing your skills...</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-title">
+                <h2><i class="fas fa-bullseye"></i> Recommended Skills to Learn</h2>
+            </div>
+            
+            <div id="recommendedSkillsContainer">
+                <div class="loading-spinner"></div>
+                <p class="text-center">Finding skill recommendations...</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-title">
+                <h2><i class="fas fa-graduation-cap"></i> Training Opportunities</h2>
+                <button class="refresh-btn" id="refreshTraining">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            
+            <div id="trainingOpportunitiesContainer">
+                <div class="loading-spinner"></div>
+                <p class="text-center">Finding training opportunities...</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-title">
+                <h2><i class="fas fa-comment-alt"></i> Feedback Insights</h2>
+            </div>
+            
+            <div id="feedbackInsightsContainer">
+                <div class="loading-spinner"></div>
+                <p class="text-center">Analyzing your feedback...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let userSkills = [];
+        let userLocation = "";
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check auth state
+            const user = await new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    unsubscribe();
+                    resolve(user);
+                });
+            });
+            
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            currentUser = user;
+            loadAllData();
+            
+            // Setup event listeners
+            document.getElementById('refreshAnalysis').addEventListener('click', loadSkillsAnalysis);
+            document.getElementById('refreshTraining').addEventListener('click', loadTrainingOpportunities);
+        });
+        
+        async function loadAllData() {
+            try {
+                // Load user profile data first
+                const [employeeDoc, publicDoc] = await Promise.all([
+                    getDoc(doc(db, 'careerstepEmployees', currentUser.uid)),
+                    getDoc(doc(db, 'careerstepPublicProfiles', currentUser.uid))
+                ]);
+                
+                if (employeeDoc.exists() || publicDoc.exists()) {
+                    const profileData = employeeDoc.exists() ? employeeDoc.data() : {};
+                    const publicData = publicDoc.exists() ? publicDoc.data() : {};
+                    
+                    // Get user skills from either document
+                    userSkills = profileData.skills || 
+                                profileData.jobPreferences?.skills || 
+                                publicData.skills || 
+                                [];
+                    
+                    // Get user location
+                    userLocation = profileData.currentProvince || 
+                                  profileData.personalInfo?.currentProvince || 
+                                  publicData.currentProvince || 
+                                  "";
+                    
+                    // Load all sections
+                    await Promise.all([
+                        loadSkillsAnalysis(),
+                        loadRecommendedSkills(),
+                        loadTrainingOpportunities(),
+                        loadFeedbackInsights()
+                    ]);
+                } else {
+                    throw new Error('Profile not found');
+                }
+            } catch (error) {
+                console.error('Error loading profile data:', error);
+                alert('Failed to load profile data. Please try again.');
+            }
+        }
+        
+        async function loadSkillsAnalysis() {
+            try {
+                const container = document.getElementById('skillsAnalysisContainer');
+                container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Analyzing your skills...</p>';
+                
+                // Get job seeds analytics to see what skills are in demand
+                const analyticsQuery = query(
+                    collection(db, 'jobSeedsAnalytics'),
+                    where('skillType', 'in', userSkills),
+                    orderBy('currentCount', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(analyticsQuery);
+                const skillDemand = {};
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    skillDemand[data.skillType] = data.currentCount || 0;
+                });
+                
+                // Sort skills by demand (highest first)
+                const sortedSkills = [...userSkills].sort((a, b) => {
+                    return (skillDemand[b] || 0) - (skillDemand[a] || 0);
+                });
+                
+                // Get top 5 most demanded skills
+                const topSkills = sortedSkills.slice(0, 5);
+                
+                // Generate HTML
+                let html = `
+                    <div class="card-container">
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h3 class="card-title">Your Top Skills</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>These are your most in-demand skills based on current job trends:</p>
+                                <div class="skill-list" style="margin-top: 15px;">
+                                    ${topSkills.map(skill => `
+                                        <span class="skill-badge success-badge">
+                                            <i class="fas fa-check-circle"></i> ${skill}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <h3 class="card-title">Skills Demand</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>How your skills compare in the current job market:</p>
+                                <div class="progress-container">
+                                    ${sortedSkills.map(skill => `
+                                        <div style="margin: 15px 0;">
+                                            <div class="progress-label">
+                                                <span>${skill}</span>
+                                                <span>${skillDemand[skill] || 0} jobs</span>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: ${Math.min(100, (skillDemand[skill] || 0) / 5 * 100)}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading skills analysis:', error);
+                document.getElementById('skillsAnalysisContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Could not load skills analysis. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function loadRecommendedSkills() {
+            try {
+                const container = document.getElementById('recommendedSkillsContainer');
+                container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Finding skill recommendations...</p>';
+                
+                // Get all skills from database
+                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
+                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
+                
+                // Get job seeds analytics to find skill combinations
+                const analyticsQuery = query(
+                    collection(db, 'jobSeedsAnalytics'),
+                    orderBy('currentCount', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(analyticsQuery);
+                const skillCombinations = {};
+                
+                // Find skills that are often paired with the user's skills
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.skillType && !userSkills.includes(data.skillType)) {
+                        skillCombinations[data.skillType] = data.currentCount || 0;
+                    }
+                });
+                
+                // Sort recommended skills by demand (highest first)
+                const recommendedSkills = Object.keys(skillCombinations)
+                    .sort((a, b) => skillCombinations[b] - skillCombinations[a])
+                    .slice(0, 5);
+                
+                // Generate HTML
+                let html = `
+                    <div class="card-container">
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <h3 class="card-title">Complementary Skills</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>These skills are often required together with your current skills:</p>
+                                <div class="skill-combo-list" style="margin-top: 15px;">
+                                    ${recommendedSkills.map(skill => {
+                                        // Find a skill that this skill is often paired with
+                                        const pairedSkill = userSkills.find(userSkill => {
+                                            return querySnapshot.docs.some(doc => {
+                                                const data = doc.data();
+                                                return data.skillType === skill && 
+                                                       data.province !== "overall" && 
+                                                       data.province.includes(userSkill);
+                                            });
+                                        });
+                                        
+                                        return `
+                                            <div class="skill-combo">
+                                                <span class="skill-badge primary-badge">${pairedSkill || 'Your skill'}</span>
+                                                <i class="fas fa-plus" style="margin: 0 5px;"></i>
+                                                <span class="skill-badge success-badge">${skill}</span>
+                                                <span class="trend-indicator trend-up">
+                                                    <i class="fas fa-arrow-up"></i> ${skillCombinations[skill]} jobs
+                                                </span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                                <h3 class="card-title">Skill Gaps</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>These are the most in-demand skills you don't currently have:</p>
+                                <div style="margin-top: 15px;">
+                                    ${recommendedSkills.map(skill => `
+                                        <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                                            <div style="font-weight: 600; margin-bottom: 5px;">
+                                                <i class="fas fa-arrow-circle-right"></i> ${skill}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: #666;">
+                                                Appears in ${skillCombinations[skill]} job postings
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading recommended skills:', error);
+                document.getElementById('recommendedSkillsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Could not load skill recommendations. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function loadTrainingOpportunities() {
+            try {
+                const container = document.getElementById('trainingOpportunitiesContainer');
+                container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Finding training opportunities...</p>';
+                
+                // Get recommended skills first
+                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
+                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
+                
+                const analyticsQuery = query(
+                    collection(db, 'jobSeedsAnalytics'),
+                    orderBy('currentCount', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(analyticsQuery);
+                const recommendedSkills = [];
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.skillType && !userSkills.includes(data.skillType)) {
+                        recommendedSkills.push(data.skillType);
+                    }
+                });
+                
+                // Take top 3 recommended skills
+                const skillsToTrain = recommendedSkills.slice(0, 3);
+                
+                if (skillsToTrain.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-graduation-cap"></i>
+                            <p>No specific training recommendations at this time.</p>
+                            <p>Check back later or try refreshing.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Use GCP Function to get training recommendations
+                let trainingHtml = '<div class="card-container">';
+                
+                for (const skill of skillsToTrain) {
+                    try {
+                        // Call our GCP Function which will use the Rev21Labs API
+                        const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/getTrainingRecommendations', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                skill: skill,
+                                location: userLocation || "North Luzon, Philippines"
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            const trainingContent = data.content || `No specific training found for ${skill}`;
+                            
+                            trainingHtml += `
+                                <div class="insight-card">
+                                    <div class="card-header">
+                                        <div class="card-icon">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <h3 class="card-title">${skill} Training</h3>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="training-list">
+                                            ${formatTrainingResponse(trainingContent)}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            throw new Error('Failed to get training recommendations');
+                        }
+                    } catch (error) {
+                        console.error(`Error getting training for ${skill}:`, error);
+                        trainingHtml += `
+                            <div class="insight-card">
+                                <div class="card-header">
+                                    <div class="card-icon">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <h3 class="card-title">${skill} Training</h3>
+                                </div>
+                                <div class="card-content">
+                                    <p>Could not load training information for ${skill}.</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                trainingHtml += '</div>';
+                container.innerHTML = trainingHtml;
+            } catch (error) {
+                console.error('Error loading training opportunities:', error);
+                document.getElementById('trainingOpportunitiesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Could not load training opportunities. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function formatTrainingResponse(text) {
+            // Convert markdown-like list to HTML
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+                .replace(/\n\s*-\s*(.*?)(?=\n|$)/g, '<div class="training-item"><div class="training-name">$1</div></div>')
+                .replace(/\n\s*\d+\.\s*(.*?)(?=\n|$)/g, '<div class="training-item"><div class="training-name">$1</div></div>')
+                .replace(/\n\s*(Location:|Address:)(.*?)(?=\n|$)/g, '<div class="training-details"><strong>$1</strong>$2</div>')
+                .replace(/\n\s*(Contact:)(.*?)(?=\n|$)/g, '<div class="training-details"><strong>$1</strong>$2</div>')
+                .replace(/\n/g, '<br>');
+        }
+        
+        async function loadFeedbackInsights() {
+            try {
+                const container = document.getElementById('feedbackInsightsContainer');
+                container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Analyzing your feedback...</p>';
+                
+                // Get feedback for this user
+                const feedbackQuery = query(
+                    collection(db, 'employeeFeedback'),
+                    where('employeeId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(feedbackQuery);
+                const feedbacks = [];
+                let positiveCount = 0;
+                let negativeCount = 0;
+                
+                querySnapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    feedbacks.push(feedback);
+                    if (feedback.rating === 'positive') positiveCount++;
+                    else if (feedback.rating === 'negative') negativeCount++;
+                });
+                
+                if (feedbacks.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>No employer feedback yet.</p>
+                            <p>Once you receive feedback from employers, insights will appear here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Get sentiment analysis of all feedback comments using GCP Function
+                let sentimentAnalysis = "No detailed analysis available";
+                try {
+                    const allComments = feedbacks.map(f => f.comment).join(' ');
+                    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: allComments })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        sentimentAnalysis = data.content || sentimentAnalysis;
+                    }
+                } catch (error) {
+                    console.error('Error getting sentiment analysis:', error);
+                }
+                
+                // Generate HTML
+                const reputationScore = Math.round((positiveCount / (positiveCount + negativeCount)) * 100) || 0;
+                
+                let html = `
+                    <div class="card-container">
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <h3 class="card-title">Feedback Summary</h3>
+                            </div>
+                            <div class="card-content">
+                                <div style="text-align: center; margin: 20px 0;">
+                                    <div style="font-size: 3rem; font-weight: bold; color: ${reputationScore >= 70 ? '#28a745' : reputationScore >= 40 ? '#ffc107' : '#dc3545'}">
+                                        ${reputationScore}/100
+                                    </div>
+                                    <div style="font-size: 1.2rem; margin-bottom: 10px;">
+                                        Reputation Score
+                                    </div>
+                                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                                        <div>
+                                            <div style="font-size: 1.5rem; color: #28a745;">${positiveCount}</div>
+                                            <div>Positive</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 1.5rem; color: #dc3545;">${negativeCount}</div>
+                                            <div>Negative</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 20px;">
+                                    <h4 style="margin-bottom: 10px;">Analysis:</h4>
+                                    <p>${sentimentAnalysis.replace(/sentiment/gi, 'feedback')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="insight-card">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h3 class="card-title">Recent Feedback</h3>
+                            </div>
+                            <div class="card-content">
+                                ${feedbacks.slice(0, 3).map(feedback => `
+                                    <div class="feedback-item ${feedback.rating === 'positive' ? 'positive-feedback' : 'negative-feedback'}">
+                                        <div class="feedback-header">
+                                            <div class="feedback-employer">${feedback.employerName || 'Anonymous Employer'}</div>
+                                            <div class="feedback-date">${feedback.createdAt?.toDate ? feedback.createdAt.toDate().toLocaleDateString() : 'Unknown date'}</div>
+                                        </div>
+                                        <div class="feedback-content">
+                                            <p>${feedback.comment || 'No comment provided'}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                
+                                ${feedbacks.length > 3 ? `
+                                    <div style="text-align: center; margin-top: 15px;">
+                                        <a href="employee-profile.html" style="color: #3D6585;">View all feedback on your profile</a>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading feedback insights:', error);
+                document.getElementById('feedbackInsightsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Could not load feedback insights. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

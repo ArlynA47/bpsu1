@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Applications - Employer Dashboard</title>
+    <title>Manage Applications</title>
     <link rel="icon" type="image/png" href="../images/icon.png">
+    <!-- Add Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -281,6 +285,269 @@
                 overflow-x: auto;
             }
         }
+
+        .job-header-row {
+            background-color: #f8f9fa !important;
+            border-left: 4px solid #3D6585;
+        }
+
+        .job-title-header {
+            padding: 15px !important;
+            font-size: 1.1rem;
+        }
+
+        .likelihood-badge {
+            margin-top: 5px;
+        }
+
+        .table-success .likelihood-badge .badge {
+            background-color: #28a745 !important;
+        }
+
+        .table-info .likelihood-badge .badge {
+            background-color: #17a2b8 !important;
+        }
+
+        .analysis-btn {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .analysis-btn:hover {
+            background-color: #563d7c;
+        }
+        
+        .applicant-analysis-modal .modal-dialog {
+            max-width: 800px;
+        }
+        
+        .applicant-score {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .score-excellent {
+            color: #28a745;
+        }
+        
+        .score-good {
+            color: #17a2b8;
+        }
+        
+        .score-fair {
+            color: #ffc107;
+        }
+        
+        .score-poor {
+            color: #dc3545;
+        }
+        
+        .skill-match-container {
+            margin: 20px 0;
+        }
+        
+        .skill-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 3px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .matched-skill {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .missing-skill {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .sort-controls label {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        
+        .sort-select {
+            min-width: 200px;
+        }
+
+        .applicant-analysis-modal .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .applicant-analysis-modal .modal-header {
+            background-color: #3D6585;
+            color: white;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            padding: 15px 20px;
+        }
+
+        .applicant-analysis-modal .modal-title {
+            font-weight: 600;
+        }
+
+        .applicant-analysis-modal .modal-body {
+            padding: 25px;
+        }
+
+        .applicant-analysis-modal .modal-footer {
+            border-top: 1px solid #eee;
+            padding: 15px 20px;
+        }
+
+        /* Analysis Content Styles */
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .metric-card h5 {
+            font-size: 1rem;
+            color: #7C8A97;
+            margin-bottom: 10px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3D6585;
+            margin-bottom: 5px;
+        }
+
+        .metric-card p {
+            font-size: 0.9rem;
+            color: #7C8A97;
+            margin: 0;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 10px !important;
+        }
+
+        .progress-bar {
+            background-color: #3D6585;
+            border-radius: 10px;
+        }
+
+        .skill-match-container h5 {
+            margin-bottom: 15px;
+            color: #3D6585;
+            font-size: 1.1rem;
+        }
+
+        .skill-tag {
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            margin: 0 5px 5px 0;
+        }
+
+        .matched-skill {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .missing-skill {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Score Classes */
+        .score-excellent {
+            color: #28a745;
+        }
+
+        .score-good {
+            color: #17a2b8;
+        }
+
+        .score-fair {
+            color: #ffc107;
+        }
+
+        .score-poor {
+            color: #dc3545;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .applicant-analysis-modal .modal-dialog {
+                margin: 10px;
+            }
+            
+            .applicant-analysis-modal .modal-content {
+                border-radius: 8px;
+            }
+            
+            .metric-card {
+                margin-bottom: 10px;
+            }
+            
+            .applicant-score {
+                font-size: 2.5rem !important;
+            }
+        }
+
+        /* Animation for modal content */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .applicant-analysis-modal .modal-body > div {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body>
@@ -314,7 +581,20 @@
                 <div class="stat-label">Rejected</div>
             </div>
         </div>
+
         <div id="applicationsContainer">
+            <div class="sort-controls">
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy" class="form-select sort-select">
+                    <option value="likelihood-desc">Likelihood (High to Low)</option>
+                    <option value="likelihood-asc">Likelihood (Low to High)</option>
+                    <option value="date-desc">Application Date (Newest First)</option>
+                    <option value="date-asc">Application Date (Oldest First)</option>
+                </select>
+                <button id="analyzeAllBtn" class="btn analysis-btn">
+                    <i class="fas fa-chart-bar"></i> Analyze All Applicants
+                </button>
+            </div>
             <table class="applications-table">
                 <thead>
                     <tr>
@@ -346,7 +626,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy, writeBatch, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     
     const firebaseConfig = { 
         apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
@@ -590,6 +870,57 @@
             });
         }
         
+        async function updateStatus(applicationId, newStatus) {
+            if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
+            
+            loadingOverlay.style.display = 'flex';
+            try {
+                // Get the application document to find the jobId
+                const appRef = doc(db, 'applications', applicationId);
+                const appSnap = await getDoc(appRef);
+                const appData = appSnap.exists() ? appSnap.data() : null;
+                let jobId = appData?.jobId;
+                
+                // Update application status
+                await updateDoc(
+                    appRef,
+                    { status: newStatus, updatedAt: serverTimestamp() }
+                );
+                
+                // If hiring, decrement positionsAvailable in jobSeeds
+                if (newStatus === 'hired' && jobId) {
+                    try {
+                        const jobRef = doc(db, 'jobSeeds', jobId);
+                        const jobSnap = await getDoc(jobRef);
+                        
+                        if (jobSnap.exists()) {
+                            const jobData = jobSnap.data();
+                            let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : null;
+                            
+                            if (positionsAvailable !== null && positionsAvailable > 0) {
+                                positionsAvailable = positionsAvailable - 1;
+                                let updateObj = { positionsAvailable };
+                                
+                                if (positionsAvailable === 0) {
+                                    updateObj.status = 'filled';
+                                }
+                                
+                                await updateDoc(jobRef, updateObj);
+                            }
+                        }
+                    } catch (jobUpdateError) {
+                        console.error('Error updating job positions:', jobUpdateError);
+                    }
+                }
+                
+                await loadApplications();
+            } catch (error) {
+                console.error('Error updating application status:', error);
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+        
         function formatDate(date) {
             if (!date) return 'Not specified';
             try {
@@ -599,123 +930,6 @@
                 return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             } catch (error) { return 'Not specified'; }
         }
-
-    async function updateStatus(applicationId, newStatus) {
-        if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
-        
-        loadingOverlay.style.display = 'flex';
-        try {
-            // Get the application document
-            const appRef = doc(db, 'applications', applicationId);
-            const appSnap = await getDoc(appRef);
-            const appData = appSnap.exists() ? appSnap.data() : null;
-            const oldStatus = appData?.status;
-            const jobId = appData?.jobId;
-            
-            // Update application status
-            await updateDoc(
-                appRef,
-                { status: newStatus, updatedAt: serverTimestamp() }
-            );
-            
-            // Handle analytics updates based on status changes
-            if (jobId) {
-                try {
-                    const jobRef = doc(db, 'jobSeeds', jobId);
-                    const jobSnap = await getDoc(jobRef);
-                    
-                    if (jobSnap.exists()) {
-                        const jobData = jobSnap.data();
-                        const skills = jobData.skills || [];
-                        const location = jobData.location;
-                        
-                        if (skills.length > 0 && location) {
-                            // Case 1: Changing from hired to another status
-                            if (oldStatus === 'hired' && newStatus !== 'hired') {
-                                await updateHiringAnalytics(skills, location, 'decrement');
-                            }
-                            // Case 2: Changing to hired from another status
-                            else if (newStatus === 'hired' && oldStatus !== 'hired') {
-                                await updateHiringAnalytics(skills, location, 'increment');
-                                
-                                // Also update job positions if being hired
-                                let positionsAvailable = jobData.positionsAvailable ?? null;
-                                if (positionsAvailable !== null && positionsAvailable > 0) {
-                                    positionsAvailable = positionsAvailable - 1;
-                                    let updateObj = { positionsAvailable };
-                                    
-                                    if (positionsAvailable === 0) {
-                                        updateObj.status = 'filled';
-                                    }
-                                    
-                                    await updateDoc(jobRef, updateObj);
-                                }
-                            }
-                        }
-                    }
-                } catch (jobUpdateError) {
-                    console.error('Error updating job positions/analytics:', jobUpdateError);
-                }
-            }
-            
-            await loadApplications();
-        } catch (error) {
-            console.error('Error updating application status:', error);
-        } finally {
-            loadingOverlay.style.display = 'none';
-        }
-    }
-
-    async function updateHiringAnalytics(skills, location, action = 'increment') {
-        const batch = writeBatch(db);
-        const timestamp = serverTimestamp();
-        const value = action === 'increment' ? 1 : -1;
-        
-        skills.forEach(skill => {
-            // Skill + Location specific
-            const skillLocationRef = doc(db, 'jobApplicationAnalytics', `${skill}_${location}`);
-            batch.set(skillLocationRef, {
-                skillType: skill,
-                province: location,
-                currentCount: increment(value),
-                totalHired: action === 'increment' ? increment(1) : increment(0),
-                lastUpdated: timestamp
-            }, { merge: true });
-            
-            // Skill overall
-            const skillOverallRef = doc(db, 'jobApplicationAnalytics', `${skill}_overall`);
-            batch.set(skillOverallRef, {
-                skillType: skill,
-                province: "overall",
-                currentCount: increment(value),
-                totalHired: action === 'increment' ? increment(1) : increment(0),
-                lastUpdated: timestamp
-            }, { merge: true });
-        });
-        
-        // Province overall
-        const provinceOverallRef = doc(db, 'jobApplicationAnalytics', `overall_${location}`);
-        batch.set(provinceOverallRef, {
-            skillType: "overall",
-            province: location,
-            currentCount: increment(value),
-            totalHired: action === 'increment' ? increment(1) : increment(0),
-            lastUpdated: timestamp
-        }, { merge: true });
-        
-        // Global overall
-        const globalOverallRef = doc(db, 'jobApplicationAnalytics', 'overall_overall');
-        batch.set(globalOverallRef, {
-            skillType: "overall",
-            province: "overall",
-            currentCount: increment(value),
-            totalHired: action === 'increment' ? increment(1) : increment(0),
-            lastUpdated: timestamp
-        }, { merge: true });
-        
-        await batch.commit();
-    }
-    
     });
 </script>
 </body>

@@ -62,6 +62,9 @@
             <h1>HirNa!</h1>
         </div>
         <nav>
+            <button class="profile-btn" onclick="window.location.href='skills-insights.html'">
+                <i class="fas fa-chart-line"></i> Skills Insights
+            </button>
             <button class="profile-btn" onclick="window.location.href='employee-profile.html'">
                 <i class="fas fa-user"></i> Back to Profile
             </button>
@@ -442,7 +445,7 @@
                 // Collect form data
                 const jobTitle = document.getElementById('jobTitle').value;
                 const willingToRelocate = document.getElementById('willingToRelocate').checked ? 'Yes' : 'No';
-                const availableForWork = document.getElementById('availableForWork').checked ? 'Yes' : 'No';
+                const availableForWork = document.getElementById('availableForWork').checked ? 'Yes' : 'Not Specified';
                 
                 const skills = [];
                 document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked').forEach(cb => {
