@@ -415,52 +415,91 @@
         const timestamp = firebase.firestore.FieldValue.serverTimestamp();
         const value = action === 'increment' ? 1 : -1;
 
+        // Update for each skill
         selectedSkills.forEach(skill => {
-            // Update province-specific count
-            const provinceRef = db.collection('jobSeedsAnalytics')
+            // Skill + Location specific count
+            const skillLocationRef = db.collection('jobSeedsAnalytics')
                 .doc(`${skill}_${location}`);
             
-            const provinceUpdate = {
+            const skillLocationUpdate = {
                 skillType: skill,
                 province: location,
                 currentCount: firebase.firestore.FieldValue.increment(value),
                 lastUpdated: timestamp
             };
 
-            // Only set createdAt on increment (creation)
             if (action === 'increment') {
-                provinceUpdate.createdAt = timestamp;
-                provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                skillLocationUpdate.createdAt = timestamp;
+                skillLocationUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
             } else {
-                provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                skillLocationUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
             }
 
-            batch.set(provinceRef, provinceUpdate, { merge: true });
+            batch.set(skillLocationRef, skillLocationUpdate, { merge: true });
 
-            // Update overall count
-            const overallRef = db.collection('jobSeedsAnalytics')
+            // Skill overall count
+            const skillOverallRef = db.collection('jobSeedsAnalytics')
                 .doc(`${skill}_overall`);
             
-            const overallUpdate = {
+            const skillOverallUpdate = {
                 skillType: skill,
                 province: "overall",
                 currentCount: firebase.firestore.FieldValue.increment(value),
                 lastUpdated: timestamp
             };
 
-            // Only set createdAt on increment (creation)
             if (action === 'increment') {
-                overallUpdate.createdAt = timestamp;
-                overallUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                skillOverallUpdate.createdAt = timestamp;
+                skillOverallUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
             } else {
-                overallUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                skillOverallUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
             }
 
-            batch.set(overallRef, overallUpdate, { merge: true });
+            batch.set(skillOverallRef, skillOverallUpdate, { merge: true });
         });
 
-        await batch.commit();
+        // Update province overall count (new)
+        const provinceOverallRef = db.collection('jobSeedsAnalytics')
+            .doc(`overall_${location}`);
+        
+        const provinceUpdate = {
+            skillType: "overall",
+            province: location,
+            currentCount: firebase.firestore.FieldValue.increment(value),
+            lastUpdated: timestamp
+        };
+
+        if (action === 'increment') {
+            provinceUpdate.createdAt = timestamp;
+            provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+        } else {
+            provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+        }
+
+        batch.set(provinceOverallRef, provinceUpdate, { merge: true });
+
+        // Update global overall count (new)
+    const globalOverallRef = db.collection('jobSeedsAnalytics')
+        .doc('overall_overall');
+    
+    const globalUpdate = {
+        skillType: "overall",
+        province: "overall",
+        currentCount: firebase.firestore.FieldValue.increment(value),
+        lastUpdated: timestamp
+    };
+
+    if (action === 'increment') {
+        globalUpdate.createdAt = timestamp;
+        globalUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+    } else {
+        globalUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
     }
+
+    batch.set(globalOverallRef, globalUpdate, { merge: true });
+
+    await batch.commit();
+}
 
     // Fetch skills from Firebase
     function fetchSkills() {

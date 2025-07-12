@@ -346,7 +346,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy, writeBatch, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     
     const firebaseConfig = { 
         apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
@@ -590,57 +590,6 @@
             });
         }
         
-        async function updateStatus(applicationId, newStatus) {
-            if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
-            
-            loadingOverlay.style.display = 'flex';
-            try {
-                // Get the application document to find the jobId
-                const appRef = doc(db, 'applications', applicationId);
-                const appSnap = await getDoc(appRef);
-                const appData = appSnap.exists() ? appSnap.data() : null;
-                let jobId = appData?.jobId;
-                
-                // Update application status
-                await updateDoc(
-                    appRef,
-                    { status: newStatus, updatedAt: serverTimestamp() }
-                );
-                
-                // If hiring, decrement positionsAvailable in jobSeeds
-                if (newStatus === 'hired' && jobId) {
-                    try {
-                        const jobRef = doc(db, 'jobSeeds', jobId);
-                        const jobSnap = await getDoc(jobRef);
-                        
-                        if (jobSnap.exists()) {
-                            const jobData = jobSnap.data();
-                            let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : null;
-                            
-                            if (positionsAvailable !== null && positionsAvailable > 0) {
-                                positionsAvailable = positionsAvailable - 1;
-                                let updateObj = { positionsAvailable };
-                                
-                                if (positionsAvailable === 0) {
-                                    updateObj.status = 'filled';
-                                }
-                                
-                                await updateDoc(jobRef, updateObj);
-                            }
-                        }
-                    } catch (jobUpdateError) {
-                        console.error('Error updating job positions:', jobUpdateError);
-                    }
-                }
-                
-                await loadApplications();
-            } catch (error) {
-                console.error('Error updating application status:', error);
-            } finally {
-                loadingOverlay.style.display = 'none';
-            }
-        }
-        
         function formatDate(date) {
             if (!date) return 'Not specified';
             try {
@@ -650,6 +599,123 @@
                 return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             } catch (error) { return 'Not specified'; }
         }
+
+    async function updateStatus(applicationId, newStatus) {
+        if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
+        
+        loadingOverlay.style.display = 'flex';
+        try {
+            // Get the application document
+            const appRef = doc(db, 'applications', applicationId);
+            const appSnap = await getDoc(appRef);
+            const appData = appSnap.exists() ? appSnap.data() : null;
+            const oldStatus = appData?.status;
+            const jobId = appData?.jobId;
+            
+            // Update application status
+            await updateDoc(
+                appRef,
+                { status: newStatus, updatedAt: serverTimestamp() }
+            );
+            
+            // Handle analytics updates based on status changes
+            if (jobId) {
+                try {
+                    const jobRef = doc(db, 'jobSeeds', jobId);
+                    const jobSnap = await getDoc(jobRef);
+                    
+                    if (jobSnap.exists()) {
+                        const jobData = jobSnap.data();
+                        const skills = jobData.skills || [];
+                        const location = jobData.location;
+                        
+                        if (skills.length > 0 && location) {
+                            // Case 1: Changing from hired to another status
+                            if (oldStatus === 'hired' && newStatus !== 'hired') {
+                                await updateHiringAnalytics(skills, location, 'decrement');
+                            }
+                            // Case 2: Changing to hired from another status
+                            else if (newStatus === 'hired' && oldStatus !== 'hired') {
+                                await updateHiringAnalytics(skills, location, 'increment');
+                                
+                                // Also update job positions if being hired
+                                let positionsAvailable = jobData.positionsAvailable ?? null;
+                                if (positionsAvailable !== null && positionsAvailable > 0) {
+                                    positionsAvailable = positionsAvailable - 1;
+                                    let updateObj = { positionsAvailable };
+                                    
+                                    if (positionsAvailable === 0) {
+                                        updateObj.status = 'filled';
+                                    }
+                                    
+                                    await updateDoc(jobRef, updateObj);
+                                }
+                            }
+                        }
+                    }
+                } catch (jobUpdateError) {
+                    console.error('Error updating job positions/analytics:', jobUpdateError);
+                }
+            }
+            
+            await loadApplications();
+        } catch (error) {
+            console.error('Error updating application status:', error);
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+    async function updateHiringAnalytics(skills, location, action = 'increment') {
+        const batch = writeBatch(db);
+        const timestamp = serverTimestamp();
+        const value = action === 'increment' ? 1 : -1;
+        
+        skills.forEach(skill => {
+            // Skill + Location specific
+            const skillLocationRef = doc(db, 'jobApplicationAnalytics', `${skill}_${location}`);
+            batch.set(skillLocationRef, {
+                skillType: skill,
+                province: location,
+                currentCount: increment(value),
+                totalHired: action === 'increment' ? increment(1) : increment(0),
+                lastUpdated: timestamp
+            }, { merge: true });
+            
+            // Skill overall
+            const skillOverallRef = doc(db, 'jobApplicationAnalytics', `${skill}_overall`);
+            batch.set(skillOverallRef, {
+                skillType: skill,
+                province: "overall",
+                currentCount: increment(value),
+                totalHired: action === 'increment' ? increment(1) : increment(0),
+                lastUpdated: timestamp
+            }, { merge: true });
+        });
+        
+        // Province overall
+        const provinceOverallRef = doc(db, 'jobApplicationAnalytics', `overall_${location}`);
+        batch.set(provinceOverallRef, {
+            skillType: "overall",
+            province: location,
+            currentCount: increment(value),
+            totalHired: action === 'increment' ? increment(1) : increment(0),
+            lastUpdated: timestamp
+        }, { merge: true });
+        
+        // Global overall
+        const globalOverallRef = doc(db, 'jobApplicationAnalytics', 'overall_overall');
+        batch.set(globalOverallRef, {
+            skillType: "overall",
+            province: "overall",
+            currentCount: increment(value),
+            totalHired: action === 'increment' ? increment(1) : increment(0),
+            lastUpdated: timestamp
+        }, { merge: true });
+        
+        await batch.commit();
+    }
+    
     });
 </script>
 </body>
