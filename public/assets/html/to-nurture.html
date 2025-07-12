@@ -6,6 +6,7 @@
     <title>Interested Jobs</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
             background-color: #f4f4f4;
@@ -34,12 +35,77 @@
         .apply-btn {
             margin-top: 15px;
         }
+
+        .analyze-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .modal-body .score {
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            height: 100%;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3D6585;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background-color: #3D6585;
+            transition: width 1s ease-in-out;
+        }
+
+        @media (max-width: 576px) {
+            .metric-card {
+                margin-bottom: 15px;
+            }
+            .progress {
+                height: 20px !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2 class="mb-4 text-center">Your Interested Jobs</h2>
         <div id="nurturedJobsContainer"></div>
+    </div>
+
+    <div id="analysisModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Application Analysis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="analysisResults">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h4 class="mt-3">Analyzing your application</h4>
+                        <p>Calculating your chances based on skills, reputation, and competition...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -62,6 +128,7 @@
 
         const nurturedJobsContainer = document.getElementById('nurturedJobsContainer');
         let appliedJobIds = new Set();
+        let currentUserData = null; // Store user data globally
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -81,7 +148,9 @@
             const userDoc = await getDoc(doc(db, 'careerstepEmployees', user.uid));
             if (!userDoc.exists()) return;
 
-            const nurturedSeeds = userDoc.data().nurturedSeeds || [];
+            // Store user data globally
+            currentUserData = userDoc.data();
+            const nurturedSeeds = currentUserData.nurturedSeeds || [];
 
             for (const seed of nurturedSeeds) {
                 const seedDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
@@ -112,16 +181,21 @@
                     ` : ''}
                     <button class="btn btn-success apply-btn" ${isApplied ? 'disabled' : ''}>${isApplied ? 'Applied' : 'Apply'}</button>
                     ${isApplied ? '<span style="color:#51cf66;font-weight:bold;margin-left:10px;"><i class="fas fa-paper-plane"></i> Applied</span>' : ''}
+                    <button class="btn btn-info analyze-btn mt-2" data-jobid="${seed.id}">
+                        <i class="fas fa-chart-line"></i> Analyze My Chances
+                    </button>
                 `;
 
                 const applyBtn = jobCard.querySelector('.apply-btn');
                 if (!isApplied) {
-                    // Modify the application submission in to-nurture.html
                     applyBtn.addEventListener('click', async () => {
                         try {
                             // Get job details first
                             const jobDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
                             const jobData = jobDoc.data();
+                            
+                            // Calculate likelihood score before submitting
+                            const likelihoodData = await calculateLikelihoodData(user.uid, seed.id, jobData);
                             
                             await addDoc(collection(db, 'applications'), {
                                 applicantId: user.uid,
@@ -131,7 +205,10 @@
                                 employerId: jobData?.employerId || '',
                                 status: 'pending',
                                 appliedAt: new Date(),
-                                createdAt: new Date()
+                                createdAt: new Date(),
+                                likelihoodScore: likelihoodData.likelihoodScore,
+                                skillMatch: likelihoodData.skillMatchPercentage,
+                                reputationScore: likelihoodData.reputationScore
                             });
                             
                             appliedJobIds.add(seed.id);
@@ -151,11 +228,272 @@
                             alert('Failed to apply. Please try again.\n' + (error.message || error));
                         }
                     });
-                                    }
+                }
 
                 nurturedJobsContainer.appendChild(jobCard);
             }
+
+            // Initialize analyze buttons after all cards are created
+            initializeAnalyzeButtons();
         });
+
+        function initializeAnalyzeButtons() {
+            document.querySelectorAll('.analyze-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const jobId = this.getAttribute('data-jobid');
+                    const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+                    modal.show();
+                    
+                    document.getElementById('analysisResults').innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h4 class="mt-3">Analyzing your application</h4>
+                            <p>Calculating your chances based on skills, reputation, and competition...</p>
+                        </div>
+                    `;
+                    
+                    try {
+                        const analysis = await analyzeApplicationChances(jobId);
+                        document.getElementById('analysisResults').innerHTML = analysis;
+                    } catch (error) {
+                        console.error('Error analyzing application:', error);
+                        document.getElementById('analysisResults').innerHTML = `
+                            <div class="alert alert-danger">
+                                <h4>Analysis Failed</h4>
+                                <p>We couldn't complete the analysis. Please try again later.</p>
+                                ${error.message ? `<small>${error.message}</small>` : ''}
+                            </div>
+                        `;
+                    }
+                });
+            });
+        }
+
+        async function calculateLikelihoodData(userId, jobId, jobData) {
+            // Calculate reputation score
+            const reputationScore = await calculateReputationScore(userId);
+            
+            // Calculate skill match
+            const jobSkills = jobData.skills || [];
+            const userSkills = currentUserData?.jobPreferences?.skills || [];
+            const matchingSkills = getMatchingSkills(jobSkills, userSkills);
+            const skillMatchPercentage = jobSkills.length > 0 ? 
+                Math.round((matchingSkills.length / jobSkills.length) * 100) : 0;
+            
+            // Calculate position availability
+            const positionsAvailable = jobData.positionsAvailable || 0;
+            const positionsNeeded = jobData.positionsNeeded || 1;
+            const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
+            
+            // Calculate competition (number of applicants)
+            const appsQuery = query(collection(db, 'applications'), 
+                where('jobId', '==', jobId),
+                where('status', 'in', ['pending', 'shortlisted', 'hired']));
+            const appsSnapshot = await getDocs(appsQuery);
+            const totalApplicants = appsSnapshot.size;
+            
+            // Calculate likelihood score (weighted average)
+            const likelihoodScore = Math.round(
+                (reputationScore * 0.4) + 
+                (skillMatchPercentage * 0.4) + 
+                (availabilityPercentage * 0.2)
+            );
+            
+            return {
+                reputationScore,
+                skillMatchPercentage,
+                availabilityPercentage,
+                totalApplicants,
+                likelihoodScore
+            };
+        }
+
+        async function analyzeApplicationChances(jobId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('User not logged in');
+                
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (!jobDoc.exists()) throw new Error('Job not found');
+                
+                const likelihoodData = await calculateLikelihoodData(user.uid, jobId, jobDoc.data());
+                
+                // Generate analysis HTML
+                return `
+                    <div class="analysis-container">
+                        <div class="score-display text-center mb-4">
+                            <h3 class="mb-3">Your Application Strength</h3>
+                            <div class="score-circle mx-auto d-flex align-items-center justify-content-center bg-${getScoreBadgeColor(likelihoodData.likelihoodScore)} rounded-circle" 
+                                style="width: 120px; height: 120px;">
+                                <span class="display-4 fw-bold text-white">${likelihoodData.likelihoodScore}</span>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-${getScoreBadgeColor(likelihoodData.likelihoodScore)}">
+                                    ${getScoreDescription(likelihoodData.likelihoodScore)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="metrics mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="metric-card">
+                                        <h4>Reputation Score</h4>
+                                        <div class="metric-value">${likelihoodData.reputationScore}/100</div>
+                                        <p>Based on employer feedback and ratings</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="metric-card">
+                                        <h4>Skill Match</h4>
+                                        <div class="metric-value">${likelihoodData.skillMatchPercentage}%</div>
+                                        <p>${getMatchingSkills(jobDoc.data().skills || [], currentUserData?.jobPreferences?.skills || []).length} of ${jobDoc.data().skills?.length || 0} required skills matched</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="metric-card">
+                                        <h4>Position Availability</h4>
+                                        <div class="metric-value">${likelihoodData.availabilityPercentage}%</div>
+                                        <p>${jobDoc.data().positionsAvailable || 0} of ${jobDoc.data().positionsNeeded || 1} positions available</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="metric-card">
+                                        <h4>Competition</h4>
+                                        <div class="metric-value">${likelihoodData.totalApplicants} applicants</div>
+                                        <p>Total applicants for this position</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-match-details mt-4">
+                            <h4>Skill Analysis</h4>
+                            ${jobDoc.data().skills?.length > 0 ? `
+                                <div class="matched-skills">
+                                    <h5 class="text-success">✓ Matched Skills (${getMatchingSkills(jobDoc.data().skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        ${getMatchingSkills(jobDoc.data().skills, currentUserData?.jobPreferences?.skills || []).map(skill => `<span class="badge bg-success">${skill}</span>`).join('')}
+                                    </div>
+                                </div>
+                                ${getMissingSkills(jobDoc.data().skills, currentUserData?.jobPreferences?.skills || []).length > 0 ? `
+                                <div class="missing-skills">
+                                    <h5 class="text-danger">✗ Missing Skills (${getMissingSkills(jobDoc.data().skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        ${getMissingSkills(jobDoc.data().skills, currentUserData?.jobPreferences?.skills || []).map(skill => `<span class="badge bg-danger">${skill}</span>`).join('')}
+                                    </div>
+                                </div>
+                                ` : ''}
+                            ` : '<p>No specific skills required for this position</p>'}
+                        </div>
+                        
+                        <div class="recommendations mt-4">
+                            <h4>Recommendations</h4>
+                            ${getRecommendations(likelihoodData.likelihoodScore, 
+                                getMatchingSkills(jobDoc.data().skills || [], currentUserData?.jobPreferences?.skills || []), 
+                                jobDoc.data().skills || [])}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error analyzing application:', error);
+                throw error;
+            }
+        }
+
+        async function calculateReputationScore(userId) {
+            try {
+                const feedbackQuery = query(
+                    collection(db, 'employeeFeedback'),
+                    where('employeeId', '==', userId)
+                );
+                const feedbackSnapshot = await getDocs(feedbackQuery);
+                
+                let positiveCount = 0;
+                let totalCount = 0;
+                
+                feedbackSnapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    if (feedback.rating === 'positive') positiveCount++;
+                    totalCount++;
+                });
+                
+                return totalCount > 0 ? Math.round((positiveCount / totalCount) * 100) : 75;
+            } catch (error) {
+                console.error('Error calculating reputation:', error);
+                return 75;
+            }
+        }
+
+        function getMatchingSkills(jobSkills, userSkills) {
+            if (!jobSkills || jobSkills.length === 0) return [];
+            if (!userSkills || userSkills.length === 0) return [];
+            
+            return jobSkills.filter(jobSkill => 
+                userSkills.some(userSkill => 
+                    userSkill.toLowerCase().includes(jobSkill.toLowerCase()) || 
+                    jobSkill.toLowerCase().includes(userSkill.toLowerCase())
+                )
+            );
+        }
+
+        function getMissingSkills(jobSkills, userSkills) {
+            if (!jobSkills || jobSkills.length === 0) return [];
+            return jobSkills.filter(skill => !getMatchingSkills(jobSkills, userSkills).includes(skill));
+        }
+
+        function getScoreBadgeColor(score) {
+            if (score >= 80) return 'success';
+            if (score >= 60) return 'primary';
+            if (score >= 40) return 'warning';
+            return 'danger';
+        }
+
+        function getScoreDescription(score) {
+            if (score >= 80) return 'Excellent Match';
+            if (score >= 60) return 'Good Match';
+            if (score >= 40) return 'Fair Match';
+            return 'Low Match';
+        }
+
+        function getRecommendations(score, matchingSkills, jobSkills) {
+            const missingSkills = getMissingSkills(jobSkills, currentUserData?.jobPreferences?.skills || []);
+            
+            if (score >= 80) {
+                return `
+                    <div class="alert alert-success">
+                        <strong>Excellent match!</strong> You have a very high chance of getting hired for this position.
+                        ${missingSkills.length > 0 ? `Consider brushing up on: ${missingSkills.join(', ')}` : ''}
+                    </div>
+                `;
+            } else if (score >= 60) {
+                return `
+                    <div class="alert alert-info">
+                        <strong>Good match!</strong> You have a decent chance, but could improve your skills.
+                        ${missingSkills.length > 0 ? `Focus on developing: ${missingSkills.join(', ')}` : ''}
+                    </div>
+                `;
+            } else if (score >= 40) {
+                return `
+                    <div class="alert alert-warning">
+                        <strong>Fair match.</strong> Your chances are moderate. Consider improving:
+                        ${missingSkills.length > 0 ? missingSkills.join(', ') : 'your skills'}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="alert alert-danger">
+                        <strong>Low match.</strong> This position may not be the best fit. 
+                        ${missingSkills.length > 0 ? `You're missing key skills: ${missingSkills.join(', ')}` : ''}
+                        Consider looking for positions that better match your skillset.
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>

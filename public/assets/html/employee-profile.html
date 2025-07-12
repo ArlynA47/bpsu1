@@ -316,6 +316,24 @@
                 </div>
             </div>
         </div>
+        
+        <div id="summaryModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Feedback Analysis Report</h2>
+                <div class="modal-body">
+                    <div id="loadingState" style="display: none; text-align: center;">
+                        <div class="loading-spinner"></div>
+                        <p>Analyzing feedback...</p>
+                    </div>
+                    <p id="sentimentdisplay"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-close-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Firebase SDK -->
@@ -430,21 +448,33 @@
             document.getElementById('submitCommentBtn').addEventListener('click', submitFeedback);
 
             analyzeBtn.addEventListener('click', async function () {
-                // Disable the button and show "Analyzing..."
+                // Disable the button and show loading
                 analyzeBtn.disabled = true;
-                const originalText = analyzeBtn.textContent;
-                analyzeBtn.textContent = 'Analyzing...';
+                analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                
+                // Show loading state in modal
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('sentimentdisplay').style.display = 'none';
+                document.getElementById('sentimentdisplay').innerHTML = '';
+                
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
 
                 try {
                     const results = await summarizeReview();
-
-                    modal.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
-                    document.querySelector('.modal-body p').innerHTML = results;
+                    document.getElementById('sentimentdisplay').innerHTML = results;
+                } catch (error) {
+                    console.error('Error analyzing feedback:', error);
+                    document.getElementById('sentimentdisplay').innerHTML = 
+                        'Error analyzing feedback. Please try again later.';
                 } finally {
                     // Re-enable the button and restore original text
                     analyzeBtn.disabled = false;
-                    analyzeBtn.textContent = originalText;
+                    analyzeBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Analyze Feedbacks';
+                    
+                    // Hide loading state, show results
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('sentimentdisplay').style.display = 'block';
                 }
             });
 
@@ -478,13 +508,17 @@
                     });
                 });
                 
+                // Check for isEmployer URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const isEmployerParam = urlParams.get('isEmployer') === 'true';
+                
                 if (user) {
                     currentUser = user;
-                    // Check if user is an employer
+                    // Check if user is an employer (either by URL param or by checking their role)
                     const employerDoc = await getDoc(doc(db, 'employers', user.uid));
-                    if (employerDoc.exists()) {
+                    if (employerDoc.exists() || isEmployerParam) {
                         isEmployer = true;
-                        employerData = employerDoc.data();
+                        employerData = employerDoc.exists() ? employerDoc.data() : null;
                         document.body.classList.add('employer');
                     }
                     loadProfileData();
@@ -534,6 +568,11 @@
                     return;
                 }
                 
+                // Show work preferences section if viewing as employer
+                if (isEmployer) {
+                    document.getElementById('workpref').style.display = 'block';
+                }
+                
                 // Update profile information
                 document.getElementById('employeeName').textContent = profileData.personalInfo?.fullName || profileData.displayName || 'No name provided';
                 document.getElementById('employeeJobTitle').textContent = profileData.jobTitle || profileData.jobPreferences?.jobTitle || 'Skilled Worker';
@@ -542,7 +581,7 @@
                 document.getElementById('employeeLocation').textContent = profileData.currentProvince || profileData.personalInfo?.currentProvince || 'Location not specified';
                 document.getElementById('employeeJobType').textContent = profileData.jobType || profileData.jobPreferences?.jobType || 'Not specified';
                 document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'No';
-                document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'Not specified';
+                document.getElementById('employeeAvailableForWork').textContent = profileData.employeeAvailableForWork || profileData.jobPreferences?.availableForWork || 'Not specified';
                 // Update skills
                 const skillsContainer = document.getElementById('employeeSkills');
                 skillsContainer.innerHTML = '';
@@ -623,7 +662,7 @@
                 const feedbackData = {
                     employeeId: profileUserId,
                     employerId: currentUser.uid,
-                    employerName: employerData.companyInfo?.companyName || 'Anonymous Employer',
+                    employerName: employerData?.companyInfo?.companyName || 'Anonymous Employer',
                     rating: selectedRating,
                     comment: commentText,
                     createdAt: serverTimestamp()
@@ -643,7 +682,6 @@
                 
                 // Reload feedback
                 loadEmployeeFeedback(profileUserId);
-                loadEmployeeFeedback();
                 
             } catch (error) {
                 console.error('Error submitting feedback:', error);
@@ -737,6 +775,9 @@
 
         async function summarizeReview() {
             const commentElements = document.querySelectorAll('.comment-body');
+            const positiveCount = parseInt(document.getElementById('positiveFeedback').textContent) || 0;
+            const negativeCount = parseInt(document.getElementById('negativeFeedback').textContent) || 0;
+            const totalFeedback = positiveCount + negativeCount;
 
             // Combine all comment texts into one string
             const allText = Array.from(commentElements)
@@ -744,27 +785,87 @@
                 .filter(text => !!text)
                 .join(' ');
 
-            if (!allText) {
-                return 'No comment text available.';
-            }
-
             try {
-                const response = await $.ajax({
-                    url: "http://localhost:3000/sentiment-proxy",
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    data: JSON.stringify({ content: allText })
-                });
+                // Calculate reputation score (0-100 scale)
+                let reputationScore = 0;
+                if (totalFeedback > 0) {
+                    reputationScore = Math.round((positiveCount / totalFeedback) * 100);
+                }
 
-                const content = response.content || 'No summary returned.';
+                // Prepare the reputation summary
+                let reputationSummary = `
+                    <div class="reputation-score">
+                        <h3>Reputation Score: <span class="score-value">${reputationScore}</span>/100</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${reputationScore}%"></div>
+                        </div>
+                        <p>Based on ${totalFeedback} feedback ratings (${positiveCount} positive, ${negativeCount} negative)</p>
+                    </div>
+                    <hr>
+                `;
 
-                // Replace the word "sentiment" with "feedback" (case-insensitive)
-                return content
-                    .replace(/sentiment/gi, 'feedback')
-                    .replace(/text/gi, 'comment(s)');
+                // If no comments but we have ratings
+                if (!allText && totalFeedback > 0) {
+                    return reputationSummary + `
+                        <p>No detailed comments available, but the employee has received:</p>
+                        <ul>
+                            <li>${positiveCount} positive ratings</li>
+                            <li>${negativeCount} negative ratings</li>
+                        </ul>
+                    `;
+                }
+
+                // If no feedback at all
+                if (!allText && totalFeedback === 0) {
+                    return 'No feedback available for analysis.';
+                }
+
+                // Get sentiment analysis from API
+                let sentimentAnalysis = '';
+                try {
+                    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: allText })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    sentimentAnalysis = data.content || 'No detailed analysis available.';
+                    
+                    // Replace the word "sentiment" with "feedback"
+                    sentimentAnalysis = sentimentAnalysis
+                        .replace(/sentiment/gi, 'feedback')
+                        .replace(/text/gi, 'comment(s)');
+                } catch (error) {
+                    console.error('Sentiment API error:', error);
+                    sentimentAnalysis = 'Detailed comment analysis unavailable. Showing basic feedback summary.';
+                }
+
+                // Combine reputation score with sentiment analysis
+                return reputationSummary + `
+                    <div class="sentiment-analysis">
+                        <h3>Feedback Analysis:</h3>
+                        <p>${sentimentAnalysis}</p>
+                    </div>
+                    ${totalFeedback > 0 ? `
+                    <div class="feedback-highlights">
+                        <h3>Feedback Highlights:</h3>
+                        <ul>
+                            <li>${positiveCount} employers liked this employee</li>
+                            <li>${negativeCount} employers had concerns</li>
+                            <li>${reputationScore >= 70 ? 'Strong positive reputation' : reputationScore >= 40 ? 'Mixed reputation' : 'Needs improvement'}</li>
+                        </ul>
+                    </div>
+                    ` : ''}
+                `;
+
             } catch (error) {
-                console.error('Sentiment API error:', error);
-                return 'Error analyzing comments.';
+                console.error('Error generating summary:', error);
+                return 'Error analyzing feedback. Please try again later.';
             }
         }
 
