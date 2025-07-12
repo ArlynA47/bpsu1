@@ -122,9 +122,14 @@
             updateProfile
         } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
         import {
-            getFirestore,
-            doc,
-            setDoc
+        getFirestore,
+        collection,
+        getDocs,
+        getDoc,
+        doc,
+        setDoc,
+        writeBatch,
+        increment
         } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         // Firebase configuration
@@ -142,6 +147,54 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Function to update employer registration analytics
+        async function updateEmployerAnalytics(db, province) {
+            const batch = writeBatch(db);
+            const now = new Date();
+            
+            // 1. Update overall total (overall_overall)
+            const totalRef = doc(db, "employerRegistrationAnalytics", "overall_overall");
+            const totalSnap = await getDoc(totalRef);
+            
+            if (totalSnap.exists()) {
+                batch.update(totalRef, {
+                    currentCount: increment(1),
+                    totalRegistered: increment(1),
+                    lastUpdated: now
+                });
+            } else {
+                batch.set(totalRef, {
+                    province: "overall",
+                    currentCount: 1,
+                    totalRegistered: 1,
+                    lastUpdated: now,
+                    createdAt: now
+                });
+            }
+            
+            // 2. Update province total (overall_{province})
+            const provinceRef = doc(db, "employerRegistrationAnalytics", `overall_${province}`);
+            const provinceSnap = await getDoc(provinceRef);
+            
+            if (provinceSnap.exists()) {
+                batch.update(provinceRef, {
+                    currentCount: increment(1),
+                    totalRegistered: increment(1),
+                    lastUpdated: now
+                });
+            } else {
+                batch.set(provinceRef, {
+                    province: province,
+                    currentCount: 1,
+                    totalRegistered: 1,
+                    lastUpdated: now,
+                    createdAt: now
+                });
+            }
+            
+            await batch.commit();
+        }
 
         // Configure email sender
         auth.useDeviceLanguage();
@@ -256,6 +309,9 @@
                     
                     await setDoc(doc(db, 'employerPublicProfiles', user.uid), publicProfile);
 
+                    // Update employer registration analytics
+                    await updateEmployerAnalytics(db, companyAddress);
+
                     // Success - redirect to verification page
                     window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
 
@@ -278,8 +334,65 @@
                     submitBtn.textContent = 'Create Account';
                 }
             });
+
+            async function migrateExistingEmployersToAnalytics() {
+                const employersRef = collection(db, "employers");
+                const employersSnap = await getDocs(employersRef);
+                
+                let batch = writeBatch(db);
+                const now = new Date();
+                let count = 0;
+                
+                // Initialize overall total
+                const totalRef = doc(db, "employerRegistrationAnalytics", "overall_overall");
+                batch.set(totalRef, {
+                    province: "overall",
+                    currentCount: 0,
+                    totalRegistered: 0,
+                    lastUpdated: now,
+                    createdAt: now
+                }, { merge: true });
+
+                for (const employerDoc of employersSnap.docs) {
+                    count++;
+                    const employer = employerDoc.data();
+                    const province = employer.companyInfo?.companyAddress || "Unknown";
+                    
+                    // Update overall total
+                    batch.update(totalRef, {
+                    currentCount: increment(1),
+                    totalRegistered: increment(1)
+                    });
+                    
+                    // Update province total
+                    const provinceRef = doc(db, "employerRegistrationAnalytics", `overall_${province}`);
+                    batch.set(provinceRef, {
+                    province: province,
+                    currentCount: increment(1),
+                    totalRegistered: increment(1),
+                    lastUpdated: now,
+                    createdAt: now
+                    }, { merge: true });
+                    
+                    // Commit every 100 records
+                    if (count % 100 === 0) {
+                    await batch.commit();
+                    console.log(`Processed ${count} employers`);
+                    batch = writeBatch(db);
+                    }
+                }
+                
+                // Commit remaining
+                if (count % 100 !== 0) {
+                    await batch.commit();
+                }
+                
+                console.log(`Migration completed. Processed ${count} employers`);
+                }
+
+                // Run migration
+                migrateExistingEmployersToAnalytics().catch(console.error);
         });
     </script>
 </body>
-
 </html>
