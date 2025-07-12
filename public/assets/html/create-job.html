@@ -67,7 +67,7 @@
             max-width: 500px;
             margin: 0 auto;
         }
-
+        
         .form-container {
             padding: 30px;
         }
@@ -336,7 +336,6 @@
             <div class="form-group">
                 <label for="positionsNeeded">Number of Needed Workers</label>
                 <div class="input-with-icon">
-                 
                     <input type="number" id="positionsNeeded" min="1" placeholder="Enter number of needed workers...">
                 </div>
             </div>
@@ -408,6 +407,59 @@
             console.error('Moderation check failed:', error);
             return { safe: false, category: 'Moderation service unavailable' };
         }
+    }
+
+    // Update job seed analytics
+    async function updateJobSeedAnalytics(selectedSkills, location, action = 'increment') {
+        const batch = db.batch();
+        const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+        const value = action === 'increment' ? 1 : -1;
+
+        selectedSkills.forEach(skill => {
+            // Update province-specific count
+            const provinceRef = db.collection('jobSeedsAnalytics')
+                .doc(`${skill}_${location}`);
+            
+            const provinceUpdate = {
+                skillType: skill,
+                province: location,
+                currentCount: firebase.firestore.FieldValue.increment(value),
+                lastUpdated: timestamp
+            };
+
+            // Only set createdAt on increment (creation)
+            if (action === 'increment') {
+                provinceUpdate.createdAt = timestamp;
+                provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+            } else {
+                provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+            }
+
+            batch.set(provinceRef, provinceUpdate, { merge: true });
+
+            // Update overall count
+            const overallRef = db.collection('jobSeedsAnalytics')
+                .doc(`${skill}_overall`);
+            
+            const overallUpdate = {
+                skillType: skill,
+                province: "overall",
+                currentCount: firebase.firestore.FieldValue.increment(value),
+                lastUpdated: timestamp
+            };
+
+            // Only set createdAt on increment (creation)
+            if (action === 'increment') {
+                overallUpdate.createdAt = timestamp;
+                overallUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+            } else {
+                overallUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+            }
+
+            batch.set(overallRef, overallUpdate, { merge: true });
+        });
+
+        await batch.commit();
     }
 
     // Fetch skills from Firebase
@@ -589,6 +641,9 @@
                     positionsAvailable: positionsNeeded
                 });
 
+                // Update analytics counts
+                await updateJobSeedAnalytics(selectedSkills, location, 'increment');
+
                 // Show success message
                 submitBtn.innerHTML = '<i class="fas fa-check"></i> Job Seed Created!';
 
@@ -634,5 +689,4 @@
     });
 </script>
 </body>
-
 </html>

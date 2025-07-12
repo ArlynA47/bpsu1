@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
+</head>
+
+<body class="flex flex-col h-screen">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
+        <div class="flex flex-1 justify-start items-end gap-2 ">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="./employer-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="./employer-browse-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
+                Employees</a>
+            <a href="./employer-liked-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+                Employees</a>
+            <a href="./employer-job-listings.html" class="flex-1 text-center text-white hover:text-gray-300">Job
+                Listings</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="./employer-profile.html"
+                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Profile
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-col items-center flex-1 bg-[url('/public/assets/images/auth-bg.png')] bg-cover bg-center bg-no-repeat gap-6 p-10">
+        <div class="flex flex-col items-center gap-1">
+            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Future Employee</h3>
+            <p class="text-[#545454] text-xl">
+                Click <i class="fas fa-heart text-[#73A267] text-xl"></i> to Keep,
+                Click <i class="fas fa-times text-[#D33B3B] text-xl"></i> to Skip
+            </p>
+        </div>
+
+        <!-- Employee Tinder Card -->
+        <div class="flex flex-col items-center justify-between flex-1 w-[55%] gap-8" id="employeeTinderCard">
+            <div
+                class="max-h-[80%] w-full bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-4">
+                <div class="flex justify-between gap-5">
+
+                    <!-- Full Name, Current Province and Willing to Relocate -->
+                    <div class="flex flex-1 flex-col">
+                        <span
+                            class="flex-1 text-[#3D3D3D] text-2xl font-semibold overflow-hidden whitespace-nowrap text-ellipsis"
+                            id="fullName">
+                            Cherwen Kirk Fuertes
+                        </span>
+
+                        <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
+                            Lives in<span id="currentProvince"> Bataan </span> <span id="willingToRelocate">- Willing to Relocate</span>
+                        </span>
+
+                    </div>
+
+                    <!-- Likes and Dislikes -->
+                    <div class="flex items-start gap-6">
+                        <span class="flex items-end gap-2">
+                            <i class="fas fa-thumbs-up text-[#73A267] text-3xl"></i>
+                            <span class="text-xl" id="likes">3</span>
+                        </span>
+
+                        <span class="flex items-end gap-2">
+                            <i class="fas fa-thumbs-down text-[#D33B3B] text-3xl"></i>
+                            <span class="text-xl" id="dislikes">2</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Preferred Work Locations -->
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-[#65956C] text-xl font-bold">Preferred Work Locations</h3>
+
+                    <div class="grid grid-cols-3 gap-2 w-full max-h-28 overflow-y-auto pr-1" id="workLocationsContainer">
+                        <!-- Dynamically Add Locations Here -->
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bataan</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Pampanga</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bulacan</span>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+
+                    <div class="grid grid-cols-3 gap-2 w-full max-h-36 overflow-y-auto pr-1" id="skillsContainer">
+                        <!-- Dynamically Add Skills Here -->
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Basic Math</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Communication</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Problem-Solving</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div
+                class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
+                <!-- Skip Button -->
+                <button class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer" id="skipBtn">
+                    <i class="fas fa-times text-2xl text-white"></i>
+                </button>
+
+                <!-- Keep Button -->
+                <button class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer" id="keepBtn">
+                    <i class="fas fa-heart text-2xl text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
