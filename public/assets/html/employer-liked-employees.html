@@ -11,8 +11,7 @@
 </head>
 
 <body
-    class="min-h-screen flex flex-col bg-[url('/public/assets/images/auth-bg.png')] bg-cover bg-center bg-no-repeat">
-
+    class="min-h-screen overflow-y-auto bg-[url('/public/assets/images/auth-bg.png')] bg-cover bg-center bg-no-repeat">
     <!-- Navigation Bar -->
     <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
@@ -38,16 +37,12 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col items-center gap-6 p-10">
-        <div class="flex flex-col items-center gap-1">
-            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Future Employee</h3>
-            <p class="text-[#545454] text-xl">
-                Click <i class="fas fa-heart text-[#73A267] text-xl"></i> to Keep,
-                Click <i class="fas fa-times text-[#D33B3B] text-xl"></i> to Skip
-            </p>
-        </div>
+    <div class="flex flex-col p-10 gap-6">
+        <h3 class="text-[#3D3D3D] text-3xl font-semibold">Liked Employees</h3>
 
-        <div class="flex flex-col items-center justify-between flex-1 w-[55%] gap-8">
+        <!-- Dynamically Add Liked Employees Here -->
+        <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
+
             <!-- Employee Tinder Card -->
             <div class="tinder-card">
                 <div class="flex justify-between gap-5">
@@ -97,29 +92,26 @@
 
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Basic Math</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Communication</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Basic
+                            Math</span>
+                        <span
+                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
+                        <span
+                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Communication</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Button Card -->
-            <div class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
-                <!-- Skip Button -->
-                <button class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer"
-                    id="skipBtn">
-                    <i class="fas fa-times text-2xl text-white"></i>
-                </button>
-
-                <!-- Keep Button -->
-                <button class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer"
-                    id="keepBtn">
-                    <i class="fas fa-heart text-2xl text-white"></i>
-                </button>
+                <!-- Action Buttons -->
+                <div class="flex gap-2 mt-8">
+                    <button id="unlikeEmployeeBtn" class="flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-lg">
+                        Unlike
+                    </button>
+                    <button id="viewEmployeeBtn" class="flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-lg">
+                        View Profile
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 </body>
 
 </html>
