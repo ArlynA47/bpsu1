@@ -4,41 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/homepage.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
 </head>
 
 <body>
-    <div class="main-container">
-        <div class="half-circle"></div>
-        <nav class="nav-bar">
-            <div class="logo-design">
-                <img src="../images/careerstep-logo.png" alt="Logo">
-                <h1>HirNa!</h1>
-            </div>
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10 sticky top-0 z-50">
+        <div class="flex flex-1 justify-start items-end gap-2 ">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
 
-            <div class="nav-buttons">
-                <a href="employer-home.html" class="active">Home</a>
-                <a href="job-listings.html">Job Listings</a>
-                <button class="logout-nav-btn" onclick="location.href='login.html'">Logout</button>
-            </div>
-        </nav>
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="./employer-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="./employer-browse-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Browse Employees</a>
+            <a href="./employer-liked-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Liked Employees</a>
+            <a href="./employer-job-listings.html" class="flex-1 text-center text-white hover:text-gray-300">Job Listings</a>
+        </div>
 
-        <section class="content">
-            <section class="left-section">
-                <div class="text-container">    
-                    <h1>Welcome Employer!</h1>
-                    <p>Grab Talents, Open Opportunities</p>
-                </div>
-            </section>
-
-            <section class="right-section">
-                <img src="../images/hero-img.png">
-            </section>
-        </section>
-    </div>
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="./employer-profile.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Profile
+            </a>
+        </div>
+    </nav>
 </body>
 
 </html>

@@ -16,17 +16,17 @@
             border-radius: 1rem;
             overflow: hidden;
             margin-bottom: 2rem;
-        }   
-        
+        }
+
         #northLuzonMap {
             height: 100%;
             width: 100%;
         }
-        
+
         #northLuzonMap.loading {
-           /* background: #f5f5f5 url('./assets/images/loading.gif') no-repeat center; */
+            /* background: #f5f5f5 url('./assets/images/loading.gif') no-repeat center; */
         }
-        
+
         .province-label {
             font-weight: bold;
             text-shadow: 1px 1px 3px white, -1px -1px 3px white;
@@ -34,7 +34,7 @@
             font-size: 12px;
             white-space: nowrap;
         }
-        
+
         .map-legend {
             position: absolute;
             bottom: 20px;
@@ -46,20 +46,20 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             font-size: 12px;
         }
-        
+
         .legend-item {
             display: flex;
             align-items: center;
             margin-bottom: 5px;
         }
-        
+
         .legend-color {
             width: 15px;
             height: 15px;
             border-radius: 50%;
             margin-right: 8px;
         }
-        
+
         .map-search-container {
             position: absolute;
             top: 20px;
@@ -69,7 +69,7 @@
             display: flex;
             gap: 10px;
         }
-        
+
         .map-search-box {
             flex: 1;
             display: flex;
@@ -79,12 +79,12 @@
             border-radius: 25px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .map-search-box i {
             color: #777;
             margin-right: 10px;
         }
-        
+
         .map-search-box input {
             border: none;
             outline: none;
@@ -111,6 +111,7 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
+
         .stat-card:hover {
             transform: translateY(-5px);
         }
@@ -135,6 +136,7 @@
             .map-and-controls {
                 flex-direction: row;
             }
+
             .search-panel {
                 width: 400px;
             }
@@ -150,23 +152,22 @@
             <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
 
-        <div class="flex flex-1 justify-between items-center gap-4">
-            <a href="#" class="text-white hover:text-gray-300">Home</a>
-            <a href="#findJobs" class="text-white hover:text-gray-300">Find Job</a>
-            <a href="#aboutUs" class="text-white hover:text-gray-300">About Us</a>
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Find Employees</a>
+            <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Job LIstings</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="./assets/html/login.html"
-                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
-                Login
+            <a href="" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Profile
             </a>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <div id="home"
-        class="flex min-h-[80vh] px-10 bg-[url('./assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
+        class="flex min-h-[80vh] px-10 bg-[url('/public/assets/images/hero-bg.png')] bg-cover bg-center bg-no-repeat">
         <div class="basis-[40%] flex flex-col justify-center items-center">
             <div class="flex flex-col">
                 <h1 class="text-7xl font-bold text-[#315A39]">HirNa!</h1>
@@ -276,7 +277,8 @@
             <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl shadow-sm">
                 <img src="./assets/images/choose-logo-3.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
                 <h2 class="text-[#315E26] text-xl font-bold">Resume-CV Free</h2>
-                <p class="text-center text-[#828282]">No resume? No problem—start job hunting instantly, no CV required</p>
+                <p class="text-center text-[#828282]">No resume? No problem—start job hunting instantly, no CV required
+                </p>
             </div>
         </div>
     </div>
@@ -297,7 +299,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions-compat.js"></script>
-    
+
     <!-- Firebase Initialization -->
     <script>
         const firebaseConfig = {
@@ -317,12 +319,12 @@
             script.defer = true;
             document.head.appendChild(script);
         }
-        
+
         // Ensure initMap exists in case Google Maps loads first
-        window.initMap = function() {
+        window.initMap = function () {
             console.log('Google Maps is ready, but initMap implementation not loaded yet');
         };
-        
+
         // Load scripts in correct order
         function loadScripts() {
             const mapsJs = document.createElement('script');
@@ -330,8 +332,9 @@
             mapsJs.onload = loadGoogleMaps;
             document.head.appendChild(mapsJs);
         }
-        
+
         window.addEventListener('DOMContentLoaded', loadScripts);
     </script>
 </body>
+
 </html>
