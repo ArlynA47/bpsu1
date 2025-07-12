@@ -334,64 +334,6 @@
                     submitBtn.textContent = 'Create Account';
                 }
             });
-
-            async function migrateExistingEmployersToAnalytics() {
-                const employersRef = collection(db, "employers");
-                const employersSnap = await getDocs(employersRef);
-                
-                let batch = writeBatch(db);
-                const now = new Date();
-                let count = 0;
-                
-                // Initialize overall total
-                const totalRef = doc(db, "employerRegistrationAnalytics", "overall_overall");
-                batch.set(totalRef, {
-                    province: "overall",
-                    currentCount: 0,
-                    totalRegistered: 0,
-                    lastUpdated: now,
-                    createdAt: now
-                }, { merge: true });
-
-                for (const employerDoc of employersSnap.docs) {
-                    count++;
-                    const employer = employerDoc.data();
-                    const province = employer.companyInfo?.companyAddress || "Unknown";
-                    
-                    // Update overall total
-                    batch.update(totalRef, {
-                    currentCount: increment(1),
-                    totalRegistered: increment(1)
-                    });
-                    
-                    // Update province total
-                    const provinceRef = doc(db, "employerRegistrationAnalytics", `overall_${province}`);
-                    batch.set(provinceRef, {
-                    province: province,
-                    currentCount: increment(1),
-                    totalRegistered: increment(1),
-                    lastUpdated: now,
-                    createdAt: now
-                    }, { merge: true });
-                    
-                    // Commit every 100 records
-                    if (count % 100 === 0) {
-                    await batch.commit();
-                    console.log(`Processed ${count} employers`);
-                    batch = writeBatch(db);
-                    }
-                }
-                
-                // Commit remaining
-                if (count % 100 !== 0) {
-                    await batch.commit();
-                }
-                
-                console.log(`Migration completed. Processed ${count} employers`);
-                }
-
-                // Run migration
-                migrateExistingEmployersToAnalytics().catch(console.error);
         });
     </script>
 </body>
