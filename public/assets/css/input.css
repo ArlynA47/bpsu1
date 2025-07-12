@@ -12,6 +12,10 @@ body {
   font-family: "Geist", sans-serif;
 }
 
+.tinder-card {
+  @apply w-full bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-4;
+}
+
 @import "tailwindcss";
 
 /* npx @tailwindcss/cli -i ./public/assets/css/input.css -o ./public/assets/css/output.css --watch */
