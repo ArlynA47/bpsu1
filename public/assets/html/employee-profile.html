@@ -252,6 +252,61 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .image-analysis-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .image-analysis-summary h3 {
+            margin-top: 0;
+            color: #3D6585;
+        }
+
+        .image-analysis-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            align-items: flex-start;
+        }
+
+        .image-analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .image-preview img {
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .image-description {
+            flex: 1;
+        }
+
+        .original-description {
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3D6585;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -1066,11 +1121,18 @@
                 return;
             }
 
+            // Get employee skills
+            const skills = Array.from(document.querySelectorAll('.skill-badge'))
+                .map(badge => badge.textContent.trim().replace('✓', '').trim());
+            
             // Call the analyzeImages function
             const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/analyzeImages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrls })
+                body: JSON.stringify({ 
+                    imageUrls,
+                    skills
+                })
             });
 
             if (!response.ok) {
@@ -1082,6 +1144,15 @@
             // Display results
             if (data.results && data.results.length > 0) {
                 let html = '<div class="image-analysis-summary">';
+                
+                // Show summary if available
+                if (data.summary) {
+                    html += `<h3>Overall Work-Related Analysis:</h3>`;
+                    html += `<p>${data.summary}</p>`;
+                    html += `<hr>`;
+                }
+                
+                html += `<h3>Image Details:</h3>`;
                 html += `<p>Analyzed ${data.results.length} images:</p>`;
                 
                 // Group similar descriptions
@@ -1094,7 +1165,7 @@
                 });
                 
                 if (Object.keys(descriptionCounts).length > 0) {
-                    html += '<h3>Common Themes:</h3><ul>';
+                    html += '<h4>Common Themes:</h4><ul>';
                     for (const [desc, count] of Object.entries(descriptionCounts)) {
                         html += `<li>${count} ${count > 1 ? 'images' : 'image'} show: "${desc}"</li>`;
                     }
@@ -1110,6 +1181,8 @@
                         </div>
                         <div class="image-description">
                             <p><strong>Image ${index + 1}:</strong> ${result.error || result.text || 'No description available'}</p>
+                            ${result.originalText && result.originalText !== result.text ? 
+                                `<p class="original-description"><small>Original: ${result.originalText}</small></p>` : ''}
                         </div>
                     </div>`;
                 });
