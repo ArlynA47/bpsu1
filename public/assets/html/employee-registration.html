@@ -30,8 +30,7 @@
         class="w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-15 flex flex-col justify-center overflow-hidden shadow-xl">
         <h3 class="text-[#3D3D3D] text-3xl font-semibold px-4">Employee Registration</h3>
 
-        <form id="employeeRegistrationForm" autocomplete="off"
-          class="flex flex-col items-center mt-12 gap-10 overflow-y-auto max-h-[50vh] px-4">
+        <form id="employeeRegistrationForm" autocomplete="off" class="flex flex-col items-center mt-12 gap-10 px-4">
           <div class="flex w-full gap-15">
             <div class="flex flex-col gap-4 w-full">
               <h3 class="text-[#73976a] text-2xl font-bold">Account Details</h3>
@@ -105,7 +104,8 @@
           <div class="w-full flex flex-col gap-4">
             <h3 class="text-[#73976a] text-2xl font-bold">Skills</h3>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="skillsContainer">
+            <div class="grid grid-cols-3 gap-4 w-full max-h-[12rem] overflow-y-auto p-4 bg-[#F1FAF4] rounded-md"
+              id="skillsContainer">
               <!-- Add more options dynamically -->
             </div>
           </div>
@@ -113,7 +113,8 @@
           <div class="w-full flex flex-col gap-4">
             <h3 class="text-[#73976a] text-2xl font-bold">Preferred Work Locations</h3>
 
-            <div class="grid grid-cols-3 gap-4 w-full" id="workLocationsContainer">
+            <div class="grid grid-cols-3 gap-4 w-full max-h-[12rem] overflow-y-auto p-4 bg-[#F1FAF4] rounded-md"
+              id="workLocationsContainer">
               <!-- Add more options dynamically -->
             </div>
           </div>
@@ -141,105 +142,63 @@
     </div>
   </div>
 
-<script type="module">
-  // Firebase SDK imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-    updateProfile
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-  import {
-    getFirestore,
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    setDoc,
-    writeBatch,
-    increment
-  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+  <div class="flex justify-between bg-[#232323] h-10"></div>
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-    authDomain: "careerstep-bpsu1.firebaseapp.com",
-    projectId: "careerstep-bpsu1",
-    storageBucket: "careerstep-bpsu1.firebasestorage.app",
-    messagingSenderId: "17047315291",
-    appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-    measurementId: "G-WH6DT9HQW2"
-  };
+  <script type="module">
+    // Firebase SDK imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      sendEmailVerification,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      setDoc,
+      writeBatch,
+      increment
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const analytics = getAnalytics(app);
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+      authDomain: "careerstep-bpsu1.firebaseapp.com",
+      projectId: "careerstep-bpsu1",
+      storageBucket: "careerstep-bpsu1.firebasestorage.app",
+      messagingSenderId: "17047315291",
+      appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+      measurementId: "G-WH6DT9HQW2"
+    };
 
-  async function updateRegistrationAnalytics(db, skills, province) {
-    const batch = writeBatch(db);
-    const now = new Date();
-    
-    // 1. Update overall total (overall_overall)
-    const totalRef = doc(db, "employeeRegistrationAnalytics", "overall_overall");
-    const totalSnap = await getDoc(totalRef);
-    
-    if (totalSnap.exists()) {
-      batch.update(totalRef, {
-        currentCount: increment(1),
-        totalRegistered: increment(1),
-        lastUpdated: now
-      });
-    } else {
-      batch.set(totalRef, {
-        skillType: "overall",
-        province: "overall",
-        currentCount: 1,
-        totalRegistered: 1,
-        lastUpdated: now,
-        createdAt: now
-      });
-    }
-    
-    // 2. Update province total (overall_{province})
-    const provinceRef = doc(db, "employeeRegistrationAnalytics", `overall_${province}`);
-    const provinceSnap = await getDoc(provinceRef);
-    
-    if (provinceSnap.exists()) {
-      batch.update(provinceRef, {
-        currentCount: increment(1),
-        totalRegistered: increment(1),
-        lastUpdated: now
-      });
-    } else {
-      batch.set(provinceRef, {
-        skillType: "overall",
-        province: province,
-        currentCount: 1,
-        totalRegistered: 1,
-        lastUpdated: now,
-        createdAt: now
-      });
-    }
-    
-    // 3. Update each skill (both overall and province-specific)
-    for (const skill of skills) {
-      // 3a. Skill overall ({skill}_overall)
-      const skillOverallRef = doc(db, "employeeRegistrationAnalytics", `${skill}_overall`);
-      const skillOverallSnap = await getDoc(skillOverallRef);
-      
-      if (skillOverallSnap.exists()) {
-        batch.update(skillOverallRef, {
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const analytics = getAnalytics(app);
+
+    async function updateRegistrationAnalytics(db, skills, province) {
+      const batch = writeBatch(db);
+      const now = new Date();
+
+      // 1. Update overall total (overall_overall)
+      const totalRef = doc(db, "employeeRegistrationAnalytics", "overall_overall");
+      const totalSnap = await getDoc(totalRef);
+
+      if (totalSnap.exists()) {
+        batch.update(totalRef, {
           currentCount: increment(1),
           totalRegistered: increment(1),
           lastUpdated: now
         });
       } else {
-        batch.set(skillOverallRef, {
-          skillType: skill,
+        batch.set(totalRef, {
+          skillType: "overall",
           province: "overall",
           currentCount: 1,
           totalRegistered: 1,
@@ -247,20 +206,20 @@
           createdAt: now
         });
       }
-      
-      // 3b. Skill in province ({skill}_{province})
-      const skillProvinceRef = doc(db, "employeeRegistrationAnalytics", `${skill}_${province}`);
-      const skillProvinceSnap = await getDoc(skillProvinceRef);
-      
-      if (skillProvinceSnap.exists()) {
-        batch.update(skillProvinceRef, {
+
+      // 2. Update province total (overall_{province})
+      const provinceRef = doc(db, "employeeRegistrationAnalytics", `overall_${province}`);
+      const provinceSnap = await getDoc(provinceRef);
+
+      if (provinceSnap.exists()) {
+        batch.update(provinceRef, {
           currentCount: increment(1),
           totalRegistered: increment(1),
           lastUpdated: now
         });
       } else {
-        batch.set(skillProvinceRef, {
-          skillType: skill,
+        batch.set(provinceRef, {
+          skillType: "overall",
           province: province,
           currentCount: 1,
           totalRegistered: 1,
@@ -268,213 +227,268 @@
           createdAt: now
         });
       }
+
+      // 3. Update each skill (both overall and province-specific)
+      for (const skill of skills) {
+        // 3a. Skill overall ({skill}_overall)
+        const skillOverallRef = doc(db, "employeeRegistrationAnalytics", `${skill}_overall`);
+        const skillOverallSnap = await getDoc(skillOverallRef);
+
+        if (skillOverallSnap.exists()) {
+          batch.update(skillOverallRef, {
+            currentCount: increment(1),
+            totalRegistered: increment(1),
+            lastUpdated: now
+          });
+        } else {
+          batch.set(skillOverallRef, {
+            skillType: skill,
+            province: "overall",
+            currentCount: 1,
+            totalRegistered: 1,
+            lastUpdated: now,
+            createdAt: now
+          });
+        }
+
+        // 3b. Skill in province ({skill}_{province})
+        const skillProvinceRef = doc(db, "employeeRegistrationAnalytics", `${skill}_${province}`);
+        const skillProvinceSnap = await getDoc(skillProvinceRef);
+
+        if (skillProvinceSnap.exists()) {
+          batch.update(skillProvinceRef, {
+            currentCount: increment(1),
+            totalRegistered: increment(1),
+            lastUpdated: now
+          });
+        } else {
+          batch.set(skillProvinceRef, {
+            skillType: skill,
+            province: province,
+            currentCount: 1,
+            totalRegistered: 1,
+            lastUpdated: now,
+            createdAt: now
+          });
+        }
+      }
+
+      await batch.commit();
     }
-    
-    await batch.commit();
-  }
 
-  // Load skills from Firestore and render as checkboxes
-  async function loadSkillsChecklist() {
-    const skillsContainer = document.getElementById("skillsContainer");
-    const docRef = doc(db, "skills", "skilled_worker_skills");
-    const docSnap = await getDoc(docRef);
-    let selectedSkills = [];
+    // Load skills from Firestore and render as checkboxes
+    async function loadSkillsChecklist() {
+      const skillsContainer = document.getElementById("skillsContainer");
+      const docRef = doc(db, "skills", "skilled_worker_skills");
+      const docSnap = await getDoc(docRef);
+      let selectedSkills = [];
 
-    if (docSnap.exists()) {
-      const skills = docSnap.data().items;
+      if (docSnap.exists()) {
+        const skills = docSnap.data().items;
 
-      skills.sort();
+        skills.sort();
 
-      skills.forEach(skill => {
-        const label = document.createElement("label");
-        label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
+        skills.forEach(skill => {
+          const label = document.createElement("label");
+          label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md hover:bg-[#F1FAF4] transition";
 
-        const checkbox = document.createElement("input");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = skill;
+          checkbox.className = "accent-[#73976a] w-5 h-5";
+
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              selectedSkills.push(checkbox.value);
+              label.classList.add('ring-2', 'ring-[#73976a]');
+            } else {
+              selectedSkills = selectedSkills.filter(s => s !== checkbox.value);
+              label.classList.remove('ring-2', 'ring-[#73976a]');
+            }
+            skillsHiddenInput.value = selectedSkills.join(",");
+          });
+
+          const span = document.createElement("span");
+          span.textContent = skill;
+          span.className = "text-md font-medium text-[#393E3A]";
+
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          skillsContainer.appendChild(label);
+        });
+      } else {
+        skillsContainer.innerHTML = "<p class='text-red-500 text-md font-medium'>Error loading skills.</p>";
+      }
+    }
+
+    function loadAddress() {
+      const homeAddress = document.getElementById('homeAddress');
+      const workLocationsContainer = document.getElementById('workLocationsContainer');
+
+      const provinces = [
+        // Ilocos Region
+        "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+        // Cagayan Valley
+        "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+        // CAR
+        "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+        // Central Luzon
+        "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+      ];
+
+      provinces.sort();
+
+      provinces.forEach(province => {
+        // For dropdown (home address)
+        const option = document.createElement('option');
+        option.value = province;
+        option.textContent = province;
+        homeAddress.appendChild(option);
+
+        // For checkbox (preferred work locations)
+        const label = document.createElement('label');
+        label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md hover:bg-[#F1FAF4] transition";
+
+        const checkbox = document.createElement('input');
         checkbox.type = "checkbox";
-        checkbox.value = skill;
+        checkbox.value = province;
+        checkbox.name = "preferredWorkLocations";
         checkbox.className = "accent-[#73976a] w-5 h-5";
+
+        const span = document.createElement('span');
+        span.className = "text-md font-medium text-[#393E3A]";
+        span.textContent = province;
 
         checkbox.addEventListener("change", () => {
           if (checkbox.checked) {
-            selectedSkills.push(checkbox.value);
+            label.classList.add('ring-2', 'ring-[#73976a]');
           } else {
-            selectedSkills = selectedSkills.filter(s => s !== checkbox.value);
+            label.classList.remove('ring-2', 'ring-[#73976a]');
           }
-          skillsHiddenInput.value = selectedSkills.join(",");
         });
-
-        const span = document.createElement("span");
-        span.textContent = skill;
-        span.className = "text-md font-medium text-[#393E3A]";
 
         label.appendChild(checkbox);
         label.appendChild(span);
-        skillsContainer.appendChild(label);
+        workLocationsContainer.appendChild(label);
       });
-    } else {
-      skillsContainer.innerHTML = "<p class='text-red-500 text-md font-medium'>Error loading skills.</p>";
     }
-  }
 
-  function loadAddress() {
-    const homeAddress = document.getElementById('homeAddress');
-    const workLocationsContainer = document.getElementById('workLocationsContainer');
+    // Initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSkillsChecklist();
+      loadAddress();
 
-    const provinces = [
-      // Ilocos Region
-      "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
-      // Cagayan Valley
-      "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
-      // CAR
-      "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
-      // Central Luzon
-      "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
-    ];
+      // Handle form submit
+      document.getElementById("employeeRegistrationForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    provinces.sort();
-
-    provinces.forEach(province => {
-      // For dropdown (home address)
-      const option = document.createElement('option');
-      option.value = province;
-      option.textContent = province;
-      homeAddress.appendChild(option);
-
-      // For checkbox (preferred work locations)
-      const label = document.createElement('label');
-      label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md";
-
-      const checkbox = document.createElement('input');
-      checkbox.type = "checkbox";
-      checkbox.value = province;
-      checkbox.name = "preferredWorkLocations";
-      checkbox.className = "accent-[#73976a] w-5 h-5";
-
-      const span = document.createElement('span');
-      span.className = "text-md font-medium text-[#393E3A]";
-      span.textContent = province;
-
-      label.appendChild(checkbox);
-      label.appendChild(span);
-      workLocationsContainer.appendChild(label);
-    });
-  }
-
-  // Initialize
-  document.addEventListener("DOMContentLoaded", () => {
-    loadSkillsChecklist();
-    loadAddress();
-
-    // Handle form submit
-    document.getElementById("employeeRegistrationForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      // Show loading state
-      const submitBtn = document.getElementById('registerEmployeeBtn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Creating Account...';
-
-      // Fetch inputs
-      try {
-        // Get form values
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        const fullName = document.getElementById('fullName').value;
-        const contactNumber = document.getElementById('contactNumber').value;
-        const homeAddress = document.getElementById('homeAddress').value;
-
-        // Collect checked skills
-        const selectedSkills = Array.from(document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
-
-        // Collect preferred work locations
-        const selectedWorkLocations = Array.from(document.querySelectorAll('#workLocationsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
-
-        // Willing to relocate?
-        const willingToRelocate = document.getElementById("willingToRelocate").checked ? "Yes" : "No";
-
-        // Validate passwords match
-        if (password !== confirmPassword) {
-          throw new Error("Passwords don't match");
-        }
-
-        // Create user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Update profile
-        await updateProfile(user, { displayName: fullName });
-
-        // Send email verification
-        await sendEmailVerification(user, {
-          url: "https://careerstep-bpsu1.firebaseapp.com/verify-redirect",
-          handleCodeInApp: true
-        });
-
-        // Save to Firestore
-        const userData = {
-          metadata: {
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-            accountType: "employee",
-            region: "North Luzon"
-          },
-          personalInfo: {
-            fullName,
-            contactEmail: email,
-            contactNumber,
-            currentProvince: homeAddress
-          },
-          jobPreferences: {
-            skills: selectedSkills,
-            preferredLocations: selectedWorkLocations,
-            willingToRelocate
-          },
-          accountStatus: {
-            emailVerified: false,
-            profileComplete: true,
-            jobAlertsEnabled: true
-          }
-        };
-
-        await setDoc(doc(db, "careerstepEmployees", user.uid), userData);
-
-        const publicProfile = {
-          userId: user.uid,
-          displayName: fullName,
-          skills: selectedSkills,
-          currentProvince: homeAddress,
-          lastUpdated: new Date()
-        };
-
-        await setDoc(doc(db, "careerstepPublicProfiles", user.uid), publicProfile);
-
-        // Update registration analytics
-        await updateRegistrationAnalytics(db, selectedSkills, homeAddress);
-
-        // Redirect
-        window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
-
-      } catch (error) {
-        console.error("CareerStep Registration Error:", error);
-
-        const errorMap = {
-          "auth/email-already-in-use": "This email is already registered with CareerStep",
-          "auth/invalid-email": "Please enter a valid email",
-          "auth/weak-password": "Password must be at least 6 characters",
-          "auth/operation-not-allowed": "Account creation is currently restricted",
-          "auth/network-request-failed": "Network error. Please check your connection"
-        };
-
-        alert(errorMap[error.code] || "Registration failed. Please try again.");
-      } finally {
         // Show loading state
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Account';
-      }
+        const submitBtn = document.getElementById('registerEmployeeBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i>Creating Account...';
+
+        // Fetch inputs
+        try {
+          // Get form values
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+
+          const fullName = document.getElementById('fullName').value;
+          const contactNumber = document.getElementById('contactNumber').value;
+          const homeAddress = document.getElementById('homeAddress').value;
+
+          // Collect checked skills
+          const selectedSkills = Array.from(document.querySelectorAll('#skillsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+
+          // Collect preferred work locations
+          const selectedWorkLocations = Array.from(document.querySelectorAll('#workLocationsContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+
+          // Willing to relocate?
+          const willingToRelocate = document.getElementById("willingToRelocate").checked ? "Yes" : "No";
+
+          // Validate passwords match
+          if (password !== confirmPassword) {
+            throw new Error("Passwords don't match");
+          }
+
+          // Create user
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // Update profile
+          await updateProfile(user, { displayName: fullName });
+
+          // Send email verification
+          await sendEmailVerification(user, {
+            url: "https://careerstep-bpsu1.firebaseapp.com/verify-redirect",
+            handleCodeInApp: true
+          });
+
+          // Save to Firestore
+          const userData = {
+            metadata: {
+              createdAt: new Date(),
+              lastUpdated: new Date(),
+              accountType: "employee",
+              region: "North Luzon"
+            },
+            personalInfo: {
+              fullName,
+              contactEmail: email,
+              contactNumber,
+              currentProvince: homeAddress
+            },
+            jobPreferences: {
+              skills: selectedSkills,
+              preferredLocations: selectedWorkLocations,
+              willingToRelocate
+            },
+            accountStatus: {
+              emailVerified: false,
+              profileComplete: true,
+              jobAlertsEnabled: true
+            }
+          };
+
+          await setDoc(doc(db, "careerstepEmployees", user.uid), userData);
+
+          const publicProfile = {
+            userId: user.uid,
+            displayName: fullName,
+            skills: selectedSkills,
+            currentProvince: homeAddress,
+            lastUpdated: new Date()
+          };
+
+          await setDoc(doc(db, "careerstepPublicProfiles", user.uid), publicProfile);
+
+          // Update registration analytics
+          await updateRegistrationAnalytics(db, selectedSkills, homeAddress);
+
+          // Redirect
+          window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
+
+        } catch (error) {
+          console.error("CareerStep Registration Error:", error);
+
+          const errorMap = {
+            "auth/email-already-in-use": "This email is already registered with CareerStep",
+            "auth/invalid-email": "Please enter a valid email",
+            "auth/weak-password": "Password must be at least 6 characters",
+            "auth/operation-not-allowed": "Account creation is currently restricted",
+            "auth/network-request-failed": "Network error. Please check your connection"
+          };
+
+          alert(errorMap[error.code] || "Registration failed. Please try again.");
+        } finally {
+          // Show loading state
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account';
+        }
+      });
     });
-  });
-</script>
+  </script>
 </body>
+
 </html>

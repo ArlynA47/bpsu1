@@ -10,6 +10,7 @@ html {
 
 body {
   font-family: "Geist", sans-serif;
+  background-image: url(/public/assets/images/auth-bg.png);
 }
 
 .tinder-card, .job-listing-card {

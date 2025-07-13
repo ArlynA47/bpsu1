@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
+</head>
+
+<body>
+    <div class="flex justify-between bg-[#232323] h-10"></div>
+
+    <div class="flex flex-col flex-1 items-center bg-center p-4 gap-6">
+        <a href="./employer-job-listings.html"
+            class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer w-[8%] flex justify-center items-center gap-2 self-start">
+            <i class="fas fa-arrow-left"></i>
+            Back
+        </a>
+
+        <div class="flex flex-col flex-1 w-full items-center gap-4">
+            <div
+                class="w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-15 flex flex-col justify-center overflow-hidden shadow-xl">
+                <h3 class="text-[#3D3D3D] text-3xl font-semibold px-4 text-center">Create New Job Seed</h3>
+
+                <form id="createJobSeedForm" autocomplete="off" class="flex flex-col items-center mt-12 gap-10 px-4">
+                    <div class="flex flex-col gap-4 w-full">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-semibold text-[#73976a] text-xl">Job Title</label>
+
+                            <div class="flex items-center gap-1 border-b-2 border-b-[#6B6B6B]">
+                                <i class="fas fa-briefcase text-[#393E3A] text-xl"></i>
+                                <input class="flex-1 text-lg px-2 focus:outline-none" type="text" id="jobTitle"
+                                    name="jobTitle" required placeholder="Enter job title..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4 w-full">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-semibold text-[#73976a] text-xl">Number of Workers Needed</label>
+
+                            <div class="flex items-center gap-1 border-b-2 border-b-[#6B6B6B]">
+                                <i class="fas fa-users text-[#393E3A] text-xl"></i>
+                                <input class="flex-1 text-lg px-2 focus:outline-none" type="number" id="positionsNeeded"
+                                    name="positionsNeeded" min="1" required
+                                    placeholder="Enter how many workers are needed..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4 w-full">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-semibold text-[#73976a] text-xl">Job Offer (Maximum 150
+                                Characters)</label>
+
+                            <div class="flex bg-[#F1FAF4] rounded-md p-2">
+                                <textarea id="offer" name="offer" maxlength="150" rows="3"
+                                    class="flex-1 text-lg px-2 focus:outline-none resize-none bg-transparent"
+                                    placeholder="Describe the job offer..." required></textarea>
+                            </div>
+
+                            <span class="text-right text-sm text-gray-600" id="charCounter">0/150</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-4">
+                        <h3 class="font-semibold text-[#73976a] text-xl">Skills Required</h3>
+
+                        <div class="grid grid-cols-3 gap-4 w-full max-h-[12rem] overflow-y-auto p-4 bg-[#F1FAF4] rounded-md"
+                            id="skillsContainer">
+                            <!-- Add more options dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-4">
+                        <h3 class="font-semibold text-[#73976a] text-xl">Job Location</h3>
+
+                        <div class="grid grid-cols-3 gap-4 w-full max-h-[12rem] overflow-y-auto p-4 bg-[#F1FAF4] rounded-md"
+                            id="locationGrid">
+                            <!-- Add more options dynamically -->
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 w-full">
+                        <button type="submit"
+                            class="bg-[#315E26] text-white text-xl font-semibold px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer"
+                            id="createJobSeedBtn">Create Job Seed</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between bg-[#232323] h-10"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // North Luzon provinces
+        const provinces = [
+            // Ilocos Region
+            "Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan",
+
+            // Cagayan Valley
+            "Batanes", "Cagayan", "Isabela", "Nueva Vizcaya", "Quirino",
+
+            // Cordillera Administrative Region
+            "Abra", "Apayao", "Benguet", "Ifugao", "Kalinga", "Mountain Province",
+
+            // Central Luzon
+            "Aurora", "Bataan", "Bulacan", "Nueva Ecija", "Pampanga", "Tarlac", "Zambales"
+        ];
+
+        // Content moderation check
+        async function checkContentModeration(text) {
+            try {
+                const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/contentModeration', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to check content moderation');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Moderation check failed:', error);
+                return { safe: false, category: 'Moderation service unavailable' };
+            }
+        }
+
+        // Update job seed analytics
+        async function updateJobSeedAnalytics(selectedSkills, location, action = 'increment') {
+            const batch = db.batch();
+            const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+            const value = action === 'increment' ? 1 : -1;
+
+            // Update for each skill
+            selectedSkills.forEach(skill => {
+                // Skill + Location specific count
+                const skillLocationRef = db.collection('jobSeedsAnalytics')
+                    .doc(`${skill}_${location}`);
+
+                const skillLocationUpdate = {
+                    skillType: skill,
+                    province: location,
+                    currentCount: firebase.firestore.FieldValue.increment(value),
+                    lastUpdated: timestamp
+                };
+
+                if (action === 'increment') {
+                    skillLocationUpdate.createdAt = timestamp;
+                    skillLocationUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                } else {
+                    skillLocationUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                }
+
+                batch.set(skillLocationRef, skillLocationUpdate, { merge: true });
+
+                // Skill overall count
+                const skillOverallRef = db.collection('jobSeedsAnalytics')
+                    .doc(`${skill}_overall`);
+
+                const skillOverallUpdate = {
+                    skillType: skill,
+                    province: "overall",
+                    currentCount: firebase.firestore.FieldValue.increment(value),
+                    lastUpdated: timestamp
+                };
+
+                if (action === 'increment') {
+                    skillOverallUpdate.createdAt = timestamp;
+                    skillOverallUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                } else {
+                    skillOverallUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                }
+
+                batch.set(skillOverallRef, skillOverallUpdate, { merge: true });
+            });
+
+            // Update province overall count (new)
+            const provinceOverallRef = db.collection('jobSeedsAnalytics')
+                .doc(`overall_${location}`);
+
+            const provinceUpdate = {
+                skillType: "overall",
+                province: location,
+                currentCount: firebase.firestore.FieldValue.increment(value),
+                lastUpdated: timestamp
+            };
+
+            if (action === 'increment') {
+                provinceUpdate.createdAt = timestamp;
+                provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+            } else {
+                provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+            }
+
+            batch.set(provinceOverallRef, provinceUpdate, { merge: true });
+
+            // Update global overall count (new)
+            const globalOverallRef = db.collection('jobSeedsAnalytics')
+                .doc('overall_overall');
+
+            const globalUpdate = {
+                skillType: "overall",
+                province: "overall",
+                currentCount: firebase.firestore.FieldValue.increment(value),
+                lastUpdated: timestamp
+            };
+
+            if (action === 'increment') {
+                globalUpdate.createdAt = timestamp;
+                globalUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+            } else {
+                globalUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+            }
+
+            batch.set(globalOverallRef, globalUpdate, { merge: true });
+
+            await batch.commit();
+        }
+
+        // Fetch skills from Firebase
+        function fetchSkills() {
+            db.collection("skills").doc("skilled_worker_skills").get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const skills = doc.data().items;
+                        populateSkills(skills);
+                    } else {
+                        console.log("No skills document found!");
+                        // Fallback to default skills
+                        const defaultSkills = [
+                            "Welding", "Carpentry", "Plumbing", "Electrical", "Machining",
+                            "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
+                        ];
+                        populateSkills(defaultSkills);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching skills:", error);
+                    // Fallback to default skills if there's an error
+                    const defaultSkills = [
+                        "Welding", "Carpentry", "Plumbing", "Electrical", "Machining",
+                        "Blueprint Reading", "Troubleshooting", "CNC Operation", "HVAC Maintenance"
+                    ];
+                    populateSkills(defaultSkills);
+                });
+        }
+
+        // Populate skills checklist
+        function populateSkills(skills) {
+            const skillsContainer = document.getElementById("skillsContainer");
+            let selectedSkills = [];
+
+            skillsContainer.innerHTML = "";
+
+            skills.sort();
+
+            skills.forEach(skill => {
+                const label = document.createElement("label");
+                label.className = "flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md hover:bg-[#F1FAF4] transition";
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = skill;
+                checkbox.className = "accent-[#73976a] w-5 h-5";
+
+                checkbox.addEventListener("change", () => {
+                    if (checkbox.checked) {
+                        selectedSkills.push(checkbox.value);
+                        label.classList.add('ring-2', 'ring-[#73976a]');
+                    } else {
+                        selectedSkills = selectedSkills.filter(s => s !== checkbox.value);
+                        label.classList.remove('ring-2', 'ring-[#73976a]');
+                    }
+                    if (skillsHiddenInput) {
+                        skillsHiddenInput.value = selectedSkills.join(",");
+                    }
+                });
+
+                const span = document.createElement("span");
+                span.textContent = skill;
+                span.className = "text-md font-medium text-[#393E3A]";
+
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                skillsContainer.appendChild(label);
+            });
+        }
+
+        function populateLocations() {
+            const locationGrid = document.getElementById('locationGrid');
+
+            provinces.forEach(province => {
+                const locationOption = document.createElement('div');
+                locationOption.className = 'location-option flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md hover:bg-[#F1FAF4] transition';
+
+                locationOption.dataset.value = province;
+
+                locationOption.innerHTML = `
+            <i class="fas fa-map-marker-alt text-[#73976a] text-lg"></i>
+            <span class="text-md font-medium text-[#393E3A]">${province}</span>
+        `;
+
+                locationOption.addEventListener('click', () => {
+                    // Remove selected class from all
+                    document.querySelectorAll('.location-option').forEach(opt => {
+                        opt.classList.remove('ring-2', 'ring-[#73976a]', 'selected');
+                    });
+
+                    // Add to clicked one
+                    locationOption.classList.add('ring-2', 'ring-[#73976a]', 'selected');
+                });
+
+                locationGrid.appendChild(locationOption);
+            });
+        }
+
+        // Character counter for offer textarea
+        function setupCharCounter() {
+            const offerTextarea = document.getElementById('offer');
+            const charCounter = document.getElementById('charCounter');
+
+            offerTextarea.addEventListener('input', () => {
+                const charCount = offerTextarea.value.length;
+                charCounter.textContent = `${charCount}/150`;
+
+                if (charCount > 135) {
+                    charCounter.classList.add('text-red-600', 'font-medium');
+                } else {
+                    charCounter.classList.remove('text-red-600', 'font-medium');
+                }
+
+                // Safety fallback: enforce hard limit
+                if (charCount > 150) {
+                    offerTextarea.value = offerTextarea.value.substring(0, 150);
+                    charCounter.textContent = `150/150`;
+                }
+            });
+        }
+
+        // Submit button handler
+        function setupSubmitButton() {
+            const createJobSeedForm = document.getElementById('createJobSeedForm');
+
+            createJobSeedForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const submitBtn = document.getElementById('createJobSeedBtn');
+
+                // Get form values
+                const jobTitle = document.getElementById('jobTitle').value.trim();
+
+                const selectedSkills = [];
+                document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                    selectedSkills.push(checkbox.value);
+                });
+
+                const offer = document.getElementById('offer').value.trim();
+
+                const selectedLocation = document.querySelector('.location-option.selected');
+                const location = selectedLocation ? selectedLocation.dataset.value : '';
+
+                const positionsNeeded = parseInt(document.getElementById('positionsNeeded').value, 10);
+
+                // Get current timestamp
+                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+                // Validation
+                if (!jobTitle) {
+                    alert('Please enter a job title');
+                    return;
+                }
+
+                if (selectedSkills.length === 0) {
+                    alert('Please select at least one required skill');
+                    return;
+                }
+
+                if (!offer) {
+                    alert('Please enter a job offer description');
+                    return;
+                }
+
+                if (!location) {
+                    alert('Please select a location');
+                    return;
+                }
+
+                if (!positionsNeeded || positionsNeeded < 1) {
+                    alert('Please enter the number of needed workers (at least 1)');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i> Checking Content...';
+
+                try {
+                    // Check content moderation first
+                    const moderationResult = await checkContentModeration(offer);
+
+                    if (!moderationResult.safe) {
+                        alert(`Job offer contains inappropriate content: ${moderationResult.category}`);
+                        submitBtn.innerHTML = 'Create Job Seed';
+                        submitBtn.disabled = false;
+                        return;
+                    }
+
+                    // Check if user is authenticated
+                    const user = auth.currentUser;
+                    if (!user) {
+                        alert('You must be logged in to create a job listing.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Create Job Seed';
+                        return;
+                    }
+
+                    // Update loading state
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Job Seed...';
+
+                    // Save to Firestore
+                    const docRef = await db.collection('jobSeeds').add({
+                        jobTitle,
+                        skills: selectedSkills,
+                        offer,
+                        location,
+                        createdAt: timestamp,
+                        status: 'active',
+                        employerId: user.uid,
+                        employerEmail: user.email || null,
+                        positionsNeeded,
+                        positionsAvailable: positionsNeeded
+                    });
+
+                    // Update analytics counts
+                    await updateJobSeedAnalytics(selectedSkills, location, 'increment');
+
+                    // Show success message
+                    submitBtn.innerHTML = 'Job Seed Created!';
+
+                    // Reset form after success
+                    document.getElementById('jobTitle').value = '';
+                    document.querySelectorAll('#skillsContainer input:checked').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    document.getElementById('offer').value = '';
+                    document.getElementById('charCounter').textContent = '0/150';
+                    document.querySelector('.location-option.selected')?.classList.remove('selected');
+                    document.getElementById('positionsNeeded').value = '';
+
+                    window.location.href = './employer-job-listings.html';
+
+                } catch (error) {
+                    console.error('Error adding job seed: ', error);
+                    alert('Error creating job seed. Please try again.');
+                    submitBtn.innerHTML = 'Create Job Seed';
+                } finally {
+                    submitBtn.disabled = false;
+                    setTimeout(() => {
+                        submitBtn.innerHTML = 'Create Job Seed';
+                    }, 2000);
+                }
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSkills();
+            populateLocations();
+            setupCharCounter();
+            setupSubmitButton();
+
+            // Check auth state
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    // User is not signed in, you might want to redirect to login
+                    console.log("User is not authenticated");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

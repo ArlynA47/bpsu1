@@ -6,6 +6,7 @@ html {
 }
 body {
   font-family: "Geist", sans-serif;
+  background-image: url(/public/assets/images/auth-bg.png);
 }
 .tinder-card, .job-listing-card {
   display: flex;
@@ -48,12 +49,14 @@ body {
       "Courier New", monospace;
     --color-red-100: oklch(93.6% 0.032 17.717);
     --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-800: oklch(44.4% 0.177 26.899);
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-500: oklch(55.1% 0.027 264.364);
     --color-gray-600: oklch(44.6% 0.03 256.802);
+    --color-gray-700: oklch(37.3% 0.034 259.733);
     --color-white: #fff;
     --spacing: 0.25rem;
     --text-xs: 0.75rem;
@@ -272,6 +275,9 @@ body {
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
   }
+  .mt-1 {
+    margin-top: calc(var(--spacing) * 1);
+  }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
@@ -323,6 +329,9 @@ body {
   .inline-flex {
     display: inline-flex;
   }
+  .table {
+    display: table;
+  }
   .h-5 {
     height: calc(var(--spacing) * 5);
   }
@@ -347,8 +356,8 @@ body {
   .max-h-\[6\.5rem\] {
     max-height: 6.5rem;
   }
-  .max-h-\[50vh\] {
-    max-height: 50vh;
+  .max-h-\[12rem\] {
+    max-height: 12rem;
   }
   .max-h-\[300px\] {
     max-height: 300px;
@@ -388,6 +397,9 @@ body {
   }
   .w-\[40\%\] {
     width: 40%;
+  }
+  .w-\[50\%\] {
+    width: 50%;
   }
   .w-\[55\%\] {
     width: 55%;
@@ -430,6 +442,9 @@ body {
   }
   .resize {
     resize: both;
+  }
+  .resize-none {
+    resize: none;
   }
   .list-decimal {
     list-style-type: decimal;
@@ -596,6 +611,9 @@ body {
   .bg-\[\#D3733B\] {
     background-color: #D3733B;
   }
+  .bg-\[\#F1FAF4\] {
+    background-color: #F1FAF4;
+  }
   .bg-\[\#F5FFF1\] {
     background-color: #F5FFF1;
   }
@@ -604,6 +622,9 @@ body {
   }
   .bg-\[\#FFEA05\] {
     background-color: #FFEA05;
+  }
+  .bg-\[\#e74c3c\] {
+    background-color: #e74c3c;
   }
   .bg-green-100 {
     background-color: var(--color-green-100);
@@ -695,11 +716,17 @@ body {
   .pr-1 {
     padding-right: calc(var(--spacing) * 1);
   }
+  .pb-2 {
+    padding-bottom: calc(var(--spacing) * 2);
+  }
   .pl-6 {
     padding-left: calc(var(--spacing) * 6);
   }
   .text-center {
     text-align: center;
+  }
+  .text-right {
+    text-align: right;
   }
   .text-2xl {
     font-size: var(--text-2xl);
@@ -806,11 +833,17 @@ body {
   .text-gray-600 {
     color: var(--color-gray-600);
   }
+  .text-gray-700 {
+    color: var(--color-gray-700);
+  }
   .text-green-800 {
     color: var(--color-green-800);
   }
   .text-red-500 {
     color: var(--color-red-500);
+  }
+  .text-red-600 {
+    color: var(--color-red-600);
   }
   .text-red-800 {
     color: var(--color-red-800);
@@ -820,6 +853,9 @@ body {
   }
   .no-underline {
     text-decoration-line: none;
+  }
+  .underline {
+    text-decoration-line: underline;
   }
   .accent-\[\#73976a\] {
     accent-color: #73976a;
@@ -835,6 +871,13 @@ body {
   .shadow-xs {
     --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-2 {
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-\[\#73976a\] {
+    --tw-ring-color: #73976a;
   }
   .outline {
     outline-style: var(--tw-outline-style);
@@ -895,6 +938,13 @@ body {
     &:hover {
       @media (hover: hover) {
         background-color: #5c8651;
+      }
+    }
+  }
+  .hover\:bg-\[\#F1FAF4\] {
+    &:hover {
+      @media (hover: hover) {
+        background-color: #F1FAF4;
       }
     }
   }

@@ -112,6 +112,8 @@
         </div>
     </div>
 
+    <div class="flex justify-between bg-[#232323] h-10"></div>
+
     <script type="module">
         // Import Firebase services
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -235,7 +237,7 @@
                 // Show loading state
                 const submitBtn = document.getElementById('registerEmployerBtn');
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Creating Account...';
+                submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i>Creating Account...';
 
                 try {
                     // Get form values

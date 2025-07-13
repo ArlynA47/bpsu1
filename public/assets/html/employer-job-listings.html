@@ -42,7 +42,7 @@
             <h3 class="basis-[60%] text-[#3D3D3D] text-3xl font-semibold">My Job Listings</h3>
 
             <div class="flex basis-[40%] gap-6">
-                <a href="./create-job.html"
+                <a href="./employer-create-job.html"
                     class="flex items-center justify-center gap-4 flex-1 bg-[#4B8053] text-white px-4 py-2 rounded hover:bg-[#3a6441] cursor-pointer text-lg no-underline">
                     <i class="fas fa-plus-circle"></i>
                     Create New Job Seed
@@ -204,7 +204,7 @@
                 </div>
 
                 <div class="flex flex-col gap-2 mt-4">
-                    <h3 class="text-[#65956C] text-lg font-bold">Job Description</h3>
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
                     <p class="text-[#3D3D3D] text-md leading-relaxed">${job.offer}</p>
                 </div>
 
@@ -216,7 +216,7 @@
                 </div>
 
                 <div class="flex flex-col gap-2 mt-4">
-                    <h3 class="text-[#65956C] text-lg font-bold">Skills Needed</h3>
+                    <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
                         ${skillsHTML}
                     </div>
@@ -238,7 +238,6 @@
                     <button 
                         data-job-id="${job.id}" 
                         class="viewApplicantsBtn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md text-center flex items-center justify-center gap-2">
-                        <i class="fas fa-eye"></i>
                         View Applicants
                     </button>` : ''}
                 </div>

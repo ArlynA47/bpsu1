@@ -73,6 +73,7 @@
     </div>
   </div>
 
+  <div class="flex justify-between bg-[#232323] h-10"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -107,7 +108,7 @@
       // Show loading state
       const submitBtn = document.getElementById('loginBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Logging in...';
+      submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i>Logging in...';
 
       try {
         // Fetch inputs
