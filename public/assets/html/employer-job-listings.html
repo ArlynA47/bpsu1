@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
+</head>
+
+<body class="min-h-screen overflow-y-auto">
+
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10 sticky top-0 z-50">
+        <div class="flex flex-1 justify-start items-end gap-2 ">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="./employer-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="./employer-browse-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
+                Employees</a>
+            <a href="./employer-liked-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+                Employees</a>
+            <a href="./employer-job-listings.html" class="flex-1 text-center text-white hover:text-gray-300">Job
+                Listings</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="./employer-profile.html"
+                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Profile
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-col p-10 gap-8">
+        <div class="flex justify-between">
+            <h3 class="basis-[60%] text-[#3D3D3D] text-3xl font-semibold">My Job Listings</h3>
+
+            <div class="flex basis-[40%] gap-6">
+                <a href="./create-job.html"
+                    class="flex items-center justify-center gap-4 flex-1 bg-[#4B8053] text-white px-4 py-2 rounded hover:bg-[#3a6441] cursor-pointer text-lg no-underline">
+                    <i class="fas fa-plus-circle"></i>
+                    Create New Job Seed
+                </a>
+                <a href="./manage-job-applications.html"
+                    class="flex items-center justify-center gap-4 flex-1 bg-[#2D342E] text-white px-4 py-2 rounded hover:bg-[#1f2621] cursor-pointer text-lg no-underline">
+                    <i class="fas fa-briefcase"></i>
+                    Manage Applications
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6" id="jobCardsContainer">
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Fetch job seeds for the logged-in employer
+        async function fetchEmployerJobSeeds(userId) {
+            const jobCardsContainer = document.getElementById('jobCardsContainer');
+            jobCardsContainer.innerHTML = `
+                <div class="loading text-center gap-2 p-8 col-span-2">
+                    <span class="text-lg text-[#3D3D3D]"><i class="fas fa-spinner fa-spin mr-4"></i> Loading your job seeds...</span>
+                </div>
+            `;
+
+            try {
+                // Query jobSeeds collection where employerId matches current user
+                const q = db.collection('jobSeeds')
+                    .where('employerId', '==', userId)
+                    .orderBy('createdAt', 'desc');
+
+                const querySnapshot = await q.get();
+
+                if (querySnapshot.empty) {
+                    jobCardsContainer.innerHTML = `
+                        <div class="no-listings flex flex-col items-center justify-center text-center gap-2 p-8 col-span-2">
+                            <h3 class="text-2xl font-semibold text-[#3D3D3D]">You haven't created any job seeds yet</h3>
+                            <p class="text-lg text-gray-600">Get started by creating your first job seed</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Get all job seeds with applicant counts
+                const jobs = [];
+                for (const docSnap of querySnapshot.docs) {
+                    const jobData = docSnap.data();
+                    const jobId = docSnap.id;
+
+                    // Query applications for this job
+                    const applicationsQuery = db.collection('applications')
+                        .where('jobId', '==', jobId);
+
+                    const applicationsSnapshot = await applicationsQuery.get();
+                    const applicantCount = applicationsSnapshot.size;
+
+                    jobs.push({
+                        id: jobId,
+                        ...jobData,
+                        applicantCount
+                    });
+                }
+
+                displayEmployerJobs(jobs);
+            } catch (error) {
+                console.error("Error fetching job seeds:", error);
+                jobCardsContainer.innerHTML = `
+                    <div class="no-listings flex flex-col items-center justify-center text-center gap-3 p-8 col-span-2">
+                        <h3 class="text-2xl font-semibold text-[#D33B3B]">Error loading job seeds</h3>
+                        <p class="text-gray-600 text-lg">Please try again later</p>
+                        <button 
+                            onclick="fetchEmployerJobSeeds('')"
+                            class="mt-2 inline-flex items-center gap-2 bg-[#D33B3B] text-white px-5 py-2 rounded hover:bg-[#b32f2f] cursor-pointer">
+                            <i class="fas fa-redo-alt"></i>
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Display employer's jobs in the UI
+        function displayEmployerJobs(jobs) {
+            const jobCardsContainer = document.getElementById('jobCardsContainer');
+            let jobCardsHTML = '';
+
+            jobs.forEach((job) => {
+                // Format createdAt date
+                let postedDate = 'Recently';
+                if (job.createdAt) {
+                    const jobDate = job.createdAt.toDate ? job.createdAt.toDate() : new Date(job.createdAt);
+                    const diffDays = Math.floor((new Date() - jobDate) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 0) postedDate = 'Today';
+                    else if (diffDays === 1) postedDate = 'Yesterday';
+                    else if (diffDays < 7) postedDate = `${diffDays} days ago`;
+                    else postedDate = jobDate.toLocaleDateString();
+                }
+
+                const isActive = job.status === 'active';
+
+                // Build needed skills
+                let skillsHTML = '';
+                if (Array.isArray(job.skills) && job.skills.length > 0) {
+                    skillsHTML = job.skills.slice(0, 6).map(skill => `
+                <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${skill}</span>
+            `).join('');
+                }
+
+                // Build job locations
+                let locationHTML = '';
+                if (Array.isArray(job.location)) {
+                    locationHTML = job.location.map(loc => `
+                <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${loc}</span>
+            `).join('');
+                } else if (typeof job.location === 'string') {
+                    locationHTML = `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${job.location}</span>`;
+                }
+
+                jobCardsHTML += `
+            <div class="job-listing-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out">
+                <div class="flex justify-between gap-5">
+                    <div class="flex flex-1 flex-col">
+                        <span class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                            ${job.jobTitle}
+                        </span>
+                        <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                            <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
+                            Posted ${postedDate}
+                        </span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="px-3 py-1 text-sm font-medium rounded-lg ${isActive ? 'text-green-800 bg-green-100' : 'text-red-800 bg-red-100'}">
+                            ${isActive ? 'Active' : 'Closed'}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Description</h3>
+                    <p class="text-[#3D3D3D] text-md leading-relaxed">${job.offer}</p>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        ${locationHTML}
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Skills Needed</h3>
+                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        ${skillsHTML}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 mt-8">
+                    <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-door-open text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Vacancies:</strong> ${job.positionsAvailable ?? 'N/A'}
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-users text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
+                        </span>
+                    </div>
+
+                    ${job.applicantCount > 0 ? `
+                    <button 
+                        data-job-id="${job.id}" 
+                        class="viewApplicantsBtn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md text-center flex items-center justify-center gap-2">
+                        <i class="fas fa-eye"></i>
+                        View Applicants
+                    </button>` : ''}
+                </div>
+            </div>
+        `;
+            });
+
+            jobCardsContainer.innerHTML = jobCardsHTML;
+
+            // Attach event listeners to all View Applicants buttons
+            document.querySelectorAll('.viewApplicantsBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const jobId = btn.dataset.jobId;
+                    viewApplicants(jobId);
+                });
+            });
+        }
+
+        // Edit job seed
+        function editJobSeed(jobId) {
+            window.location.href = `edit-job.html?id=${jobId}`;
+        }
+
+        // View job seed
+        function viewJobSeed(jobId) {
+            window.location.href = `job-details.html?id=${jobId}`;
+        }
+
+        // View applicants
+        // Add this function to handle hiring an applicant
+        async function hireApplicant(jobId, applicantId) {
+            const batch = db.batch();
+
+            // Update application status
+            const applicationRef = db.collection('applications').doc(applicationId);
+            batch.update(applicationRef, { status: 'hired' });
+
+            // Decrement available positions
+            const jobRef = db.collection('jobSeeds').doc(jobId);
+            batch.update(jobRef, {
+                positionsAvailable: firebase.firestore.FieldValue.increment(-1)
+            });
+
+            try {
+                await batch.commit();
+                alert('Applicant hired successfully!');
+                fetchEmployerJobSeeds(auth.currentUser.uid);
+            } catch (error) {
+                console.error('Error hiring applicant:', error);
+                alert('Failed to hire applicant. Please try again.');
+            }
+        }
+
+        // Modify the viewApplicants function to include hiring capability
+        async function viewApplicants(jobId) {
+            try {
+                const applicationsQuery = db.collection('applications')
+                    .where('jobId', '==', jobId)
+                    .orderBy('appliedAt', 'desc');
+
+                const querySnapshot = await applicationsQuery.get();
+
+                if (querySnapshot.empty) {
+                    alert('No applicants found for this job.');
+                    return;
+                }
+
+                let applicantsHTML = '<h3>Applicants</h3><div class="applicants-list">';
+
+                for (const doc of querySnapshot.docs) {
+                    const application = doc.data();
+                    const userDoc = await db.collection('careerstepEmployees').doc(application.applicantId).get();
+                    const userData = userDoc.data();
+
+                    applicantsHTML += `
+                        <div class="applicant-card">
+                            <h4>${userData.personalInfo?.fullName || 'Unknown'}</h4>
+                            <p>Skills: ${userData.jobPreferences?.skills?.join(', ') || 'None listed'}</p>
+                            <p>Status: ${application.status}</p>
+                            <button onclick="viewEmployeeProfile('${application.applicantId}')">View Profile</button>
+                            <button onclick="hireApplicant('${jobId}', '${application.applicantId}', '${doc.id}')" 
+                                ${application.status === 'hired' ? 'disabled' : ''}>
+                                ${application.status === 'hired' ? 'Hired' : 'Hire'}
+                            </button>
+                        </div>
+                    `;
+                }
+
+                applicantsHTML += '</div>';
+
+                // Show in a modal or new page
+                window.location.href = `manage-job-applications.html?jobId=${jobId}`;
+            } catch (error) {
+                console.error('Error loading applicants:', error);
+                alert('Failed to load applicants. Please try again.');
+            }
+        }
+
+        // Add this function to view employee profile
+        function viewEmployeeProfile(employeeId) {
+            window.location.href = `employee-profile.html?id=${employeeId}`;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in, fetch their job seeds
+                    fetchEmployerJobSeeds(user.uid);
+                } else {
+                    // No user is signed in, redirect to login
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        // Make functions available globally
+        window.editJobSeed = editJobSeed;
+        window.viewJobSeed = viewJobSeed;
+        window.viewApplicants = viewApplicants;
+        window.fetchEmployerJobSeeds = fetchEmployerJobSeeds;
+    </script>
+</body>
+
+</html>

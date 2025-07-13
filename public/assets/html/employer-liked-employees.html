@@ -11,7 +11,7 @@
 </head>
 
 <body
-    class="min-h-screen overflow-y-auto bg-[url('/public/assets/images/auth-bg.png')] bg-cover bg-center bg-no-repeat">
+    class="min-h-screen overflow-y-auto">
     <!-- Navigation Bar -->
     <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
@@ -37,24 +37,24 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="flex flex-col p-10 gap-6">
+    <div class="flex flex-col p-10 gap-8">
         <h3 class="text-[#3D3D3D] text-3xl font-semibold">Liked Employees</h3>
 
         <!-- Dynamically Add Liked Employees Here -->
         <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
 
-            <!-- Employee Tinder Card -->
-            <div class="tinder-card">
+            <!-- Job Listing Card -->
+            <div class="tinder-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out">
                 <div class="flex justify-between gap-5">
                     <!-- Full Name, Current Province and Willing to Relocate -->
                     <div class="flex flex-1 flex-col">
                         <span
-                            class="flex-1 text-[#3D3D3D] text-2xl font-semibold overflow-hidden whitespace-nowrap text-ellipsis"
+                            class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
                             id="fullName">
                             Cherwen Kirk Fuertes
                         </span>
 
-                        <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
+                        <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis">
                             Lives in<span id="currentProvince"> Bataan </span> <span id="willingToRelocate">- Willing to
                                 Relocate</span>
                         </span>
@@ -63,12 +63,12 @@
                     <!-- Likes and Dislikes -->
                     <div class="flex items-start gap-6">
                         <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-up text-[#73A267] text-3xl"></i>
+                            <i class="fas fa-thumbs-up text-[#73A267] text-2xl"></i>
                             <span class="text-xl" id="likes">3</span>
                         </span>
 
                         <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-down text-[#D33B3B] text-3xl"></i>
+                            <i class="fas fa-thumbs-down text-[#D33B3B] text-2xl"></i>
                             <span class="text-xl" id="dislikes">2</span>
                         </span>
                     </div>
@@ -76,42 +76,41 @@
 
                 <!-- Preferred Work Locations -->
                 <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-xl font-bold">Preferred Work Locations</h3>
+                    <h3 class="text-[#65956C] text-lg font-bold">Preferred Work Locations</h3>
 
                     <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="workLocationsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bataan</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Pampanga</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bulacan</span>
+                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Bataan</span>
+                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Pampanga</span>
+                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Bulacan</span>
                     </div>
                 </div>
 
                 <!-- Skills -->
                 <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+                    <h3 class="text-[#65956C] text-lg font-bold">Skills</h3>
 
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Basic
+                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Basic
                             Math</span>
                         <span
-                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
+                            class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
                         <span
-                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Communication</span>
+                            class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Communication</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex gap-2 mt-8">
-                    <button id="unlikeEmployeeBtn" class="flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-lg">
+                <div class="flex gap-2 mt-6">
+                    <button id="unlikeEmployeeBtn" class="flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-md">
                         Unlike
                     </button>
-                    <button id="viewEmployeeBtn" class="flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-lg">
+                    <button id="viewEmployeeBtn" class="flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
                         View Profile
                     </button>
                 </div>
             </div>
-        </div>
 </body>
 
 </html>

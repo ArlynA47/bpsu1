@@ -12,8 +12,20 @@ body {
   font-family: "Geist", sans-serif;
 }
 
-.tinder-card {
-  @apply w-full bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-4;
+.tinder-card, .job-listing-card {
+  @apply w-full bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-2;
+}
+
+.status-badge {
+  @apply px-3 py-1 text-sm font-medium rounded-lg;
+}
+
+.status-active {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-closed {
+  @apply bg-red-100 text-red-800;
 }
 
 @import "tailwindcss";
