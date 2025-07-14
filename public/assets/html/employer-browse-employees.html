@@ -10,8 +10,7 @@
     <title>HirNa!</title>
 </head>
 
-<body
-    class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <!-- Navigation Bar -->
     <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
@@ -56,25 +55,29 @@
                         <span
                             class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
                             id="fullName">
-                            Cherwen Kirk Fuertes
+                            Loading employee...
                         </span>
 
                         <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
-                            Lives in<span id="currentProvince"> Bataan </span> <span id="willingToRelocate">- Willing to
-                                Relocate</span>
+                            Lives in <span id="currentProvince">...</span> <span id="willingToRelocate"></span>
                         </span>
                     </div>
 
-                    <!-- Likes and Dislikes -->
+                    <!-- Reputation -->
                     <div class="flex items-start gap-6">
                         <span class="flex items-end gap-2">
                             <i class="fas fa-thumbs-up text-[#73A267] text-3xl"></i>
-                            <span class="text-xl" id="likes">3</span>
+                            <span class="text-xl" id="likes">0</span>
                         </span>
 
                         <span class="flex items-end gap-2">
                             <i class="fas fa-thumbs-down text-[#D33B3B] text-3xl"></i>
-                            <span class="text-xl" id="dislikes">2</span>
+                            <span class="text-xl" id="dislikes">0</span>
+                        </span>
+
+                        <span class="flex items-end gap-2">
+                            <i class="fas fa-star text-[#FFD700] text-3xl"></i>
+                            <span class="text-xl" id="reputationScore">0%</span>
                         </span>
                     </div>
                 </div>
@@ -85,9 +88,7 @@
 
                     <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="workLocationsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bataan</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Pampanga</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Bulacan</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
 
@@ -97,9 +98,7 @@
 
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Basic Math</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Communication</span>
+                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
             </div>
@@ -120,6 +119,362 @@
             </div>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            setDoc, 
+            updateDoc, 
+            arrayUnion,
+            serverTimestamp,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let currentUser = null;
+        let currentEmployer = null;
+        let currentEmployeeIndex = 0;
+        let availableEmployees = [];
+        let likedEmployees = [];
+        let employerJobSkills = [];
+        let employerProvince = "";
+
+        // DOM Elements
+        const fullNameEl = document.getElementById('fullName');
+        const currentProvinceEl = document.getElementById('currentProvince');
+        const willingToRelocateEl = document.getElementById('willingToRelocate');
+        const likesEl = document.getElementById('likes');
+        const dislikesEl = document.getElementById('dislikes');
+        const workLocationsContainer = document.getElementById('workLocationsContainer');
+        const skillsContainer = document.getElementById('skillsContainer');
+        const skipBtn = document.getElementById('skipBtn');
+        const keepBtn = document.getElementById('keepBtn');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check auth state
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadEmployerProfile();
+                    await loadLikedEmployees();
+                    await loadEmployees();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = '../login.html';
+                }
+            });
+
+            // Event listeners
+            skipBtn.addEventListener('click', skipEmployee);
+            keepBtn.addEventListener('click', likeEmployee);
+        });
+
+        // Load employer profile data
+        async function loadEmployerProfile() {
+            try {
+                // Get employer profile
+                const employerDoc = await getDoc(doc(db, 'employers', currentUser.uid));
+                if (employerDoc.exists()) {
+                    currentEmployer = employerDoc.data();
+                    employerProvince = currentEmployer?.companyInfo?.companyAddress || "";
+                    
+                    // Get employer's job listings to extract required skills
+                    const jobsQuery = query(
+                        collection(db, 'jobSeeds'),
+                        where('employerId', '==', currentUser.uid),
+                        where('status', '==', 'active')
+                    );
+                    
+                    const jobsSnapshot = await getDocs(jobsQuery);
+                    employerJobSkills = [];
+                    
+                    jobsSnapshot.forEach(doc => {
+                        const jobData = doc.data();
+                        if (jobData.skills) {
+                            employerJobSkills = [...new Set([...employerJobSkills, ...jobData.skills])];
+                        }
+                    });
+                } else {
+                    console.error('Employer profile not found');
+                }
+            } catch (error) {
+                console.error('Error loading employer profile:', error);
+            }
+        }
+
+        // Load liked employees from Firestore
+        async function loadLikedEmployees() {
+            try {
+                const likedDoc = await getDoc(doc(db, 'employerLikes', currentUser.uid));
+                if (likedDoc.exists()) {
+                    likedEmployees = likedDoc.data().likedEmployees || [];
+                } else {
+                    likedEmployees = [];
+                }
+            } catch (error) {
+                console.error('Error loading liked employees:', error);
+                likedEmployees = [];
+            }
+        }
+
+        // Load employees with optimized algorithm
+        async function loadEmployees() {
+            try {
+                availableEmployees = [];
+                
+                // Base query for available employees
+                let employeesQuery = query(
+                    collection(db, 'careerstepPublicProfiles'),
+                    where('availableForWork', '==', 'Yes')
+                );
+                
+                const employeesSnapshot = await getDocs(employeesQuery);
+                
+                // Also get feedback counts for each employee
+                const feedbackQuery = query(collection(db, 'employeeFeedback'));
+                const feedbackSnapshot = await getDocs(feedbackQuery);
+                
+                // Count feedback for each employee
+                const feedbackCounts = {};
+                feedbackSnapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    const employeeId = feedback.employeeId;
+                    
+                    if (!feedbackCounts[employeeId]) {
+                        feedbackCounts[employeeId] = { likes: 0, dislikes: 0 };
+                    }
+                    
+                    if (feedback.rating === 'positive') {
+                        feedbackCounts[employeeId].likes++;
+                    } else if (feedback.rating === 'negative') {
+                        feedbackCounts[employeeId].dislikes++;
+                    }
+                });
+                
+                // Process employees
+                employeesSnapshot.forEach(doc => {
+                    if (!likedEmployees.includes(doc.id)) {
+                        const employee = doc.data();
+                        const feedback = feedbackCounts[doc.id] || { likes: 0, dislikes: 0 };
+                        
+                        // Add feedback counts to employee data
+                        employee.likes = feedback.likes;
+                        employee.dislikes = feedback.dislikes;
+                        
+                        // Calculate match score (your existing code)
+                        let matchScore = 0;
+                        
+                        // Calculate match score
+                        if (employerJobSkills.length > 0 && employee.skills) {
+                            const matchingSkills = employee.skills.filter(skill => 
+                                employerJobSkills.includes(skill));
+                            matchScore += (matchingSkills.length / employerJobSkills.length) * 50;
+                        }
+                        
+                        if (employerProvince && employee.preferredLocations) {
+                            if (employee.preferredLocations.includes(employerProvince)) {
+                                matchScore += 30;
+                            } else if (employee.willingToRelocate === "Yes") {
+                                matchScore += 15;
+                            }
+                        }
+                        
+                        // Add reputation bonus (0-20 points)
+                        matchScore += Math.min(20, (employee.reputationScore || 0) / 5);
+                        
+                        availableEmployees.push({
+                            id: doc.id,
+                            ...employee,
+                            matchScore
+                        });
+                    }
+                });
+                
+                // Sort by match score
+                availableEmployees.sort((a, b) => b.matchScore - a.matchScore);
+                
+                if (availableEmployees.length > 0) {
+                    displayCurrentEmployee();
+                } else {
+                    showNoEmployeesMessage();
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                showNoEmployeesMessage();
+            }
+        }
+
+        // Display current employee card
+        function displayCurrentEmployee() {
+            if (currentEmployeeIndex >= availableEmployees.length) {
+                showNoEmployeesMessage();
+                return;
+            }
+
+            const employee = availableEmployees[currentEmployeeIndex];
+            
+            // Basic info
+            fullNameEl.textContent = employee.fullName || employee.displayName || "No name provided";
+            currentProvinceEl.textContent = employee.currentProvince || "Unknown location";
+            
+            willingToRelocateEl.textContent = employee.willingToRelocate === "Yes" 
+                ? "- Willing to Relocate" : "";
+            
+            // Feedback counts - use correct field names
+            likesEl.textContent = employee.likes || employee.positiveFeedback || 0;
+            dislikesEl.textContent = employee.dislikes || employee.negativeFeedback || 0;
+            
+            // Calculate reputation score if not provided
+            const totalFeedback = (employee.likes || 0) + (employee.dislikes || 0);
+            let reputationScore = 0;
+            if (totalFeedback > 0) {
+                reputationScore = Math.round(((employee.likes || 0) / totalFeedback) * 100);
+            }
+            document.getElementById('reputationScore').textContent = reputationScore + "%";
+            
+            // Preferred locations
+            workLocationsContainer.innerHTML = "";
+            if (employee.preferredLocations?.length > 0) {
+                employee.preferredLocations.forEach(location => {
+                    const locationEl = document.createElement('span');
+                    locationEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+                    locationEl.textContent = location;
+                    workLocationsContainer.appendChild(locationEl);
+                });
+            } else {
+                const noLocationEl = document.createElement('span');
+                noLocationEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+                noLocationEl.textContent = "No preferred locations";
+                workLocationsContainer.appendChild(noLocationEl);
+            }
+            
+            // Skills
+            skillsContainer.innerHTML = "";
+            if (employee.skills?.length > 0) {
+                employee.skills.forEach(skill => {
+                    const skillEl = document.createElement('span');
+                    skillEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+                    
+                    // Highlight matching skills
+                    if (employerJobSkills.includes(skill)) {
+                        skillEl.classList.add('bg-[#E8F5E9]', 'border-[#73A267]');
+                    }
+                    
+                    skillEl.textContent = skill;
+                    skillsContainer.appendChild(skillEl);
+                });
+            } else {
+                const noSkillsEl = document.createElement('span');
+                noSkillsEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+                noSkillsEl.textContent = "No skills listed";
+                skillsContainer.appendChild(noSkillsEl);
+            }
+        }
+
+        // Show message when no employees are available
+        function showNoEmployeesMessage() {
+            fullNameEl.textContent = "No more employees to show";
+            currentProvinceEl.textContent = "";
+            willingToRelocateEl.textContent = "";
+            likesEl.textContent = "0";
+            dislikesEl.textContent = "0";
+            document.getElementById('reputationScore').textContent = "0";
+            
+            workLocationsContainer.innerHTML = "";
+            const noLocationEl = document.createElement('span');
+            noLocationEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+            noLocationEl.textContent = "Check back later for more candidates";
+            workLocationsContainer.appendChild(noLocationEl);
+            
+            skillsContainer.innerHTML = "";
+            const noSkillsEl = document.createElement('span');
+            noSkillsEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+            noSkillsEl.textContent = "No skills to display";
+            skillsContainer.appendChild(noSkillsEl);
+            
+            skipBtn.disabled = true;
+            keepBtn.disabled = true;
+        }
+
+        // Skip current employee
+        function skipEmployee() {
+            currentEmployeeIndex++;
+            displayCurrentEmployee();
+        }
+
+        // Like current employee
+        async function likeEmployee() {
+            if (currentEmployeeIndex >= availableEmployees.length) return;
+            
+            const employee = availableEmployees[currentEmployeeIndex];
+            
+            try {
+                const likedEmployeeData = {
+                employeeId: employee.id,
+                employeeName: employee.fullName || employee.displayName,
+                skills: employee.skills || [],
+                likedAt: new Date() // client-side timestamp
+            };
+
+            await setDoc(doc(db, 'employerLikes', currentUser.uid), {
+                likedEmployees: arrayUnion(employee.id),
+                lastUpdated: serverTimestamp()
+            }, { merge: true });
+
+            await updateDoc(doc(db, 'employers', currentUser.uid), {
+                likedEmployees: arrayUnion(likedEmployeeData)
+            });
+
+            await updateDoc(doc(db, 'careerstepPublicProfiles', employee.id), {
+                likedByEmployers: arrayUnion({
+                    employerId: currentUser.uid,
+                    employerName: currentEmployer?.companyInfo?.companyName || "Unknown employer",
+                    likedAt: new Date() // or skip entirely if timestamp isn't critical here
+                })
+            });
+
+                
+                // Show feedback (you could add a toast message here)
+                console.log(`Liked employee ${employee.id}`);
+                
+                // Move to next employee
+                currentEmployeeIndex++;
+                displayCurrentEmployee();
+                
+                // Update liked employees list
+                likedEmployees.push(employee.id);
+            } catch (error) {
+                console.error('Error liking employee:', error);
+                alert('Failed to save like. Please try again.');
+            }
+        }
+    </script>
 </body>
 
 </html>
