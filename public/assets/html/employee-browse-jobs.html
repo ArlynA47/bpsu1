@@ -11,16 +11,9 @@
 </head>
 
 <body class="min-h-screen flex flex-col">
-    <!-- Loading Screen (to be added) -->
-    <div id="loadingScreen" class="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50 hidden">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-4 text-lg">Finding job opportunities...</p>
-    </div>
-
     <!-- Login Prompt (to be added) -->
-    <div id="loginPrompt" class="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50 hidden">
+    <div id="loginPrompt"
+        class="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50 hidden">
         <div class="text-center p-8 max-w-md">
             <h3 class="text-2xl font-bold mb-4">Please log in to browse jobs</h3>
             <p class="mb-6">You need to be logged in to save your liked jobs</p>
@@ -79,12 +72,14 @@
             <div
                 class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
                 <!-- Skip Button -->
-                <button id="passBtn" class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer">
+                <button id="passBtn"
+                    class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer">
                     <i class="fas fa-times text-2xl text-white"></i>
                 </button>
 
                 <!-- Keep Button -->
-                <button id="nurtureBtn" class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer">
+                <button id="nurtureBtn"
+                    class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer">
                     <i class="fas fa-heart text-2xl text-white"></i>
                 </button>
             </div>
@@ -144,11 +139,11 @@
                     showLoginPrompt();
                 }
             });
-            
+
             // Event listeners
             passBtn.addEventListener('click', passCurrentSeed);
             nurtureBtn.addEventListener('click', nurtureCurrentSeed);
-            
+
             if (goToLoginBtn) {
                 goToLoginBtn.addEventListener('click', () => {
                     window.location.href = 'login.html';
@@ -219,8 +214,13 @@
         // Load job seeds that match the user's skills
         async function loadJobSeeds() {
             try {
-                loadingScreen.classList.remove('hidden');
-                jobCardsContainer.innerHTML = '';
+                jobCardsContainer.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-8">
+                <i class="fas fa-spinner fa-spin fa-2x text-[#65956C] mb-4"></i>
+                <p class="text-[#3D3D3D] text-lg">Finding job opportunities...</p>
+            </div>
+        `;
+
                 noJobsMessage.classList.add('hidden');
 
                 let seedsQuery = query(
@@ -230,7 +230,7 @@
 
                 const querySnapshot = await getDocs(seedsQuery).catch(e => {
                     console.log('Firestore connection terminated normally');
-                    return { forEach: () => {} }; // Return empty snapshot-like object
+                    return { forEach: () => { } };
                 });
 
                 availableSeeds = [];
@@ -253,16 +253,16 @@
                 // Sort by creation date (newest first)
                 availableSeeds.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 
-                if (availableSeeds.length > 0) {
+                if (availableSeeds.length >= 0) {
                     displayCurrentSeed();
                 } else {
+                    jobCardsContainer.innerHTML = ''; // remove spinner
                     noJobsMessage.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Error loading job seeds:', error);
+                jobCardsContainer.innerHTML = ''; // remove spinner
                 noJobsMessage.classList.remove('hidden');
-            } finally {
-                loadingScreen.classList.add('hidden');
             }
         }
 
@@ -270,10 +270,10 @@
         function doesSeedMatchSkills(seed) {
             if (!seed.skills || seed.skills.length === 0) return true;
             if (userSkills.length === 0) return true;
-            
-            return seed.skills.some(skill => 
-                userSkills.some(userSkill => 
-                    userSkill.toLowerCase().includes(skill.toLowerCase()) || 
+
+            return seed.skills.some(skill =>
+                userSkills.some(userSkill =>
+                    userSkill.toLowerCase().includes(skill.toLowerCase()) ||
                     skill.toLowerCase().includes(userSkill.toLowerCase())
                 )
             );
@@ -283,10 +283,10 @@
         function getMatchingSkills(jobSkills) {
             if (!jobSkills || jobSkills.length === 0) return [];
             if (userSkills.length === 0) return [];
-            
-            return jobSkills.filter(skill => 
-                userSkills.some(userSkill => 
-                    userSkill.toLowerCase().includes(skill.toLowerCase()) || 
+
+            return jobSkills.filter(skill =>
+                userSkills.some(userSkill =>
+                    userSkill.toLowerCase().includes(skill.toLowerCase()) ||
                     skill.toLowerCase().includes(userSkill.toLowerCase())
                 )
             );
@@ -350,16 +350,16 @@
                 <div class="flex flex-col gap-2 mt-4">
                     <div class="flex items-center gap-8">
                         <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                        ${seed.matchingSkills.length > 0 ? 
-                            `<span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
+                        ${seed.matchingSkills.length > 0 ?
+                    `<span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
                                 ${seed.matchingSkills.length} Match${seed.matchingSkills.length > 1 ? 'es' : ''}
                             </span>` : ''}
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
                         ${seed.skills.map(skill => `
-                            <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ? 
-                                'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
+                            <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ?
+                            'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
                                 ${skill}
                             </span>
                         `).join('')}
@@ -406,21 +406,21 @@
             const now = new Date();
             const diff = now - date;
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
+
             if (days === 0) return 'Today';
             if (days === 1) return 'Yesterday';
             if (days < 7) return `${days} days ago`;
-            if (days < 30) return `${Math.floor(days/7)} week${Math.floor(days/7) > 1 ? 's' : ''} ago`;
+            if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? 's' : ''} ago`;
             return date.toLocaleDateString();
         }
 
         // Pass on current seed
         async function passCurrentSeed() {
             if (currentSeedIndex >= availableSeeds.length) return;
-            
+
             // Animation
             jobCardsContainer.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-            
+
             setTimeout(() => {
                 currentSeedIndex++;
                 jobCardsContainer.classList.remove('opacity-0');
@@ -432,7 +432,7 @@
         async function nurtureCurrentSeed() {
             if (currentSeedIndex >= availableSeeds.length) return;
             const seed = availableSeeds[currentSeedIndex];
-            
+
             if (nurturedSeedIds.has(seed.id)) {
                 showToastMessage("You've already liked this job!");
                 return;
@@ -455,19 +455,19 @@
                 await updateDoc(doc(db, 'careerstepEmployees', currentUser.uid), {
                     nurturedSeeds: arrayUnion(seedToSave)
                 });
-                
+
                 nurturedSeedIds.add(seed.id);
                 showToastMessage("Job saved to your liked jobs!");
-                
+
                 // Animation
                 jobCardsContainer.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-                
+
                 setTimeout(() => {
                     currentSeedIndex++;
                     jobCardsContainer.classList.remove('opacity-0');
                     displayCurrentSeed();
                 }, 300);
-                
+
             } catch (error) {
                 console.error('Error saving nurtured seed:', error);
                 showToastMessage("Failed to save job: " + (error.message || error));
@@ -480,7 +480,7 @@
             toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#65956C] text-white px-4 py-2 rounded-md shadow-lg';
             toast.textContent = message;
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.remove();
             }, 2000);
@@ -490,7 +490,7 @@
         function handleSwipe() {
             const threshold = 50; // Minimum swipe distance
             const swipeDistance = touchEndX - touchStartX;
-            
+
             if (swipeDistance > threshold) {
                 nurtureCurrentSeed();
             } else if (swipeDistance < -threshold) {
@@ -511,4 +511,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -316,6 +316,8 @@
         function populateLocations() {
             const locationGrid = document.getElementById('locationGrid');
 
+            provinces.sort();
+            
             provinces.forEach(province => {
                 const locationOption = document.createElement('div');
                 locationOption.className = 'location-option flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md hover:bg-[#F1FAF4] transition';

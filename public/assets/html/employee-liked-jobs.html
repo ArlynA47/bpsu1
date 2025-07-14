@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
+</head>
+
+<body class="min-h-screen overflow-y-auto">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
+        <div class="flex flex-1 justify-start items-end gap-2 ">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="./employee-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="./employee-browse-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
+                Jobs</a>
+            <a href="./employee-liked-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+                Jobs</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="./employer-profile.html"
+                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Profile
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex flex-col p-10 gap-8">
+        <h3 class="text-[#3D3D3D] text-3xl font-semibold">Liked Jobs</h3>
+
+        <!-- Dynamically Add Liked Employees Here -->
+        <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
+            <!-- Content will be loaded dynamically -->
+            <p class="text-[#545454] text-lg">Loading liked jobs...</p>
+        </div>
+    </div>
+</body>
+
+</html>
