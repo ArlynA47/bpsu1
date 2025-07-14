@@ -77,13 +77,10 @@
             <h2><i class="fas fa-images"></i> Profile Gallery</h2>
             <p>Upload images that showcase your work or professional skills</p>
             
-            <div class="upload-container" id="dropZone">
+            <div class="upload-container" id="dropZone" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt fa-3x"></i>
                 <p>Drag & drop images here or click to browse</p>
                 <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
-                <button class="submit-comment-btn" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-folder-open"></i> Select Images
-                </button>
             </div>
             
             <div class="gallery-container" id="galleryContainer">
