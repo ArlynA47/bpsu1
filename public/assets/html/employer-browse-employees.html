@@ -253,8 +253,7 @@
                 
                 // Base query for available employees
                 let employeesQuery = query(
-                    collection(db, 'careerstepPublicProfiles'),
-                    where('availableForWork', '==', 'Yes')
+                    collection(db, 'careerstepPublicProfiles')
                 );
                 
                 const employeesSnapshot = await getDocs(employeesQuery);
@@ -440,34 +439,30 @@
             const employee = availableEmployees[currentEmployeeIndex];
             
             try {
-                const likedEmployeeData = {
-                employeeId: employee.id,
-                employeeName: employee.fullName || employee.displayName,
-                skills: employee.skills || [],
-                likedAt: new Date() // client-side timestamp
-            };
-
-            await setDoc(doc(db, 'employerLikes', currentUser.uid), {
-                likedEmployees: arrayUnion(employee.id),
-                lastUpdated: serverTimestamp()
-            }, { merge: true });
-
-            await updateDoc(doc(db, 'employers', currentUser.uid), {
-                likedEmployees: arrayUnion(likedEmployeeData)
-            });
-
-            await updateDoc(doc(db, 'careerstepPublicProfiles', employee.id), {
-                likedByEmployers: arrayUnion({
+                // Create a like record
+                const likeData = {
                     employerId: currentUser.uid,
-                    employerName: currentEmployer?.companyInfo?.companyName || "Unknown employer",
-                    likedAt: new Date() // or skip entirely if timestamp isn't critical here
-                })
-            });
+                    employerName: currentEmployer?.companyInfo?.companyName || "Unknown company",
+                    likedAt: new Date(),
+                    jobSkills: employerJobSkills,
+                    employerProvince: employerProvince
+                };
 
-                
-                // Show feedback (you could add a toast message here)
-                console.log(`Liked employee ${employee.id}`);
-                
+                // Update employer's liked employees
+                await setDoc(doc(db, 'employerLikes', currentUser.uid), {
+                    likedEmployees: arrayUnion({
+                        employeeId: employee.id,
+                        employeeName: employee.fullName || employee.displayName,
+                        likedAt: new Date()
+                    }),
+                    lastUpdated: serverTimestamp()
+                }, { merge: true });
+
+                // Update employee's likedByEmployers
+                await updateDoc(doc(db, 'careerstepPublicProfiles', employee.id), {
+                    likedByEmployers: arrayUnion(likeData)
+                });
+
                 // Move to next employee
                 currentEmployeeIndex++;
                 displayCurrentEmployee();

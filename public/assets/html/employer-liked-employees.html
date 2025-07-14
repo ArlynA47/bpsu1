@@ -59,7 +59,9 @@
             where, 
             getDocs,
             updateDoc,
-            arrayRemove
+            arrayRemove,
+            serverTimestamp,
+            arrayUnion
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         // Firebase configuration
@@ -109,11 +111,12 @@
                 
                 if (likedDoc.exists() && likedDoc.data().likedEmployees?.length > 0) {
                     likedEmployees = likedDoc.data().likedEmployees;
+                    const employeeIds = likedEmployees.map(emp => emp.employeeId);
                     
                     // Get detailed info for each liked employee
                     const employeesQuery = query(
                         collection(db, 'careerstepPublicProfiles'),
-                        where('__name__', 'in', likedEmployees)
+                        where('__name__', 'in', employeeIds)
                     );
                     
                     const employeesSnapshot = await getDocs(employeesQuery);
@@ -121,7 +124,7 @@
                     // Also get feedback counts for each employee
                     const feedbackQuery = query(
                         collection(db, 'employeeFeedback'),
-                        where('employeeId', 'in', likedEmployees)
+                        where('employeeId', 'in', employeeIds)
                     );
                     const feedbackSnapshot = await getDocs(feedbackQuery);
                     
@@ -154,6 +157,7 @@
                     employeesSnapshot.forEach(doc => {
                         const employee = doc.data();
                         const feedback = feedbackCounts[doc.id] || { likes: 0, dislikes: 0 };
+                        const likedEmployeeData = likedEmployees.find(emp => emp.employeeId === doc.id);
                         
                         // Calculate reputation score
                         const totalFeedback = feedback.likes + feedback.dislikes;
@@ -256,28 +260,33 @@
         // Unlike an employee
         async function unlikeEmployee(employeeId) {
             try {
-                // Remove from employer's liked list
-                await updateDoc(doc(db, 'employerLikes', currentUser.uid), {
-                    likedEmployees: arrayRemove(employeeId)
-                });
+                // Get current liked employees
+                const likedDoc = await getDoc(doc(db, 'employerLikes', currentUser.uid));
+                const likedEmployees = likedDoc.exists() ? likedDoc.data().likedEmployees : [];
                 
-                // Remove from employer's profile (if stored there)
-                await updateDoc(doc(db, 'employers', currentUser.uid), {
-                    likedEmployees: arrayRemove(employeeId)
-                });
+                // Find the employee to remove
+                const employeeToRemove = likedEmployees.find(emp => emp.employeeId === employeeId);
                 
-                // Remove from employee's likedByEmployers (if stored there)
-                await updateDoc(doc(db, 'careerstepPublicProfiles', employeeId), {
-                    likedByEmployers: arrayRemove({
-                        employerId: currentUser.uid
-                    })
-                });
-                
-                // Reload the list
-                await loadLikedEmployees();
-                
-                // Optional: Show a success message
-                alert('Employee unliked successfully');
+                if (employeeToRemove) {
+                    // Remove from employer's liked list
+                    await updateDoc(doc(db, 'employerLikes', currentUser.uid), {
+                        likedEmployees: arrayRemove(employeeToRemove),
+                        lastUpdated: serverTimestamp()
+                    });
+                    
+                    // Remove from employee's likedByEmployers
+                    await updateDoc(doc(db, 'careerstepPublicProfiles', employeeId), {
+                        likedByEmployers: arrayRemove({
+                            employerId: currentUser.uid
+                        })
+                    });
+                    
+                    // Reload the list
+                    await loadLikedEmployees();
+                    
+                    // Optional: Show a success message
+                    alert('Employee unliked successfully');
+                }
             } catch (error) {
                 console.error('Error unliking employee:', error);
                 alert('Failed to unlike employee. Please try again.');
@@ -286,10 +295,8 @@
 
         // View employee profile
         function viewEmployeeProfile(employeeId) {
-
             window.location.href = `employee-profile.html?userId=${employeeId}&isEmployer=true`;
         }
     </script>
 </body>
-
 </html>
