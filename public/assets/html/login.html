@@ -146,7 +146,7 @@
         if (employerDoc.exists()) return window.location.href = 'employer-home.html';
 
         const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
-        if (employeeDoc.exists()) return window.location.href = 'employee-home.html';
+        if (employeeDoc.exists()) return window.location.href = 'explore-garden.html';
 
         throw new Error("Account type not recognized. Please contact support.");
       } catch (error) {
