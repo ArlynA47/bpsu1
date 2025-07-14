@@ -1094,12 +1094,25 @@
                     const positionsNeeded = jobData.positionsNeeded || 1;
                     const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
                     
-                    // Calculate likelihood score (weighted average)
-                    return Math.round(
+                    // Check if employer liked this employee
+                    let employerLikeBonus = 0;
+                    const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', application.applicantId));
+                    if (employeeDoc.exists()) {
+                        const employeeData = employeeDoc.data();
+                        const likedByEmployers = employeeData.likedByEmployers || [];
+                        
+                        if (likedByEmployers.some(like => like.employerId === currentUser.uid)) {
+                            employerLikeBonus = 15; // 15% bonus
+                        }
+                    }
+                    
+                    // Calculate likelihood score with employer bonus
+                    return Math.min(100, Math.round(
                         (reputationScore * 0.4) + 
                         (skillMatchPercentage * 0.4) + 
-                        (availabilityPercentage * 0.2)
-                    );
+                        (availabilityPercentage * 0.2) +
+                        employerLikeBonus
+                    ));
                 } catch (error) {
                     console.error('Error calculating application score:', error);
                     return 0;
@@ -1142,7 +1155,7 @@
                 );
             }
 
-            function displayApplications() {
+            async function displayApplications() {
                 if (filteredApplications.length === 0) {
                     applicationsList.innerHTML = '<tr><td colspan="6">No applications found.</td></tr>';
                     paginationEl.innerHTML = '';
@@ -1155,24 +1168,66 @@
                 
                 applicationsList.innerHTML = '';
                 
-                appsToDisplay.forEach(application => {
+                // First, get all unique job IDs from the applications to display
+                const jobIds = new Set();
+                appsToDisplay.forEach(app => {
+                    if (!app.isHeader && app.jobId) {
+                        jobIds.add(app.jobId);
+                    }
+                });
+                
+                // Fetch all job data in a single batch
+                const jobsData = {};
+                const jobsPromises = Array.from(jobIds).map(async jobId => {
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                    if (jobDoc.exists()) {
+                        jobsData[jobId] = jobDoc.data();
+                    }
+                });
+                
+                await Promise.all(jobsPromises);
+                
+                // Now display the applications with the job data
+                for (const application of appsToDisplay) {
                     if (application.isHeader) {
                         // Create a header row for the job title
                         const headerRow = document.createElement('tr');
                         headerRow.className = 'job-header-row';
+                        
+                        // Find the first application for this job to get the jobId
+                        const jobApplication = filteredApplications.find(app => 
+                            !app.isHeader && app.jobTitle === application.jobTitle
+                        );
+                        
+                        let positionsInfo = '';
+                        if (jobApplication && jobApplication.jobId && jobsData[jobApplication.jobId]) {
+                            const jobData = jobsData[jobApplication.jobId];
+                            const positionsNeeded = jobData.positionsNeeded || 0;
+                            const positionsAvailable = jobData.positionsAvailable !== undefined ? 
+                                jobData.positionsAvailable : positionsNeeded;
+                            const positionsHired = positionsNeeded - positionsAvailable;
+                            
+                            positionsInfo = `
+                                <span class="badge bg-secondary ms-2">
+                                    ${positionsHired} hired / ${positionsNeeded} needed
+                                </span>
+                            `;
+                        }
+                        
                         headerRow.innerHTML = `
                             <td colspan="5" class="job-title-header">
                                 <strong>${application.jobTitle}</strong>
                                 <span class="badge bg-primary">${application.count} applicants</span>
+                                ${positionsInfo}
                             </td>
                         `;
                         applicationsList.appendChild(headerRow);
-                        return;
+                        continue;
                     }
                     
                     const appRow = document.createElement('tr');
                     appRow.className = application.status === 'hired' ? 'table-success' : 
-                                    application.status === 'shortlisted' ? 'table-info' : '';
+                                        application.status === 'shortlisted' ? 'table-info' : '';
                     
                     // Applicant name column (clickable)
                     const applicantCell = document.createElement('td');
@@ -1210,42 +1265,51 @@
                     // Actions column
                     const actionsCell = document.createElement('td');
                     actionsCell.className = 'actions-cell';
-                    
-                    // Analyze button
-                    const analyzeBtn = document.createElement('button');
-                    analyzeBtn.className = 'action-btn analysis-btn';
-                    analyzeBtn.innerHTML = '<i class="fas fa-chart-line"></i> Analyze';
-                    analyzeBtn.onclick = () => showApplicantAnalysis(application.id);
-                    actionsCell.appendChild(analyzeBtn);
-                    
-                    // Only show buttons for allowed transitions
-                    if (application.status !== 'shortlisted') {
-                        const shortlistBtn = document.createElement('button');
-                        shortlistBtn.className = 'action-btn btn-success';
-                        shortlistBtn.textContent = 'Shortlist';
-                        shortlistBtn.onclick = () => updateStatus(application.id, 'shortlisted');
-                        actionsCell.appendChild(shortlistBtn);
+
+                    // For hired applicants, only show the Analyze button
+                    if (application.status === 'hired' || application.status === 'rejected') {
+                        const analyzeBtn = document.createElement('button');
+                        analyzeBtn.className = 'action-btn analysis-btn';
+                        analyzeBtn.innerHTML = '<i class="fas fa-chart-line"></i> Analyze';
+                        analyzeBtn.onclick = () => showApplicantAnalysis(application.id);
+                        actionsCell.appendChild(analyzeBtn);
+                    } else {
+                        // Analyze button (shown for all statuses)
+                        const analyzeBtn = document.createElement('button');
+                        analyzeBtn.className = 'action-btn analysis-btn';
+                        analyzeBtn.innerHTML = '<i class="fas fa-chart-line"></i> Analyze';
+                        analyzeBtn.onclick = () => showApplicantAnalysis(application.id);
+                        actionsCell.appendChild(analyzeBtn);
+                        
+                        // Only show other buttons for allowed transitions
+                        if (application.status !== 'shortlisted') {
+                            const shortlistBtn = document.createElement('button');
+                            shortlistBtn.className = 'action-btn btn-success';
+                            shortlistBtn.textContent = 'Shortlist';
+                            shortlistBtn.onclick = () => updateStatus(application.id, 'shortlisted');
+                            actionsCell.appendChild(shortlistBtn);
+                        }
+                        
+                        if (application.status !== 'hired') {
+                            const hireBtn = document.createElement('button');
+                            hireBtn.className = 'action-btn btn-success';
+                            hireBtn.textContent = 'Hire';
+                            hireBtn.onclick = () => updateStatus(application.id, 'hired');
+                            actionsCell.appendChild(hireBtn);
+                        }
+                        
+                        if (application.status !== 'rejected') {
+                            const rejectBtn = document.createElement('button');
+                            rejectBtn.className = 'action-btn btn-danger';
+                            rejectBtn.textContent = 'Reject';
+                            rejectBtn.onclick = () => updateStatus(application.id, 'rejected');
+                            actionsCell.appendChild(rejectBtn);
+                        }
                     }
-                    
-                    if (application.status !== 'hired') {
-                        const hireBtn = document.createElement('button');
-                        hireBtn.className = 'action-btn btn-success';
-                        hireBtn.textContent = 'Hire';
-                        hireBtn.onclick = () => updateStatus(application.id, 'hired');
-                        actionsCell.appendChild(hireBtn);
-                    }
-                    
-                    if (application.status !== 'rejected') {
-                        const rejectBtn = document.createElement('button');
-                        rejectBtn.className = 'action-btn btn-danger';
-                        rejectBtn.textContent = 'Reject';
-                        rejectBtn.onclick = () => updateStatus(application.id, 'rejected');
-                        actionsCell.appendChild(rejectBtn);
-                    }
-                    
+
                     appRow.appendChild(actionsCell);
                     applicationsList.appendChild(appRow);
-                });
+                }
             }
 
             function getLikelihoodBadgeClass(score) {
@@ -1322,23 +1386,23 @@
                                 const skills = jobData.skills || [];
                                 const location = jobData.location;
                                 
-                                // Position availability handling (from teammate's version)
+                                // Position availability handling - modified to allow hiring even if positions are filled
                                 if (newStatus === 'hired') {
-                                    let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : null;
+                                    let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : jobData.positionsNeeded;
                                     
-                                    if (positionsAvailable !== null && positionsAvailable > 0) {
+                                    // Only decrement if there are available positions
+                                    if (positionsAvailable > 0) {
                                         positionsAvailable = positionsAvailable - 1;
-                                        let updateObj = { positionsAvailable };
-                                        
-                                        if (positionsAvailable === 0) {
-                                            updateObj.status = 'filled';
-                                        }
-                                        
-                                        await updateDoc(jobRef, updateObj);
                                     }
+                                    
+                                    // Always update the positionsAvailable field, even if it goes negative
+                                    await updateDoc(jobRef, {
+                                        positionsAvailable,
+                                        ...(positionsAvailable <= 0 ? { status: 'filled' } : {})
+                                    });
                                 }
                                 
-                                // Analytics handling (from your version)
+                                // Analytics handling
                                 if (skills.length > 0 && location) {
                                     // Case 1: Changing from hired to another status
                                     if (oldStatus === 'hired' && newStatus !== 'hired') {
