@@ -222,7 +222,7 @@
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2 mt-8">
+                 <div class="flex flex-wrap items-center gap-2 mt-8">
                     <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1">
                         <span class="flex items-center gap-2">
                             <i class="fas fa-door-open text-[#65956C]"></i>
@@ -233,6 +233,9 @@
                             <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
                         </span>
                     </div>
+                    <button class="btn btn-success" onclick="markAsFulfilled('${job.id}')">
+                        <i class="fas fa-check-circle"></i> Fulfilled
+                    </button>
                 </div>
             </div>
         `;
@@ -242,15 +245,20 @@
 
         }
 
-        // Edit job seed
-        function editJobSeed(jobId) {
-            window.location.href = `edit-job.html?id=${jobId}`;
+        async function markAsFulfilled(jobId) {
+            try {
+                await db.collection('jobSeeds').doc(jobId).update({
+                    status: 'fulfilled'
+                });
+                alert('Job Seed marked as Fulfilled.');
+                // Optionally refresh the job listings
+                location.reload();
+            } catch (error) {
+                console.error('Error marking as fulfilled:', error);
+                alert('Failed to mark as fulfilled. Please try again.');
+            }
         }
 
-        // View job seed
-        function viewJobSeed(jobId) {
-            window.location.href = `job-details.html?id=${jobId}`;
-        }
 
         // Add this function to handle hiring an applicant
         async function hireApplicant(jobId, applicantId) {
