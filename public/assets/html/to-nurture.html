@@ -294,21 +294,48 @@
             const appsSnapshot = await getDocs(appsQuery);
             const totalApplicants = appsSnapshot.size;
             
-            // Calculate likelihood score (weighted average)
-            const likelihoodScore = Math.round(
+            // Check if employer liked this employee
+            let employerLikeBonus = 0;
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (jobDoc.exists()) {
+                    const jobData = jobDoc.data();
+                    const employerId = jobData.employerId;
+                    
+                    if (employerId) {
+                        const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', userId));
+                        if (employeeDoc.exists()) {
+                            const employeeData = employeeDoc.data();
+                            const likedByEmployers = employeeData.likedByEmployers || [];
+                            
+                            if (likedByEmployers.some(like => like.employerId === employerId)) {
+                                employerLikeBonus = 15; // Add 15% bonus if employer liked this employee
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking employer like:', error);
+            }
+            
+            // Calculate likelihood score with employer like bonus
+            const likelihoodScore = Math.min(100, Math.round(
                 (reputationScore * 0.4) + 
                 (skillMatchPercentage * 0.4) + 
-                (availabilityPercentage * 0.2)
-            );
+                (availabilityPercentage * 0.2) +
+                employerLikeBonus
+            ));
             
             return {
                 reputationScore,
                 skillMatchPercentage,
                 availabilityPercentage,
                 totalApplicants,
-                likelihoodScore
+                likelihoodScore,
+                employerLikeBonus
             };
         }
+
 
         async function analyzeApplicationChances(jobId) {
             try {
@@ -319,7 +346,7 @@
                 if (!jobDoc.exists()) throw new Error('Job not found');
                 
                 const likelihoodData = await calculateLikelihoodData(user.uid, jobId, jobDoc.data());
-                
+
                 // Generate analysis HTML
                 return `
                     <div class="analysis-container">
@@ -335,7 +362,14 @@
                                 </span>
                             </div>
                         </div>
-                        
+
+                        ${likelihoodData.employerLikeBonus > 0 ? `
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-heart"></i> <strong>Employer Interest Bonus:</strong> 
+                                This employer previously liked your profile (+${likelihoodData.employerLikeBonus}%)
+                            </div>
+                        ` : ''}
+
                         <div class="metrics mt-4">
                             <div class="row">
                                 <div class="col-md-6">
@@ -370,7 +404,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="skill-match-details mt-4">
                             <h4>Skill Analysis</h4>
                             ${jobDoc.data().skills?.length > 0 ? `
@@ -390,12 +424,14 @@
                                 ` : ''}
                             ` : '<p>No specific skills required for this position</p>'}
                         </div>
-                        
+
                         <div class="recommendations mt-4">
                             <h4>Recommendations</h4>
-                            ${getRecommendations(likelihoodData.likelihoodScore, 
+                            ${getRecommendations(
+                                likelihoodData.likelihoodScore, 
                                 getMatchingSkills(jobDoc.data().skills || [], currentUserData?.jobPreferences?.skills || []), 
-                                jobDoc.data().skills || [])}
+                                jobDoc.data().skills || []
+                            )}
                         </div>
                     </div>
                 `;
@@ -404,6 +440,7 @@
                 throw error;
             }
         }
+
 
         async function calculateReputationScore(userId) {
             try {

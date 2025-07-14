@@ -233,13 +233,6 @@
                             <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
                         </span>
                     </div>
-
-                    ${job.applicantCount > 0 ? `
-                    <button 
-                        data-job-id="${job.id}" 
-                        class="viewApplicantsBtn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md text-center flex items-center justify-center gap-2">
-                        View Applicants
-                    </button>` : ''}
                 </div>
             </div>
         `;
@@ -247,13 +240,6 @@
 
             jobCardsContainer.innerHTML = jobCardsHTML;
 
-            // Attach event listeners to all View Applicants buttons
-            document.querySelectorAll('.viewApplicantsBtn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const jobId = btn.dataset.jobId;
-                    viewApplicants(jobId);
-                });
-            });
         }
 
         // Edit job seed

@@ -761,7 +761,7 @@
                 }
             }
             
-            async function generateApplicantAnalysis(applicationId) {
+           async function generateApplicantAnalysis(applicationId) {
                 const appRef = doc(db, 'applications', applicationId);
                 const appSnap = await getDoc(appRef);
                 
@@ -797,13 +797,26 @@
                 const positionsAvailable = jobData.positionsAvailable || 0;
                 const positionsNeeded = jobData.positionsNeeded || 1;
                 const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
+
+                // Check if employer liked this employee
+                let employerLikeBonus = 0;
+                const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', userId));
+                if (employeeDoc.exists()) {
+                    const employeeData = employeeDoc.data();
+                    const likedByEmployers = employeeData.likedByEmployers || [];
+                    
+                    if (likedByEmployers.some(like => like.employerId === currentUser.uid)) {
+                        employerLikeBonus = 15; // 15% bonus
+                    }
+                }
                 
-                // Calculate likelihood score
-                const likelihoodScore = Math.round(
+                // Calculate likelihood score with employer bonus
+                const likelihoodScore = Math.min(100, Math.round(
                     (reputationScore * 0.4) + 
                     (skillMatchPercentage * 0.4) + 
-                    (availabilityPercentage * 0.2)
-                );
+                    (availabilityPercentage * 0.2) +
+                    employerLikeBonus
+                ));
                 
                 // Get score class
                 let scoreClass = 'score-poor';
@@ -825,8 +838,15 @@
                             <div class="progress-bar" role="progressbar" style="width: ${likelihoodScore}%" 
                                 aria-valuenow="${likelihoodScore}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        
-                        <div class="row">
+
+                        ${employerLikeBonus > 0 ? `
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-heart"></i> <strong>Employer Interest:</strong> 
+                                You previously liked this candidate's profile (+${employerLikeBonus}%)
+                            </div>
+                        ` : ''}
+
+                        <div class="row mt-3">
                             <div class="col-md-6">
                                 <div class="metric-card">
                                     <h5>Reputation Score</h5>
@@ -843,7 +863,7 @@
                             </div>
                         </div>
                         
-                        <div class="skill-match-container">
+                        <div class="skill-match-container mt-3">
                             <h5>Skills Analysis</h5>
                             ${jobSkills.length > 0 ? `
                                 <p><strong>Matched Skills (${matchingSkills.length}):</strong></p>
@@ -867,6 +887,7 @@
                     </div>
                 `;
             }
+
             
             function getRecommendationText(score) {
                 if (score >= 80) {
