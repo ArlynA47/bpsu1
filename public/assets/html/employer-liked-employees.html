@@ -286,11 +286,8 @@
 
         // View employee profile
         function viewEmployeeProfile(employeeId) {
-            // You can implement this to redirect to a detailed view or show a modal
-            // For now, we'll just show an alert
-            alert(`Viewing profile of employee ${employeeId}`);
-            // In a real implementation, you might do:
-            // window.location.href = `./employee-profile.html?id=${employeeId}`;
+
+            window.location.href = `employee-profile.html?userId=${employeeId}&isEmployer=true`;
         }
     </script>
 </body>
