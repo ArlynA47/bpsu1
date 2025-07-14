@@ -108,7 +108,7 @@
       // Show loading state
       const submitBtn = document.getElementById('loginBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i>Logging in...';
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
 
       try {
         // Fetch inputs
