@@ -10,8 +10,7 @@
     <title>HirNa!</title>
 </head>
 
-<body
-    class="min-h-screen overflow-y-auto">
+<body class="min-h-screen overflow-y-auto">
     <!-- Navigation Bar -->
     <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
@@ -42,75 +41,258 @@
 
         <!-- Dynamically Add Liked Employees Here -->
         <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
+            <!-- Content will be loaded dynamically -->
+            <p class="text-[#545454] text-lg">Loading liked employees...</p>
+        </div>
+    </div>
 
-            <!-- Job Listing Card -->
-            <div class="tinder-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out">
-                <div class="flex justify-between gap-5">
-                    <!-- Full Name, Current Province and Willing to Relocate -->
-                    <div class="flex flex-1 flex-col">
-                        <span
-                            class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
-                            id="fullName">
-                            Cherwen Kirk Fuertes
-                        </span>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            updateDoc,
+            arrayRemove
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-                        <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis">
-                            Lives in<span id="currentProvince"> Bataan </span> <span id="willingToRelocate">- Willing to
-                                Relocate</span>
-                        </span>
-                    </div>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
 
-                    <!-- Likes and Dislikes -->
-                    <div class="flex items-start gap-6">
-                        <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-up text-[#73A267] text-2xl"></i>
-                            <span class="text-xl" id="likes">3</span>
-                        </span>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-                        <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-down text-[#D33B3B] text-2xl"></i>
-                            <span class="text-xl" id="dislikes">2</span>
-                        </span>
-                    </div>
-                </div>
+        // Global variables
+        let currentUser = null;
+        let likedEmployees = [];
 
-                <!-- Preferred Work Locations -->
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-lg font-bold">Preferred Work Locations</h3>
+        // DOM Elements
+        const likedEmployeesContainer = document.getElementById('likedEmployeesContainer');
 
-                    <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
-                        id="workLocationsContainer">
-                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Bataan</span>
-                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Pampanga</span>
-                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Bulacan</span>
-                    </div>
-                </div>
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check auth state
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadLikedEmployees();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = '../login.html';
+                }
+            });
+        });
 
-                <!-- Skills -->
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-lg font-bold">Skills</h3>
+        // Load liked employees from Firestore
+        async function loadLikedEmployees() {
+            try {
+                likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">Loading liked employees...</p>';
+                
+                // Get the list of liked employee IDs
+                const likedDoc = await getDoc(doc(db, 'employerLikes', currentUser.uid));
+                
+                if (likedDoc.exists() && likedDoc.data().likedEmployees?.length > 0) {
+                    likedEmployees = likedDoc.data().likedEmployees;
+                    
+                    // Get detailed info for each liked employee
+                    const employeesQuery = query(
+                        collection(db, 'careerstepPublicProfiles'),
+                        where('__name__', 'in', likedEmployees)
+                    );
+                    
+                    const employeesSnapshot = await getDocs(employeesQuery);
+                    
+                    // Also get feedback counts for each employee
+                    const feedbackQuery = query(
+                        collection(db, 'employeeFeedback'),
+                        where('employeeId', 'in', likedEmployees)
+                    );
+                    const feedbackSnapshot = await getDocs(feedbackQuery);
+                    
+                    // Count feedback for each employee
+                    const feedbackCounts = {};
+                    feedbackSnapshot.forEach(doc => {
+                        const feedback = doc.data();
+                        const employeeId = feedback.employeeId;
+                        
+                        if (!feedbackCounts[employeeId]) {
+                            feedbackCounts[employeeId] = { likes: 0, dislikes: 0 };
+                        }
+                        
+                        if (feedback.rating === 'positive') {
+                            feedbackCounts[employeeId].likes++;
+                        } else if (feedback.rating === 'negative') {
+                            feedbackCounts[employeeId].dislikes++;
+                        }
+                    });
+                    
+                    // Clear container
+                    likedEmployeesContainer.innerHTML = '';
+                    
+                    if (employeesSnapshot.size === 0) {
+                        likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">No liked employees found.</p>';
+                        return;
+                    }
+                    
+                    // Create cards for each liked employee
+                    employeesSnapshot.forEach(doc => {
+                        const employee = doc.data();
+                        const feedback = feedbackCounts[doc.id] || { likes: 0, dislikes: 0 };
+                        
+                        // Calculate reputation score
+                        const totalFeedback = feedback.likes + feedback.dislikes;
+                        let reputationScore = 0;
+                        if (totalFeedback > 0) {
+                            reputationScore = Math.round((feedback.likes / totalFeedback) * 100);
+                        }
+                        
+                        // Create employee card
+                        const employeeCard = document.createElement('div');
+                        employeeCard.className = 'tinder-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out';
+                        employeeCard.innerHTML = `
+                            <div class="flex justify-between gap-5">
+                                <!-- Full Name, Current Province and Willing to Relocate -->
+                                <div class="flex flex-1 flex-col">
+                                    <span class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                                        ${employee.fullName || employee.displayName || "No name provided"}
+                                    </span>
+                                    <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis">
+                                        Lives in ${employee.currentProvince || "Unknown location"} 
+                                        ${employee.willingToRelocate === "Yes" ? "- Willing to Relocate" : ""}
+                                    </span>
+                                </div>
+                                <!-- Likes and Dislikes -->
+                                <div class="flex items-start gap-6">
+                                    <span class="flex items-end gap-2">
+                                        <i class="fas fa-thumbs-up text-[#73A267] text-2xl"></i>
+                                        <span class="text-xl">${feedback.likes}</span>
+                                    </span>
+                                    <span class="flex items-end gap-2">
+                                        <i class="fas fa-thumbs-down text-[#D33B3B] text-2xl"></i>
+                                        <span class="text-xl">${feedback.dislikes}</span>
+                                    </span>
+                                    <span class="flex items-end gap-2">
+                                        <i class="fas fa-star text-[#FFD700] text-2xl"></i>
+                                        <span class="text-xl">${reputationScore}%</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Preferred Work Locations -->
+                            <div class="flex flex-col gap-2">
+                                <h3 class="text-[#65956C] text-lg font-bold">Preferred Work Locations</h3>
+                                <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                    ${employee.preferredLocations?.length > 0 
+                                        ? employee.preferredLocations.map(location => 
+                                            `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${location}</span>`
+                                        ).join('') 
+                                        : '<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">No preferred locations</span>'}
+                                </div>
+                            </div>
+                            <!-- Skills -->
+                            <div class="flex flex-col gap-2">
+                                <h3 class="text-[#65956C] text-lg font-bold">Skills</h3>
+                                <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                    ${employee.skills?.length > 0 
+                                        ? employee.skills.map(skill => 
+                                            `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${skill}</span>`
+                                        ).join('') 
+                                        : '<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">No skills listed</span>'}
+                                </div>
+                            </div>
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2 mt-6">
+                                <button data-employee-id="${doc.id}" class="unlike-btn flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-md">
+                                    Unlike
+                                </button>
+                                <button data-employee-id="${doc.id}" class="view-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
+                                    View Profile
+                                </button>
+                            </div>
+                        `;
+                        
+                        likedEmployeesContainer.appendChild(employeeCard);
+                    });
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.unlike-btn').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const employeeId = e.target.getAttribute('data-employee-id');
+                            await unlikeEmployee(employeeId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.view-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const employeeId = e.target.getAttribute('data-employee-id');
+                            viewEmployeeProfile(employeeId);
+                        });
+                    });
+                    
+                } else {
+                    likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">You haven\'t liked any employees yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading liked employees:', error);
+                likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">Error loading liked employees. Please try again.</p>';
+            }
+        }
 
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
-                        id="skillsContainer">
-                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Basic
-                            Math</span>
-                        <span
-                            class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Collaboration</span>
-                        <span
-                            class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">Communication</span>
-                    </div>
-                </div>
+        // Unlike an employee
+        async function unlikeEmployee(employeeId) {
+            try {
+                // Remove from employer's liked list
+                await updateDoc(doc(db, 'employerLikes', currentUser.uid), {
+                    likedEmployees: arrayRemove(employeeId)
+                });
+                
+                // Remove from employer's profile (if stored there)
+                await updateDoc(doc(db, 'employers', currentUser.uid), {
+                    likedEmployees: arrayRemove(employeeId)
+                });
+                
+                // Remove from employee's likedByEmployers (if stored there)
+                await updateDoc(doc(db, 'careerstepPublicProfiles', employeeId), {
+                    likedByEmployers: arrayRemove({
+                        employerId: currentUser.uid
+                    })
+                });
+                
+                // Reload the list
+                await loadLikedEmployees();
+                
+                // Optional: Show a success message
+                alert('Employee unliked successfully');
+            } catch (error) {
+                console.error('Error unliking employee:', error);
+                alert('Failed to unlike employee. Please try again.');
+            }
+        }
 
-                <!-- Action Buttons -->
-                <div class="flex gap-2 mt-6">
-                    <button id="unlikeEmployeeBtn" class="flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-md">
-                        Unlike
-                    </button>
-                    <button id="viewEmployeeBtn" class="flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
-                        View Profile
-                    </button>
-                </div>
-            </div>
+        // View employee profile
+        function viewEmployeeProfile(employeeId) {
+            // You can implement this to redirect to a detailed view or show a modal
+            // For now, we'll just show an alert
+            alert(`Viewing profile of employee ${employeeId}`);
+            // In a real implementation, you might do:
+            // window.location.href = `./employee-profile.html?id=${employeeId}`;
+        }
+    </script>
 </body>
 
 </html>
