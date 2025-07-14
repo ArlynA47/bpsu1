@@ -29,6 +29,23 @@ body {
   @apply bg-red-100 text-red-800;
 }
 
+.score-green {
+  @apply bg-green-700 text-white;
+}
+
+.score-blue {
+  @apply bg-blue-700 text-white;
+}
+
+.score-yellow {
+  @apply bg-yellow-700 text-white;
+}
+
+.score-red {
+  @apply bg-red-700 text-white;
+}
+
+
 @import "tailwindcss";
 
 /* npx @tailwindcss/cli -i ./public/assets/css/input.css -o ./public/assets/css/output.css --watch */

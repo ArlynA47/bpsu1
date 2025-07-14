@@ -48,7 +48,7 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center gap-6 p-10">
         <div class="flex flex-col items-center gap-1">
-            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Dream Job</h3>
+            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Next Job</h3>
             <p class="text-[#545454] text-xl">
                 Click <i class="fas fa-heart text-[#73A267] text-xl"></i> to Keep,
                 Click <i class="fas fa-times text-[#D33B3B] text-xl"></i> to Skip
@@ -350,8 +350,8 @@
                 <div class="flex flex-col gap-2 mt-4">
                     <div class="flex items-center gap-8">
                         <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                        ${seed.matchingSkills.length > 0 ?
-                    `<span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
+                        ${seed.matchingSkills.length > 0 ? `
+                            <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
                                 ${seed.matchingSkills.length} Match${seed.matchingSkills.length > 1 ? 'es' : ''}
                             </span>` : ''}
                     </div>
@@ -359,22 +359,35 @@
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
                         ${seed.skills.map(skill => `
                             <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ?
-                            'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
+                                'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
                                 ${skill}
                             </span>
                         `).join('')}
                     </div>
                 </div>
 
-                <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1 mt-4">
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-door-open text-[#65956C]"></i>
-                        <strong class="text-[#3D3D3D]">Vacancies:</strong> ${seed.positionsAvailable !== undefined ? seed.positionsAvailable : 'N/A'}
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-users text-[#65956C]"></i>
-                        <strong class="text-[#3D3D3D]">Needed:</strong> ${seed.positionsNeeded || 'N/A'}
-                    </span>
+                <div class="flex justify-between flex-1 text-[#3D3D3D] text-md gap-2 mt-4">
+                    <div class="flex flex-col flex-1 gap-2">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-door-open text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Vacancies:</strong> ${seed.positionsAvailable ?? 'N/A'}
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-users text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Needed:</strong> ${seed.positionsNeeded || 'N/A'}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col flex-1 gap-2">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-envelope text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Email:</strong> ${seed.contactEmail || 'N/A'}
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-phone-alt text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Contact:</strong> ${seed.contactNumber || 'N/A'}
+                        </span>
+                    </div>
                 </div>
 
                 ${isNurtured ? `
@@ -388,6 +401,7 @@
                     </div>
                 ` : ''}
             `;
+
 
             jobCardsContainer.innerHTML = seedCardHTML;
 

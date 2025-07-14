@@ -43,6 +43,460 @@
             <p class="text-[#545454] text-lg">Loading liked jobs...</p>
         </div>
     </div>
+
+    <div id="analysisModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-[#3D3D3D]">Application Analysis</h2>
+                </div>
+
+                <!-- Body (scrollable if needed) -->
+                <div id="analysisResults" class="px-6 py-8 overflow-y-auto flex-1">
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-end px-6 py-4 border-t border-gray-200">
+                    <button id="closeBtn"
+                        class="bg-gray-200 hover:bg-gray-300 text-[#3D3D3D] font-medium px-4 py-2 rounded-lg">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            getDocs,
+            collection,
+            query,
+            where,
+            addDoc
+        } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const likedContainer = document.getElementById('likedEmployeesContainer');
+        const modal = document.getElementById('analysisModal');
+        const closeBtn = document.getElementById('closeBtn');
+        const analysisResults = document.getElementById('analysisResults');
+
+        let currentUserData = null;
+        let appliedJobIds = new Set();
+
+        // Modal handlers
+        closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+        // Auth Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                alert("Please log in to view your liked jobs.");
+                return;
+            }
+
+            const appsQuery = query(collection(db, 'applications'), where('applicantId', '==', user.uid));
+            const appsSnapshot = await getDocs(appsQuery);
+            appsSnapshot.forEach(doc => appliedJobIds.add(doc.data().jobId));
+
+            const userDoc = await getDoc(doc(db, 'careerstepEmployees', user.uid));
+            if (!userDoc.exists()) return;
+
+            currentUserData = userDoc.data();
+            const nurturedSeeds = currentUserData.nurturedSeeds || [];
+
+            for (const seed of nurturedSeeds) {
+                const seedDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
+                if (!seedDoc.exists()) continue;
+
+                const jobData = seedDoc.data();
+                const employerData = jobData.employerId ?
+                    (await getDoc(doc(db, 'employers', jobData.employerId))).data() :
+                    null;
+
+                const isApplied = appliedJobIds.has(seed.id);
+
+                // ✅ Remove loading text on first valid job card
+                const loadingText = likedContainer.querySelector('p');
+                if (loadingText) loadingText.remove();
+
+                likedContainer.innerHTML += generateJobCard(seed, jobData, employerData, isApplied);
+            }
+
+            attachButtonHandlers();
+        });
+
+        // Create Job Card
+        function generateJobCard(seed, jobData, employerData, isApplied) {
+            const jobSkills = seed.skills || [];
+            const userSkills = currentUserData?.jobPreferences?.skills || [];
+
+            const skillsHTML = jobSkills.map(skill => {
+                const isMatch = userSkills.some(userSkill =>
+                    userSkill.toLowerCase().includes(skill.toLowerCase()) ||
+                    skill.toLowerCase().includes(userSkill.toLowerCase())
+                );
+
+                return isMatch
+                    ? `<span class="text-center text-md p-2 bg-[#65956C] text-white rounded-md">${skill}</span>`
+                    : `<span class="text-center text-md p-2 border border-gray-300 bg-white text-[#3D3D3D] rounded-md">${skill}</span>`;
+            }).join('');
+
+            const locationHTML = `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${seed.location || 'N/A'}</span>`;
+
+            return `
+    <div class="job-listing-card">
+        <div class="flex flex-col gap-1 md:flex-row md:items-start md:justify-between md:gap-5">
+            <div class="flex flex-col">
+                <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">${seed.jobTitle}</span>
+                <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                    ${employerData?.companyInfo?.name || 'Unknown'}
+                </span>
+            </div>
+            <span class="text-[#3D3D3D] text-sm flex items-center gap-1 mt-1 md:mt-0 shrink-0 whitespace-nowrap">
+                <i class="far fa-clock text-[#3D3D3D] text-xs"></i> Posted Today
+            </span>
+        </div>
+
+        <div class="mt-4">
+            <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
+            <p class="text-[#3D3D3D] text-md leading-relaxed">${seed.offer}</p>
+        </div>
+
+        <div class="mt-4">
+            <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+            <div class="grid grid-cols-3 gap-2">${locationHTML}</div>
+        </div>
+
+        <div class="mt-4">
+            <div class="flex items-center gap-8">
+                <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
+                <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
+                    ${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length}
+                    Match${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length !== 1 ? 'es' : ''}
+                </span>
+
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-2">${skillsHTML}</div>
+        </div>
+
+        <div class="flex justify-between flex-1 text-[#3D3D3D] text-md gap-2 mt-4">
+            <div class="flex flex-col gap-2">
+                <span><i class="fas fa-door-open text-[#65956C]"></i> <strong>Vacancies:</strong> ${jobData.positionsAvailable}</span>
+                <span><i class="fas fa-users text-[#65956C]"></i> <strong>Needed:</strong> ${jobData.positionsNeeded}</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <span><i class="fas fa-envelope text-[#65956C]"></i> <strong>Email:</strong> ${employerData?.metadata?.email || 'N/A'}</span>
+                <span><i class="fas fa-phone-alt text-[#65956C]"></i> <strong>Contact:</strong> ${employerData?.companyInfo?.contactNumber || 'N/A'}</span>
+            </div>
+        </div>
+
+        <div class="flex gap-2 mt-6">
+            <button data-job-id="${seed.id}" class="analyze-btn flex-1 bg-[#4B6584] text-white px-4 py-2 rounded hover:bg-[#3B5167] cursor-pointer text-md">
+                <i class="fas fa-chart-line mr-2"></i> Analyze Application Chance
+            </button>
+            <button data-job-id="${seed.id}" class="apply-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md" ${isApplied ? 'disabled' : ''}>
+                <i class="fas fa-paper-plane mr-2"></i> ${isApplied ? 'Applied' : 'Apply'}
+            </button>
+        </div>
+    </div>`;
+        }
+
+        // Event Handlers
+        function attachButtonHandlers() {
+            document.querySelectorAll('.analyze-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const jobId = button.getAttribute('data-job-id');
+                    modal.classList.remove('hidden');
+                    analysisResults.innerHTML = `<div class="text-center">Loading analysis...</div>`;
+
+                    try {
+                        const html = await analyzeApplicationChances(jobId);
+                        analysisResults.innerHTML = html;
+                    } catch (e) {
+                        analysisResults.innerHTML = `<div class="text-red-500">Error loading analysis.</div>`;
+                        console.error(e);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.apply-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const jobId = button.getAttribute('data-job-id');
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                    const jobData = jobDoc.data();
+
+                    const likelihood = await calculateLikelihoodData(auth.currentUser.uid, jobId, jobData);
+
+                    await addDoc(collection(db, 'applications'), {
+                        applicantId: auth.currentUser.uid,
+                        userId: auth.currentUser.uid,
+                        jobId,
+                        jobTitle: jobData.jobTitle,
+                        employerId: jobData.employerId,
+                        status: 'pending',
+                        appliedAt: new Date(),
+                        createdAt: new Date(),
+                        likelihoodScore: likelihood.likelihoodScore,
+                        skillMatch: likelihood.skillMatchPercentage,
+                        reputationScore: likelihood.reputationScore
+                    });
+
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Applied';
+                });
+            });
+        }
+
+        async function calculateLikelihoodData(userId, jobId, jobData) {
+            // Calculate reputation score
+            const reputationScore = await calculateReputationScore(userId);
+
+            // Calculate skill match
+            const jobSkills = jobData.skills || [];
+            const userSkills = currentUserData?.jobPreferences?.skills || [];
+            const matchingSkills = getMatchingSkills(jobSkills, userSkills);
+            const skillMatchPercentage = jobSkills.length > 0 ?
+                Math.round((matchingSkills.length / jobSkills.length) * 100) : 0;
+
+            // Calculate position availability
+            const positionsAvailable = jobData.positionsAvailable || 0;
+            const positionsNeeded = jobData.positionsNeeded || 1;
+            const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
+
+            // Calculate competition (number of applicants)
+            const appsQuery = query(collection(db, 'applications'),
+                where('jobId', '==', jobId),
+                where('status', 'in', ['pending', 'shortlisted', 'hired']));
+            const appsSnapshot = await getDocs(appsQuery);
+            const totalApplicants = appsSnapshot.size;
+
+            // Calculate likelihood score (weighted average)
+            const likelihoodScore = Math.round(
+                (reputationScore * 0.4) +
+                (skillMatchPercentage * 0.4) +
+                (availabilityPercentage * 0.2)
+            );
+
+            return {
+                reputationScore,
+                skillMatchPercentage,
+                availabilityPercentage,
+                totalApplicants,
+                likelihoodScore
+            };
+        }
+
+        async function analyzeApplicationChances(jobId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('User not logged in');
+
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (!jobDoc.exists()) throw new Error('Job not found');
+
+                const jobData = jobDoc.data();
+                const likelihoodData = await calculateLikelihoodData(user.uid, jobId, jobData);
+
+                // Generate Tailwind-based modal content
+                return `
+            <div class="flex flex-col gap-8 text-[#3D3D3D] p-6">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-4">Your Application Strength</h3>
+                    <div class="w-32 h-32 mx-auto flex items-center justify-center rounded-full ${getScoreClass(likelihoodData.likelihoodScore)} shadow-lg">
+                        <span class="text-white text-4xl font-bold">${likelihoodData.likelihoodScore}</span>
+                    </div>
+                    <span class="inline-block mt-3 text-sm px-3 py-1 rounded-full bg-${getTailwindColor(likelihoodData.likelihoodScore)}-100 text-${getTailwindColor(likelihoodData.likelihoodScore)}-800 font-semibold">
+                        ${getScoreDescription(likelihoodData.likelihoodScore)}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                    <div class="p-4 border rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold mb-2">Reputation Score</h4>
+                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.reputationScore} / 100</p>
+                        <p class="text-sm text-gray-600 mt-1">Based on employer feedback and ratings</p>
+                    </div>
+                    <div class="p-4 border rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold mb-2">Skill Match</h4>
+                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.skillMatchPercentage}%</p>
+                        <p class="text-sm text-gray-600 mt-1">${getMatchingSkills(jobData.skills || [], currentUserData?.jobPreferences?.skills || []).length} of ${jobData.skills?.length || 0} required skills matched</p>
+                    </div>
+                    <div class="p-4 border rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold mb-2">Position Availability</h4>
+                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.availabilityPercentage}%</p>
+                        <p class="text-sm text-gray-600 mt-1">${jobData.positionsAvailable || 0} of ${jobData.positionsNeeded || 1} positions available</p>
+                    </div>
+                    <div class="p-4 border rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold mb-2">Competition</h4>
+                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.totalApplicants} applicants</p>
+                        <p class="text-sm text-gray-600 mt-1">Total applicants for this position</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-4 text-left">
+                    <h4 class="text-xl font-bold">Skill Analysis</h4>
+                    <div>
+                        <h5 class="text-green-700 font-semibold mb-1">✓ Matched Skills (${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
+                                <span class="text-center text-md p-2 bg-[#65956C] text-white rounded-md">${skill}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length > 0 ? `
+                        <div>
+                            <h5 class="text-red-700 font-semibold mt-4 mb-1">✗ Missing Skills (${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
+                                    <span class="text-center text-md p-2 bg-red-100 text-red-800 rounded-md">${skill}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4 text-left">
+                    <h4 class="text-xl font-bold">Recommendations</h4>
+                    ${getRecommendations(
+                    likelihoodData.likelihoodScore,
+                    getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []),
+                    jobData.skills || []
+                )}
+                </div>
+
+            </div>
+        `;
+            } catch (error) {
+                console.error('Error analyzing application:', error);
+                throw error;
+            }
+        }
+
+        async function calculateReputationScore(userId) {
+            try {
+                const feedbackQuery = query(
+                    collection(db, 'employeeFeedback'),
+                    where('employeeId', '==', userId)
+                );
+                const feedbackSnapshot = await getDocs(feedbackQuery);
+
+                let positiveCount = 0;
+                let totalCount = 0;
+
+                feedbackSnapshot.forEach(doc => {
+                    const feedback = doc.data();
+                    if (feedback.rating === 'positive') positiveCount++;
+                    totalCount++;
+                });
+
+                return totalCount > 0 ? Math.round((positiveCount / totalCount) * 100) : 75;
+            } catch (error) {
+                console.error('Error calculating reputation:', error);
+                return 75;
+            }
+        }
+
+        function getMatchingSkills(jobSkills, userSkills) {
+            if (!jobSkills || jobSkills.length === 0) return [];
+            if (!userSkills || userSkills.length === 0) return [];
+
+            return jobSkills.filter(jobSkill =>
+                userSkills.some(userSkill =>
+                    userSkill.toLowerCase().includes(jobSkill.toLowerCase()) ||
+                    jobSkill.toLowerCase().includes(userSkill.toLowerCase())
+                )
+            );
+        }
+
+        function getMissingSkills(jobSkills, userSkills) {
+            if (!jobSkills || jobSkills.length === 0) return [];
+            return jobSkills.filter(skill => !getMatchingSkills(jobSkills, userSkills).includes(skill));
+        }
+
+        function getScoreDescription(score) {
+            if (score >= 80) return 'Excellent Match';
+            if (score >= 60) return 'Good Match';
+            if (score >= 40) return 'Fair Match';
+            return 'Low Match';
+        }
+
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-green';
+            if (score >= 60) return 'score-blue';
+            if (score >= 40) return 'score-yellow';
+            return 'score-red';
+        }
+
+        function getTailwindColor(score) {
+            if (score >= 80) return 'green';
+            if (score >= 60) return 'blue';
+            if (score >= 40) return 'yellow';
+            return 'red';
+        }
+
+        function getRecommendations(score, matchingSkills, jobSkills) {
+            const missingSkills = getMissingSkills(jobSkills, currentUserData?.jobPreferences?.skills || []);
+            const skillsList = missingSkills.length > 0 ? missingSkills.join(', ') : null;
+
+            if (score >= 80) {
+                return `
+            <div class="p-4 bg-green-100 text-green-800 rounded-lg shadow-sm">
+                <strong>Excellent match!</strong> You have a very high chance of getting hired.
+                ${skillsList ? `<br>Consider brushing up on: <span class="font-semibold">${skillsList}</span>` : ''}
+            </div>
+        `;
+            } else if (score >= 60) {
+                return `
+            <div class="p-4 bg-blue-100 text-blue-800 rounded-lg shadow-sm">
+                <strong>Good match!</strong> You have a decent chance, but there's room to grow.
+                ${skillsList ? `<br>Focus on developing: <span class="font-semibold">${skillsList}</span>` : ''}
+            </div>
+        `;
+            } else if (score >= 40) {
+                return `
+            <div class="p-4 bg-yellow-100 text-yellow-800 rounded-lg shadow-sm">
+                <strong>Fair match.</strong> Your chances are moderate.
+                ${skillsList ? `<br>Consider improving: <span class="font-semibold">${skillsList}</span>` : 'Consider enhancing your skills.'}
+            </div>
+        `;
+            } else {
+                return `
+            <div class="p-4 bg-red-100 text-red-800 rounded-lg shadow-sm">
+                <strong>Low match.</strong> This position may not be the best fit.
+                ${skillsList ? `<br>You're missing key skills: <span class="font-semibold">${skillsList}</span>` : ''}
+                <br>Look for roles that align more closely with your skillset.
+            </div>
+        `;
+            }
+        }
+    </script>
 </body>
 
 </html>
