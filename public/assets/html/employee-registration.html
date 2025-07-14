@@ -385,7 +385,7 @@
         // Show loading state
         const submitBtn = document.getElementById('registerEmployeeBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = '<i class="fas fa-spinner fa-spin"></i>Creating Account...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
 
         // Fetch inputs
         try {
