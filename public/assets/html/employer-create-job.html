@@ -153,10 +153,10 @@
         }
 
         // Update job seed analytics
-        async function updateJobSeedAnalytics(selectedSkills, location, action = 'increment') {
+        async function updateJobSeedAnalytics(selectedSkills, location, positionsNeeded, action = 'increment') {
             const batch = db.batch();
             const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-            const value = action === 'increment' ? 1 : -1;
+            const incrementValue = action === 'increment' ? positionsNeeded : -positionsNeeded;
 
             // Update for each skill
             selectedSkills.forEach(skill => {
@@ -167,15 +167,15 @@
                 const skillLocationUpdate = {
                     skillType: skill,
                     province: location,
-                    currentCount: firebase.firestore.FieldValue.increment(value),
+                    currentCount: firebase.firestore.FieldValue.increment(incrementValue),
                     lastUpdated: timestamp
                 };
 
                 if (action === 'increment') {
                     skillLocationUpdate.createdAt = timestamp;
-                    skillLocationUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                    skillLocationUpdate.totalCreated = firebase.firestore.FieldValue.increment(positionsNeeded);
                 } else {
-                    skillLocationUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                    skillLocationUpdate.totalFilled = firebase.firestore.FieldValue.increment(positionsNeeded);
                 }
 
                 batch.set(skillLocationRef, skillLocationUpdate, { merge: true });
@@ -187,15 +187,15 @@
                 const skillOverallUpdate = {
                     skillType: skill,
                     province: "overall",
-                    currentCount: firebase.firestore.FieldValue.increment(value),
+                    currentCount: firebase.firestore.FieldValue.increment(incrementValue),
                     lastUpdated: timestamp
                 };
 
                 if (action === 'increment') {
                     skillOverallUpdate.createdAt = timestamp;
-                    skillOverallUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                    skillOverallUpdate.totalCreated = firebase.firestore.FieldValue.increment(positionsNeeded);
                 } else {
-                    skillOverallUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                    skillOverallUpdate.totalFilled = firebase.firestore.FieldValue.increment(positionsNeeded);
                 }
 
                 batch.set(skillOverallRef, skillOverallUpdate, { merge: true });
@@ -208,15 +208,15 @@
             const provinceUpdate = {
                 skillType: "overall",
                 province: location,
-                currentCount: firebase.firestore.FieldValue.increment(value),
+                currentCount: firebase.firestore.FieldValue.increment(incrementValue),
                 lastUpdated: timestamp
             };
 
             if (action === 'increment') {
                 provinceUpdate.createdAt = timestamp;
-                provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                provinceUpdate.totalCreated = firebase.firestore.FieldValue.increment(positionsNeeded);
             } else {
-                provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                provinceUpdate.totalFilled = firebase.firestore.FieldValue.increment(positionsNeeded);
             }
 
             batch.set(provinceOverallRef, provinceUpdate, { merge: true });
@@ -228,15 +228,15 @@
             const globalUpdate = {
                 skillType: "overall",
                 province: "overall",
-                currentCount: firebase.firestore.FieldValue.increment(value),
+                currentCount: firebase.firestore.FieldValue.increment(incrementValue),
                 lastUpdated: timestamp
             };
 
             if (action === 'increment') {
                 globalUpdate.createdAt = timestamp;
-                globalUpdate.totalCreated = firebase.firestore.FieldValue.increment(1);
+                globalUpdate.totalCreated = firebase.firestore.FieldValue.increment(positionsNeeded);
             } else {
-                globalUpdate.totalFilled = firebase.firestore.FieldValue.increment(1);
+                globalUpdate.totalFilled = firebase.firestore.FieldValue.increment(positionsNeeded);
             }
 
             batch.set(globalOverallRef, globalUpdate, { merge: true });
@@ -460,8 +460,8 @@
                         positionsAvailable: positionsNeeded
                     });
 
-                    // Update analytics counts
-                    await updateJobSeedAnalytics(selectedSkills, location, 'increment');
+                    // Update analytics counts with the number of positions needed
+                    await updateJobSeedAnalytics(selectedSkills, location, positionsNeeded, 'increment');
 
                     // Show success message
                     submitBtn.innerHTML = 'Job Seed Created!';
