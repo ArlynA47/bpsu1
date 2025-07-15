@@ -45,10 +45,6 @@ body {
   @apply bg-red-700 text-white;
 }
 
-
 @import "tailwindcss";
-@import "tailwindcss/preflight";
-@tailwind utilities;
-@tailwind utilities;
 
 /* npx @tailwindcss/cli -i ./public/assets/css/input.css -o ./public/assets/css/output.css --watch */

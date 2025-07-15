@@ -138,13 +138,9 @@
             </h3>
 
             <div class="flex-2 flex justify-end gap-4">
-              <label class="flex-1 flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md">
-                <input 
-                  type="checkbox" 
-                  class="accent-[#73976a] w-5 h-5" 
-                  id="availableForWork" 
-                  name="availableForWork"
-                >
+              <label
+                class="flex-1 flex items-center gap-2 px-2 py-2 cursor-pointer border border-gray-300 bg-white rounded-md">
+                <input type="checkbox" class="accent-[#73976a] w-5 h-5" id="availableForWork" name="availableForWork">
                 <span class="text-md font-medium text-[#393E3A]">Yes</span>
               </label>
             </div>
@@ -480,6 +476,8 @@
             displayName: fullName,
             skills: selectedSkills,
             currentProvince: homeAddress,
+            preferredLocations: selectedWorkLocations,
+            willingToRelocate,
             lastUpdated: new Date()
           };
 

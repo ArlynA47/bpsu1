@@ -29,10 +29,9 @@
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="./employer-profile.html"
-                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
-                Profile
-            </a>
+            <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">
+                Logout
+            </button>
         </div>
     </nav>
 
@@ -233,8 +232,11 @@
                             <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
                         </span>
                     </div>
-                    <button class="btn btn-success" onclick="markAsFulfilled('${job.id}')">
-                        <i class="fas fa-check-circle"></i> Fulfilled
+                    <button 
+                        class="bg-[#D33B3B] cursor-pointer hover:bg-[#b32f2f] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                        onclick="markAsFulfilled('${job.id}')"
+                    >
+                        <i class="fas fa-lock"></i> Mark as Closed
                     </button>
                 </div>
             </div>

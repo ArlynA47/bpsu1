@@ -29,10 +29,9 @@
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="./employer-profile.html"
-                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
-                Profile
-            </a>
+            <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">
+                Logout
+            </button>
         </div>
     </nav>
 
@@ -88,7 +87,8 @@
 
                     <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="workLocationsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
+                        <span
+                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
 
@@ -98,13 +98,15 @@
 
                     <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
-                        <span class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
+                        <span
+                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
             </div>
 
             <!-- Button Card -->
-            <div class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
+            <div
+                class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
                 <!-- Skip Button -->
                 <button class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer"
                     id="skipBtn">
@@ -124,16 +126,16 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            setDoc, 
-            updateDoc, 
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            setDoc,
+            updateDoc,
             arrayUnion,
             serverTimestamp,
             orderBy
@@ -206,17 +208,17 @@
                 if (employerDoc.exists()) {
                     currentEmployer = employerDoc.data();
                     employerProvince = currentEmployer?.companyInfo?.companyAddress || "";
-                    
+
                     // Get employer's job listings to extract required skills
                     const jobsQuery = query(
                         collection(db, 'jobSeeds'),
                         where('employerId', '==', currentUser.uid),
                         where('status', '==', 'active')
                     );
-                    
+
                     const jobsSnapshot = await getDocs(jobsQuery);
                     employerJobSkills = [];
-                    
+
                     jobsSnapshot.forEach(doc => {
                         const jobData = doc.data();
                         if (jobData.skills) {
@@ -236,7 +238,9 @@
             try {
                 const likedDoc = await getDoc(doc(db, 'employerLikes', currentUser.uid));
                 if (likedDoc.exists()) {
-                    likedEmployees = likedDoc.data().likedEmployees || [];
+                    const likedData = likedDoc.data().likedEmployees || [];
+                    // 🔧 Only extract employeeId values
+                    likedEmployees = likedData.map(like => like.employeeId);
                 } else {
                     likedEmployees = [];
                 }
@@ -250,55 +254,55 @@
         async function loadEmployees() {
             try {
                 availableEmployees = [];
-                
+
                 // Base query for available employees
                 let employeesQuery = query(
                     collection(db, 'careerstepPublicProfiles')
                 );
-                
+
                 const employeesSnapshot = await getDocs(employeesQuery);
-                
+
                 // Also get feedback counts for each employee
                 const feedbackQuery = query(collection(db, 'employeeFeedback'));
                 const feedbackSnapshot = await getDocs(feedbackQuery);
-                
+
                 // Count feedback for each employee
                 const feedbackCounts = {};
                 feedbackSnapshot.forEach(doc => {
                     const feedback = doc.data();
                     const employeeId = feedback.employeeId;
-                    
+
                     if (!feedbackCounts[employeeId]) {
                         feedbackCounts[employeeId] = { likes: 0, dislikes: 0 };
                     }
-                    
+
                     if (feedback.rating === 'positive') {
                         feedbackCounts[employeeId].likes++;
                     } else if (feedback.rating === 'negative') {
                         feedbackCounts[employeeId].dislikes++;
                     }
                 });
-                
+
                 // Process employees
                 employeesSnapshot.forEach(doc => {
                     if (!likedEmployees.includes(doc.id)) {
                         const employee = doc.data();
                         const feedback = feedbackCounts[doc.id] || { likes: 0, dislikes: 0 };
-                        
+
                         // Add feedback counts to employee data
                         employee.likes = feedback.likes;
                         employee.dislikes = feedback.dislikes;
-                        
+
                         // Calculate match score (your existing code)
                         let matchScore = 0;
-                        
+
                         // Calculate match score
                         if (employerJobSkills.length > 0 && employee.skills) {
-                            const matchingSkills = employee.skills.filter(skill => 
+                            const matchingSkills = employee.skills.filter(skill =>
                                 employerJobSkills.includes(skill));
                             matchScore += (matchingSkills.length / employerJobSkills.length) * 50;
                         }
-                        
+
                         if (employerProvince && employee.preferredLocations) {
                             if (employee.preferredLocations.includes(employerProvince)) {
                                 matchScore += 30;
@@ -306,10 +310,10 @@
                                 matchScore += 15;
                             }
                         }
-                        
+
                         // Add reputation bonus (0-20 points)
                         matchScore += Math.min(20, (employee.reputationScore || 0) / 5);
-                        
+
                         availableEmployees.push({
                             id: doc.id,
                             ...employee,
@@ -317,10 +321,10 @@
                         });
                     }
                 });
-                
+
                 // Sort by match score
                 availableEmployees.sort((a, b) => b.matchScore - a.matchScore);
-                
+
                 if (availableEmployees.length > 0) {
                     displayCurrentEmployee();
                 } else {
@@ -340,20 +344,20 @@
             }
 
             const employee = availableEmployees[currentEmployeeIndex];
-
+            console.log("Loaded employee data:", employee);
             currentEmployee = employee.id;
-            
+
             // Basic info
             fullNameEl.textContent = employee.fullName || employee.displayName || "No name provided";
             currentProvinceEl.textContent = employee.currentProvince || "Unknown location";
-            
-            willingToRelocateEl.textContent = employee.willingToRelocate === "Yes" 
+
+            willingToRelocateEl.textContent = employee.willingToRelocate === "Yes"
                 ? "- Willing to Relocate" : "";
-            
+
             // Feedback counts - use correct field names
             likesEl.textContent = employee.likes || employee.positiveFeedback || 0;
             dislikesEl.textContent = employee.dislikes || employee.negativeFeedback || 0;
-            
+
             // Calculate reputation score if not provided
             const totalFeedback = (employee.likes || 0) + (employee.dislikes || 0);
             let reputationScore = 0;
@@ -361,7 +365,7 @@
                 reputationScore = Math.round(((employee.likes || 0) / totalFeedback) * 100);
             }
             document.getElementById('reputationScore').textContent = reputationScore + "%";
-            
+
             // Preferred locations
             workLocationsContainer.innerHTML = "";
             if (employee.preferredLocations?.length > 0) {
@@ -377,19 +381,19 @@
                 noLocationEl.textContent = "No preferred locations";
                 workLocationsContainer.appendChild(noLocationEl);
             }
-            
+
             // Skills
             skillsContainer.innerHTML = "";
             if (employee.skills?.length > 0) {
                 employee.skills.forEach(skill => {
                     const skillEl = document.createElement('span');
                     skillEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
-                    
+
                     // Highlight matching skills
                     if (employerJobSkills.includes(skill)) {
                         skillEl.classList.add('bg-[#E8F5E9]', 'border-[#73A267]');
                     }
-                    
+
                     skillEl.textContent = skill;
                     skillsContainer.appendChild(skillEl);
                 });
@@ -406,12 +410,12 @@
             // Clear the card content and show a simple message
             document.querySelector('.tinder-card').innerHTML = `
                 <div class="text-center py-8">
-                    <i class="fas fa-user-friends fa-3x mb-3 text-[#65956C]"></i>
-                    <h4 class="text-xl font-semibold">No more employees to show</h4>
-                    <p class="text-gray-600">Check back later for more candidates</p>
+                    <i class="fas fa-check fa-3x mb-3 text-[#65956C]"></i>
+                    <h4 class="text-xl font-semibold">You're all caught up!</h4>
+                    <p class="text-gray-600">Check back later for more employee candidates</p>
                 </div>
             `;
-            
+
             // Disable buttons
             skipBtn.disabled = true;
             keepBtn.disabled = true;
@@ -428,9 +432,9 @@
         // Like current employee
         async function likeEmployee() {
             if (currentEmployeeIndex >= availableEmployees.length) return;
-            
+
             const employee = availableEmployees[currentEmployeeIndex];
-            
+
             try {
                 // Create a like record
                 const likeData = {
@@ -459,7 +463,7 @@
                 // Move to next employee
                 currentEmployeeIndex++;
                 displayCurrentEmployee();
-                
+
                 // Update liked employees list
                 likedEmployees.push(employee.id);
             } catch (error) {
