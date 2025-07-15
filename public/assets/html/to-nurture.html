@@ -168,6 +168,7 @@
                 jobCard.className = 'job-card';
                 jobCard.innerHTML = `
                     <div class="job-title">${seed.jobTitle}</div>
+                    <div class="mb-2"><strong>CompanyEmail:</strong> ${employerData?.employerEmail || jobData?.employerEmail || 'N/A'}</div>
                     <div class="mb-2"><strong>Location:</strong> ${seed.location}</div>
                     <div class="mb-2"><strong>Positions:</strong> Needed: ${jobData?.positionsNeeded || 'N/A'} | Available: ${jobData?.positionsAvailable !== undefined ? jobData.positionsAvailable : 'N/A'}</div>
                     <div><strong>Offer:</strong> ${seed.offer}</div>
@@ -175,7 +176,7 @@
                     ${employerData ? `
                     <div class="company-contact">
                         <strong>Company Contact:</strong><br>
-                        Email: ${employerData.metadata?.email || 'N/A'}<br>
+                        Email: ${employerData.metadata?.email || jobData?.employerEmail || 'N/A'}<br>
                         Contact No.: ${employerData.companyInfo?.contactNumber || 'N/A'}
                     </div>
                     ` : ''}
