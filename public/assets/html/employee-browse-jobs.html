@@ -33,7 +33,7 @@
             <a href="./employee-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
             <a href="./employee-browse-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
                 Jobs</a>
-            <a href="./employee-liked-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+            <a href="./to-nurture.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
                 Jobs</a>
         </div>
 
@@ -235,12 +235,14 @@
                             ...doc.data(),
                             isPriority: true, // Mark as priority
                             matchingSkills: getMatchingSkills(doc.data().skills)
-                        }));
+                        })).filter(seed => {
+                            // Only include priority jobs that match skills OR have no skills required
+                            return seed.matchingSkills.length > 0 || !seed.skills || seed.skills.length === 0;
+                        });
                     }
                 }
-                
 
-                // Get other jobs
+                // Get other jobs that match skills
                 let otherJobs = [];
                 const seedsQuery = query(
                     collection(db, 'jobSeeds'),
@@ -249,14 +251,24 @@
                 const seedsSnapshot = await getDocs(seedsQuery);
                 
                 seedsSnapshot.forEach((doc) => {
+                    const seedData = doc.data();
+                    const matchingSkills = getMatchingSkills(seedData.skills);
+                    
+                    // Only include if:
+                    // 1. Not already in prioritizedJobs
+                    // 2. Not already nurtured
+                    // 3. Not already applied
+                    // 4. Either has matching skills OR no skills required
                     if (!prioritizedJobs.some(j => j.id === doc.id) && 
                         !nurturedSeedIds.has(doc.id) && 
-                        !appliedJobIds.has(doc.id)) {
+                        !appliedJobIds.has(doc.id) &&
+                        (matchingSkills.length > 0 || !seedData.skills || seedData.skills.length === 0)) {
+                        
                         otherJobs.push({
                             id: doc.id,
-                            ...doc.data(),
+                            ...seedData,
                             isPriority: false,
-                            matchingSkills: getMatchingSkills(doc.data().skills)
+                            matchingSkills: matchingSkills
                         });
                     }
                 });
@@ -264,30 +276,17 @@
                 // Combine and sort (prioritized first)
                 availableSeeds = [...prioritizedJobs, ...otherJobs];
 
-                if (availableSeeds.length >= 0) {
+                if (availableSeeds.length > 0) {
                     displayCurrentSeed();
                 } else {
-                    jobCardsContainer.innerHTML = ''; // remove spinner
+                    jobCardsContainer.innerHTML = '';
                     noJobsMessage.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Error loading job seeds:', error);
-                jobCardsContainer.innerHTML = ''; // remove spinner
+                jobCardsContainer.innerHTML = '';
                 noJobsMessage.classList.remove('hidden');
             }
-        }
-
-        // Check if job seed matches user skills
-        function doesSeedMatchSkills(seed) {
-            if (!seed.skills || seed.skills.length === 0) return true;
-            if (userSkills.length === 0) return true;
-
-            return seed.skills.some(skill =>
-                userSkills.some(userSkill =>
-                    userSkill.toLowerCase().includes(skill.toLowerCase()) ||
-                    skill.toLowerCase().includes(userSkill.toLowerCase())
-                )
-            );
         }
 
         // Get matching skills between job and user
@@ -336,7 +335,7 @@
                         ${seed.jobTitle}
                     </span>
                     <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
-                        ${seed.companyName || 'N/A'}
+                        ${seed.employerEmail || 'N/A'}
                     </span>
                 </div>
 
@@ -525,8 +524,12 @@
 
         // Show the app after loading
         function showApp() {
-            loadingScreen.classList.add('hidden');
-            loginPrompt.classList.add('hidden');
+            try {
+                document.getElementById('loadingScreen')?.classList?.add('hidden');
+                document.getElementById('loginPrompt')?.classList?.add('hidden');
+            } catch (e) {
+                console.log("Loading elements not found");
+            }
         }
     </script>
 </body>
