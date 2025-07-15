@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/output.css" />
     <style>
-        /* Custom CSS for the map */
+
+       /* Map Container Styles */
         .map-container {
             height: 70vh;
             width: 100%;
@@ -16,58 +17,48 @@
             border-radius: 1rem;
             overflow: hidden;
             margin-bottom: 2rem;
+            background-color: #f8fafc; /* Light background for the map */
         }
 
         #northLuzonMap {
             height: 100%;
             width: 100%;
+            background-color: #f1f5f9; /* Slightly darker background for contrast */
         }
 
-        #northLuzonMap.loading {
-            /* background: #f5f5f5 url('./assets/images/loading.gif') no-repeat center; */
-        }
-
+        /* Province Label Styles */
         .province-label {
             font-weight: bold;
-            text-shadow: 1px 1px 3px white, -1px -1px 3px white;
-            pointer-events: none;
             font-size: 12px;
-            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8), 
+                        -1px -1px 2px rgba(255,255,255,0.8);
+            pointer-events: auto; /* Make sure labels are clickable */
         }
 
-        .map-legend {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            font-size: 12px;
+        .province-label:hover {
+            transform: scale(1.05);
+            text-shadow: 1px 1px 4px rgba(255,255,255,1), 
+                        -1px -1px 4px rgba(255,255,255,1);
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .map-search-container {
+        /* Map Controls */
+        .map-controls {
             position: absolute;
             top: 20px;
             left: 20px;
             right: 20px;
             z-index: 1000;
             display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .map-search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .map-search-box {
@@ -92,54 +83,141 @@
             font-size: 14px;
         }
 
-        .map-error {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 5px;
-            z-index: 1000;
+        .map-filters {
             display: flex;
-            align-items: center;
             gap: 10px;
         }
 
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        /* Map Legend */
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        .legend-title {
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* Stat Cards */
         .stat-card {
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* New layout styles */
-        .map-and-controls {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
         }
 
-        .search-panel {
-            width: 100%;
-            border-radius: 1rem;
-            background: #f0f0f0;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .stat-card span {
+            color: #1e293b;
+            font-size: 1.875rem;
+            font-weight: bold;
+            display: block;
         }
 
-        @media (min-width: 1024px) {
-            .map-and-controls {
-                flex-direction: row;
+        .stat-card p {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        /* Analysis Cards */
+        #topProvincesJobs, 
+        #topProvincesWorkers, 
+        #topSkillsDemand {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            transition: all 0.2s ease;
+        }
+
+        .skill-badge:hover {
+            background-color: #DBEAFE;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .map-filters {
+                flex-direction: column;
             }
-
-            .search-panel {
-                width: 400px;
+            
+            .map-legend {
+                bottom: 70px;
+                right: auto;
+                left: 20px;
             }
+            
+            #topProvincesJobs, 
+            #topProvincesWorkers, 
+            #topSkillsDemand {
+                max-height: 200px;
+            }
+            
+            .map-controls {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Remove all borders */
+        .stat-card, .bg-white, .map-container, .map-legend {
+            border: none !important;
         }
     </style>
     <title>HirNa!</title>
@@ -186,71 +264,177 @@
     <!-- North Luzon Job Market Overview -->
     <div id="findJobs" class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-10 md:px-20 gap-8">
         <div class="flex flex-col items-center gap-8 w-full md:w-[80%]">
-            <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Job Market Overview</h1>
+            <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Workforce Heatmap</h1>
             <div class="flex flex-wrap justify-center gap-4 w-full">
                 <div class="flex gap-2 items-center">
                     <div class="rounded-full w-5 h-5 bg-[#D33B3B]"></div>
-                    <span class="text-[#474747]">2000+ Jobs</span>
+                    <span class="text-[#474747]">High Activity (Top 25%)</span>
                 </div>
-
                 <div class="flex gap-2 items-center">
                     <div class="rounded-full w-5 h-5 bg-[#D3733B]"></div>
-                    <span class="text-[#474747]">1000-1999 Jobs</span>
+                    <span class="text-[#474747]">Medium Activity (25-50%)</span>
                 </div>
-
                 <div class="flex gap-2 items-center">
                     <div class="rounded-full w-5 h-5 bg-[#FFEA05]"></div>
-                    <span class="text-[#474747]">500-999 Jobs</span>
+                    <span class="text-[#474747]">Moderate Activity (50-75%)</span>
                 </div>
-
                 <div class="flex gap-2 items-center">
                     <div class="rounded-full w-5 h-5 bg-[#7FD33B]"></div>
-                    <span class="text-[#474747]">0-499 Jobs</span>
+                    <span class="text-[#474747]">Lower Activity (Bottom 25%)</span>
                 </div>
             </div>
         </div>
 
-        <div class="w-full">
-            <div class="map-container">
-                <div id="northLuzonMap" class="loading"></div>
-                <!-- <div id="mapError" class="map-error hidden">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Failed to load map. Please refresh the page.</span>
-                </div> -->
-            </div>
-
-            <div class="search-panel">
-                <div class="flex items-center w-full bg-white px-4 py-2 rounded-lg gap-3 shadow-xs mb-4">
-                    <i class="fas fa-search text-gray-500 text-xl"></i>
-                    <input type="text" id="provinceSearch" placeholder="Search province..."
-                        class="flex-1 text-lg px-2 focus:outline-none" />
+        <div class="w-full flex flex-col lg:flex-row gap-6">
+            <!-- Map Container -->
+            <div class="flex-1 relative">
+                <div class="map-container shadow-lg">
+                    <div id="northLuzonMap"></div>
+                    
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <div class="map-search-container">
+                            <div class="map-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="provinceSearch" placeholder="Search province...">
+                            </div>
+                            <button id="resetViewBtn" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-globe-americas"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="map-filters">
+                            <select id="heatmapMetric" class="filter-select">
+                                <option value="totalJobs">Total Job Listings</option>
+                                <option value="activeJobs">Active Job Listings</option>
+                                <option value="jobSeekers">Available Workers</option>
+                                <option value="employers">Registered Employers</option>
+                                <option value="fulfillmentRate">Job Fulfillment Rate</option>
+                                <option value="avgFulfillmentTime">Avg. Fulfillment Time</option>
+                            </select>
+                            
+                            <select id="skillFilter" class="filter-select">
+                                <option value="all">All Skills</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="flex-1 flex flex-col gap-4 overflow-y-auto max-h-[300px]" id="provinceList">
-                    <!-- Dynamically generated province list will go here -->
+            </div>
+            
+            <!-- Info Panel -->
+            <div class="w-full lg:w-96 bg-white rounded-xl shadow-md p-6 flex flex-col gap-4">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 id="selectedProvince" class="text-xl font-semibold">Select a Province</h3>
+                    <div class="flex gap-2">
+                        <button id="exportBtn" class="p-2 rounded-full hover:bg-gray-100" title="Export data">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="provinceStats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Will be populated dynamically -->
+                    <div class="col-span-2 text-center py-10 text-gray-400">
+                        <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+                        <p>Click on a province to view detailed statistics</p>
+                    </div>
+                </div>
+                
+                <div class="mt-auto pt-4 border-t">
+                    <h4 class="font-medium mb-2">Top In-Demand Skills</h4>
+                    <div id="topSkills" class="flex flex-wrap gap-2">
+                        <!-- Will be populated dynamically -->
+                    </div>
                 </div>
             </div>
         </div>
-
+        
+        <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-            <div class="bg-white rounded-lg border-2 border-[#BABABA] p-4 gap-2 stat-card">
-                <h3 class="text-[#5E5E5E]">Total Active Jobs</h3>
-                <span class="text-3xl font-bold text-[#3D3D3D]" id="totalActiveJobs">10,146</span>
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="totalJobs">
+                <h3 class="text-[#5E5E5E]">Total Job Listings</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="totalJobsCount">0</span>
+                <p class="text-sm text-gray-500">Across North Luzon</p>
             </div>
-
-            <div class="bg-white rounded-lg border-2 border-[#BABABA] p-4 gap-2 stat-card">
-                <h3 class="text-[#5E5E5E]">Top Job Market</h3>
-                <span class="text-3xl font-bold text-[#3D3D3D]" id="topJobMarket">Bataan</span>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="activeJobs">
+                <h3 class="text-[#5E5E5E]">Active Job Listings</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="activeJobsCount">0</span>
+                <p class="text-sm text-gray-500">Currently available</p>
             </div>
-
-            <div class="bg-white rounded-lg border-2 border-[#BABABA] p-4 gap-2 stat-card">
-                <h3 class="text-[#5E5E5E]">Unemployed Workers</h3>
-                <span class="text-3xl font-bold text-[#3D3D3D]" id="unemployedWorkers">847</span>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="jobSeekers">
+                <h3 class="text-[#5E5E5E]">Available Workers</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="availableWorkersCount">0</span>
+                <p class="text-sm text-gray-500">Ready for work</p>
             </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="fulfillmentRate">
+                <h3 class="text-[#5E5E5E]">Fulfillment Rate</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="fulfillmentRateCount">0%</span>
+                <p class="text-sm text-gray-500">Jobs filled through platform</p>
+            </div>
+        </div>
 
-            <div class="bg-white rounded-lg border-2 border-[#BABABA] p-4 gap-2 stat-card">
-                <h3 class="text-[#5E5E5E]">Employed Workers</h3>
-                <span class="text-3xl font-bold text-[#3D3D3D]" id="employedWorkers">21,764</span>
+        <!-- Top Provinces Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Job Activity</h3>
+                <div id="topProvincesJobs" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Workforce</h3>
+                <div id="topProvincesWorkers" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Market Insights</h3>
+                <div id="marketInsights" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Skills Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 10 In-Demand Skills</h3>
+                <div id="topSkillsDemand" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Skills Analysis</h3>
+                <div id="skillsAnalysis" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing skills data...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -305,7 +489,11 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
             authDomain: "careerstep-bpsu1.firebaseapp.com",
-            projectId: "careerstep-bpsu1"
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
         };
         firebase.initializeApp(firebaseConfig);
     </script>

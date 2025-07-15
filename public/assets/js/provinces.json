@@ -1,0 +1,266 @@
+[
+  {
+    "name": "Ilocos Norte",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Ilocos Norte" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.7065,18.5049],[120.9888,18.5049],[120.9888,18.1976],[120.7065,18.1976],[120.7065,18.5049]]]
+      }
+    },
+    "center": { "lat": 18.1667, "lng": 120.75 }
+  },
+  {
+    "name": "Ilocos Sur",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Ilocos Sur" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.3476,17.9045],[120.6887,17.9045],[120.6887,16.9987],[120.3476,16.9987],[120.3476,17.9045]]]
+      }
+    },
+    "center": { "lat": 17.5833, "lng": 120.3833 }
+  },
+  {
+    "name": "La Union",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "La Union" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.3,16.5],[120.6,16.5],[120.6,16.2],[120.3,16.2],[120.3,16.5]]]
+      }
+    },
+    "center": { "lat": 16.5, "lng": 120.4 }
+  },
+  {
+    "name": "Pangasinan",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Pangasinan" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.1,16.0],[120.8,16.0],[120.8,15.5],[120.1,15.5],[120.1,16.0]]]
+      }
+    },
+    "center": { "lat": 15.9167, "lng": 120.3333 }
+  },
+  {
+    "name": "Batanes",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Batanes" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.9,20.7],[122.1,20.7],[122.1,20.4],[121.9,20.4],[121.9,20.7]]]
+      }
+    },
+    "center": { "lat": 20.45, "lng": 121.9833 }
+  },
+  {
+    "name": "Cagayan",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Cagayan" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.2,18.6],[122.4,18.6],[122.4,17.6],[121.2,17.6],[121.2,18.6]]]
+      }
+    },
+    "center": { "lat": 18.0, "lng": 121.8 }
+  },
+  {
+    "name": "Isabela",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Isabela" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.3,17.5],[122.5,17.5],[122.5,16.0],[121.3,16.0],[121.3,17.5]]]
+      }
+    },
+    "center": { "lat": 16.75, "lng": 121.75 }
+  },
+  {
+    "name": "Nueva Vizcaya",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Nueva Vizcaya" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.9,16.5],[121.7,16.5],[121.7,15.7],[120.9,15.7],[120.9,16.5]]]
+      }
+    },
+    "center": { "lat": 16.25, "lng": 121.25 }
+  },
+  {
+    "name": "Quirino",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Quirino" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.3,16.5],[121.9,16.5],[121.9,15.7],[121.3,15.7],[121.3,16.5]]]
+      }
+    },
+    "center": { "lat": 16.25, "lng": 121.5 }
+  },
+  {
+    "name": "Abra",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Abra" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.5,17.8],[121.0,17.8],[121.0,17.2],[120.5,17.2],[120.5,17.8]]]
+      }
+    },
+    "center": { "lat": 17.5833, "lng": 120.75 }
+  },
+  {
+    "name": "Apayao",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Apayao" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.9,18.5],[121.6,18.5],[121.6,17.8],[120.9,17.8],[120.9,18.5]]]
+      }
+    },
+    "center": { "lat": 18.0, "lng": 121.25 }
+  },
+  {
+    "name": "Benguet",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Benguet" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.5,16.5],[121.0,16.5],[121.0,16.0],[120.5,16.0],[120.5,16.5]]]
+      }
+    },
+    "center": { "lat": 16.4167, "lng": 120.6667 }
+  },
+  {
+    "name": "Ifugao",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Ifugao" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.9,16.8],[121.5,16.8],[121.5,16.2],[120.9,16.2],[120.9,16.8]]]
+      }
+    },
+    "center": { "lat": 16.8333, "lng": 121.1667 }
+  },
+  {
+    "name": "Kalinga",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Kalinga" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.0,17.8],[121.5,17.8],[121.5,17.2],[121.0,17.2],[121.0,17.8]]]
+      }
+    },
+    "center": { "lat": 17.5, "lng": 121.25 }
+  },
+  {
+    "name": "Mountain Province",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Mountain Province" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.8,17.2],[121.3,17.2],[121.3,16.8],[120.8,16.8],[120.8,17.2]]]
+      }
+    },
+    "center": { "lat": 17.0833, "lng": 121.0 }
+  },
+  {
+    "name": "Aurora",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Aurora" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[121.2,16.0],[122.0,16.0],[122.0,15.0],[121.2,15.0],[121.2,16.0]]]
+      }
+    },
+    "center": { "lat": 15.75, "lng": 121.5 }
+  },
+  {
+    "name": "Bataan",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Bataan" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.2,14.8],[120.6,14.8],[120.6,14.4],[120.2,14.4],[120.2,14.8]]]
+      }
+    },
+    "center": { "lat": 14.6667, "lng": 120.4167 }
+  },
+  {
+    "name": "Bulacan",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Bulacan" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.7,15.0],[121.2,15.0],[121.2,14.7],[120.7,14.7],[120.7,15.0]]]
+      }
+    },
+    "center": { "lat": 14.9167, "lng": 120.9167 }
+  },
+  {
+    "name": "Nueva Ecija",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Nueva Ecija" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.5,15.8],[121.5,15.8],[121.5,15.0],[120.5,15.0],[120.5,15.8]]]
+      }
+    },
+    "center": { "lat": 15.5833, "lng": 121.0 }
+  },
+  {
+    "name": "Pampanga",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Pampanga" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.4,15.2],[121.0,15.2],[121.0,14.8],[120.4,14.8],[120.4,15.2]]]
+      }
+    },
+    "center": { "lat": 15.0667, "lng": 120.6667 }
+  },
+  {
+    "name": "Tarlac",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Tarlac" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[120.3,15.6],[120.9,15.6],[120.9,15.2],[120.3,15.2],[120.3,15.6]]]
+      }
+    },
+    "center": { "lat": 15.5, "lng": 120.5833 }
+  },
+  {
+    "name": "Zambales",
+    "geoJson": {
+      "type": "Feature",
+      "properties": { "name": "Zambales" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[119.9,15.6],[120.6,15.6],[120.6,14.8],[119.9,14.8],[119.9,15.6]]]
+      }
+    },
+    "center": { "lat": 15.3333, "lng": 120.1667 }
+  }
+]
