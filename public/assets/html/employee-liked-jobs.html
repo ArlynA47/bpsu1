@@ -7,6 +7,27 @@
     <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/output.css">
+    <style>
+        #hiredJobsContainer {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #65956C;
+        }
+
+        #hiredJobsList .job-listing-card {
+            border: 1px solid #65956C;
+        }
+        
+        .details-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
     <title>HirNa!</title>
 </head>
 
@@ -36,35 +57,56 @@
     <!-- Main Content -->
     <div class="flex flex-col p-10 gap-8">
         <h3 class="text-[#3D3D3D] text-3xl font-semibold">Liked Jobs</h3>
-
-        <!-- Dynamically Add Liked Employees Here -->
+        <!-- Liked Jobs -->
         <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
             <!-- Content will be loaded dynamically -->
-            <p class="text-[#545454] text-lg">Loading liked jobs...</p>
+            <p class="text-[#545454] text-lg col-span-2">Loading liked jobs...</p>
+        </div>
+
+        <!-- Hired Jobs Section -->
+        <div id="hiredJobsContainer" class="mb-12">
+            <h4 class="text-[#3D3D3D] text-2xl font-semibold mb-4">Jobs You've Been Hired For</h4>
+            <div class="grid grid-cols-2 gap-6" id="hiredJobsList">
+                <!-- Content will be loaded dynamically -->
+                <p class="text-[#545454] text-lg col-span-2">No hired jobs yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hired Job Details Modal -->
+    <div id="hiredJobModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-[#3D3D3D]">Job Details</h2>
+                    <button id="closeHiredModalBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Body (scrollable if needed) -->
+                <div id="hiredJobDetails" class="px-6 py-8 overflow-y-auto flex-1">
+                    <!-- Details will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="analysisModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-2xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
-
                 <!-- Header -->
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-[#3D3D3D]">Application Analysis</h2>
+                    <button id="closeAnalysisModalBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
 
                 <!-- Body (scrollable if needed) -->
                 <div id="analysisResults" class="px-6 py-8 overflow-y-auto flex-1">
                 </div>
-
-                <!-- Footer -->
-                <div class="flex justify-end px-6 py-4 border-t border-gray-200">
-                    <button id="closeBtn"
-                        class="bg-gray-200 hover:bg-gray-300 text-[#3D3D3D] font-medium px-4 py-2 rounded-lg">
-                        Close
-                    </button>
-                </div>
-
             </div>
         </div>
     </div>
@@ -85,7 +127,8 @@
             collection,
             query,
             where,
-            addDoc
+            addDoc,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         // Firebase Config
@@ -103,15 +146,18 @@
         const db = getFirestore(app);
 
         const likedContainer = document.getElementById('likedEmployeesContainer');
-        const modal = document.getElementById('analysisModal');
-        const closeBtn = document.getElementById('closeBtn');
+        const hiredJobsList = document.getElementById('hiredJobsList');
+        const hiredJobModal = document.getElementById('hiredJobModal');
+        const hiredJobDetails = document.getElementById('hiredJobDetails');
+        const analysisModal = document.getElementById('analysisModal');
         const analysisResults = document.getElementById('analysisResults');
 
         let currentUserData = null;
         let appliedJobIds = new Set();
 
         // Modal handlers
-        closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        document.getElementById('closeHiredModalBtn').addEventListener('click', () => hiredJobModal.classList.add('hidden'));
+        document.getElementById('closeAnalysisModalBtn').addEventListener('click', () => analysisModal.classList.add('hidden'));
 
         // Auth Check
         onAuthStateChanged(auth, async (user) => {
@@ -120,18 +166,59 @@
                 return;
             }
 
+            // Get all applications
             const appsQuery = query(collection(db, 'applications'), where('applicantId', '==', user.uid));
             const appsSnapshot = await getDocs(appsQuery);
-            appsSnapshot.forEach(doc => appliedJobIds.add(doc.data().jobId));
+            
+            // Separate hired jobs from other applications
+            const hiredJobs = [];
+            const otherApplications = new Set();
+            
+            appsSnapshot.forEach(doc => {
+                const appData = doc.data();
+                if (appData.status === 'hired') {
+                    hiredJobs.push({
+                        id: appData.jobId,
+                        applicationId: doc.id,
+                        hiredDate: appData.updatedAt || appData.appliedAt || serverTimestamp()
+                    });
+                } else {
+                    otherApplications.add(appData.jobId);
+                }
+            });
 
+            // Load and display hired jobs
+            if (hiredJobs.length > 0) {
+                hiredJobsList.innerHTML = '';
+                
+                const hiredJobPromises = hiredJobs.map(async (hiredJob) => {
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', hiredJob.id));
+                    if (!jobDoc.exists()) return null;
+                    
+                    const jobData = jobDoc.data();
+                    const employerData = jobData.employerId ?
+                        (await getDoc(doc(db, 'employers', jobData.employerId))).data() :
+                        null;
+                    
+                    return generateHiredJobCard(jobData, employerData, hiredJob.hiredDate, hiredJob.id, hiredJob.applicationId);
+                });
+                
+                const hiredJobCards = (await Promise.all(hiredJobPromises)).filter(card => card !== null);
+                hiredJobsList.innerHTML = hiredJobCards.join('');
+            }
+
+            // Load and display other liked jobs
             const userDoc = await getDoc(doc(db, 'careerstepEmployees', user.uid));
             if (!userDoc.exists()) return;
 
             currentUserData = userDoc.data();
             const nurturedSeeds = currentUserData.nurturedSeeds || [];
+            const likedContainer = document.getElementById('likedEmployeesContainer');
 
-            // In your onAuthStateChanged callback:
             const jobCardPromises = nurturedSeeds.map(async (seed) => {
+                // Skip if this is a hired job (already displayed above)
+                if (hiredJobs.some(job => job.id === seed.id)) return null;
+                
                 const seedDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
                 if (!seedDoc.exists()) return null;
 
@@ -140,38 +227,152 @@
                     (await getDoc(doc(db, 'employers', jobData.employerId))).data() :
                     null;
 
-                // Check application status
-                let applicationStatus = null;
-                const appQuery = query(
-                    collection(db, 'applications'),
-                    where('applicantId', '==', auth.currentUser.uid),
-                    where('jobId', '==', seed.id)
-                );
-                const appSnapshot = await getDocs(appQuery);
+                const isApplied = otherApplications.has(seed.id);
+                const likelihoodData = await calculateLikelihoodData(user.uid, seed.id, jobData);
                 
-                if (!appSnapshot.empty) {
-                    applicationStatus = appSnapshot.docs[0].data().status || 'applied';
-                }
-
-                const likelihoodData = await calculateLikelihoodData(auth.currentUser.uid, seed.id, jobData);
-                
-                return generateJobCard(seed, jobData, employerData, applicationStatus, likelihoodData);
+                return generateJobCard(seed, jobData, employerData, isApplied ? 'applied' : null, likelihoodData);
             });
 
-            // Wait for all cards to be generated
             const jobCards = (await Promise.all(jobCardPromises)).filter(card => card !== null);
-
-            // Remove loading text if there are any cards
+            
             if (jobCards.length > 0) {
                 const loadingText = likedContainer.querySelector('p');
                 if (loadingText) loadingText.remove();
+                likedContainer.innerHTML = jobCards.join('');
+            } else {
+                likedContainer.innerHTML = '<p class="text-[#545454] text-lg col-span-2">No liked jobs found</p>';
             }
-
-            // Add all cards at once
-            likedContainer.innerHTML = jobCards.join('');
 
             attachButtonHandlers();
         });
+
+       function generateHiredJobCard(jobData, employerData, hiredDate, jobId, applicationId) {
+            return `
+                <div class="job-listing-card border rounded-lg p-6 bg-green-50 flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-[#3D3D3D]">${jobData.jobTitle || 'No title'}</h3>
+                            <p class="text-lg text-[#3D3D3D]">${employerData?.companyInfo?.name || 'Unknown Company'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                HIRED
+                            </span>
+                            <button data-job-id="${jobId}" 
+                                    data-application-id="${applicationId}"
+                                    class="details-btn text-[#65956C] hover:text-[#5c8651] cursor-pointer text-sm">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function showHiredJobDetails(jobId, applicationId) {
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (!jobDoc.exists()) throw new Error('Job not found');
+
+                const jobData = jobDoc.data();
+                const employerData = jobData.employerId ?
+                    (await getDoc(doc(db, 'employers', jobData.employerId))).data() :
+                    null;
+
+                let formattedDate = 'Date not available';
+                if (applicationId) {
+                    const appDoc = await getDoc(doc(db, 'applications', applicationId));
+                    if (appDoc.exists()) {
+                        const appData = appDoc.data();
+                        const dateValue = appData.updatedAt || appData.appliedAt;
+
+                        try {
+                            if (dateValue?.toDate) {
+                                formattedDate = dateValue.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                            } else if (dateValue) {
+                                const dateObj = new Date(dateValue);
+                                if (!isNaN(dateObj.getTime())) {
+                                    formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error formatting date:', e);
+                        }
+                    }
+                }
+
+                hiredJobDetails.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-2xl font-bold text-[#3D3D3D]">${jobData.jobTitle || 'No title'}</h3>
+                                <p class="text-lg text-[#3D3D3D]">${employerData?.companyInfo?.name || 'Unknown Company'}</p>
+                            </div>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                HIRED
+                            </span>
+                          
+                        </div>
+                        <br>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-[#65956C]">Job Offer</h4>
+                                    <p class="text-[#3D3D3D]">${jobData.offer || 'Not specified'}</p>
+                                    <br>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-lg font-semibold text-[#65956C]">Skills Required</h4>
+                                    <p class="text-[#3D3D3D]">${(jobData.skills || []).join(', ') || 'Not specified'}</p>
+                                    <br>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-[#65956C]">Hired Date</h4>
+                                    <p class="text-[#3D3D3D]">${formattedDate}</p>
+                                    <br>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-lg font-semibold text-[#65956C]">Job Location</h4>
+                                    <p class="text-[#3D3D3D]">${jobData.location || 'Not specified'}</p>
+                                    <br>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-lg font-semibold text-[#65956C]">Company Contact</h4>
+                                    <div class="space-y-2">
+                                        <p class="flex items-center gap-2 text-[#3D3D3D]">
+                                            <i class="fas fa-envelope text-[#65956C]"></i>
+                                            ${employerData?.metadata?.email || 'Not provided'}
+                                        </p>
+                                        <p class="flex items-center gap-2 text-[#3D3D3D]">
+                                            <i class="fas fa-phone-alt text-[#65956C]"></i>
+                                            ${employerData?.companyInfo?.contactNumber || 'Not provided'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                hiredJobModal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading job details:', error);
+                hiredJobDetails.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-red-500">Error loading job details. Please try again.</p>
+                    </div>
+                `;
+                hiredJobModal.classList.remove('hidden');
+            }
+        }
+
 
         async function calculateLikelihoodScoreForCard(jobId) {
             try {
@@ -330,12 +531,15 @@
             if (percentage >= 40) return 'Low';
             return 'Very Low';
         }
+
+
         // Event Handlers
         function attachButtonHandlers() {
+            // Analysis button handlers (for liked jobs)
             document.querySelectorAll('.analyze-btn').forEach(button => {
                 button.addEventListener('click', async () => {
                     const jobId = button.getAttribute('data-job-id');
-                    modal.classList.remove('hidden');
+                    analysisModal.classList.remove('hidden');
                     analysisResults.innerHTML = `<div class="text-center">Loading analysis...</div>`;
 
                     try {
@@ -348,6 +552,7 @@
                 });
             });
 
+            // Apply button handlers (for liked jobs)
             document.querySelectorAll('.apply-btn').forEach(button => {
                 button.addEventListener('click', async () => {
                     const jobId = button.getAttribute('data-job-id');
@@ -372,6 +577,21 @@
 
                     // Refresh the job cards to show the new status
                     window.location.reload();
+                });
+            });
+
+            // Details button handlers (for hired jobs)
+            document.querySelectorAll('.details-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const jobId = button.getAttribute('data-job-id');
+                    const applicationId = button.getAttribute('data-application-id');
+                    
+                    if (!applicationId) {
+                        console.error('No application ID found for this hired job');
+                        return;
+                    }
+                    
+                    showHiredJobDetails(jobId, applicationId);
                 });
             });
         }
