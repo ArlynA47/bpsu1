@@ -156,6 +156,7 @@
         let appliedJobIds = new Set();
 
         let isZeroReputationData = false;
+        let isZeroCompetition = false;
 
         // Modal handlers
         document.getElementById('closeHiredModalBtn').addEventListener('click', () => hiredJobModal.classList.add('hidden'));
@@ -601,14 +602,14 @@
         async function calculateLikelihoodData(userId, jobId, jobData) {
             // Calculate reputation score
             const reputationScore = await calculateReputationScore(userId);
-
+            
             // Calculate skill match
             const jobSkills = jobData.skills || [];
             const userSkills = currentUserData?.jobPreferences?.skills || [];
             const matchingSkills = getMatchingSkills(jobSkills, userSkills);
-            const skillMatchPercentage = jobSkills.length > 0 ?
+            const skillMatchPercentage = jobSkills.length > 0 ? 
                 Math.round((matchingSkills.length / jobSkills.length) * 100) : 0;
-
+            
             // Calculate position availability
             const positionsAvailable = jobData.positionsAvailable || 0;
             const positionsNeeded = jobData.positionsNeeded || 1;
@@ -622,6 +623,30 @@
             
             let strongerApplicants = 0;
             let totalApplicants = 0;
+            
+            // Check if employer liked this employee
+            let employerLikeBonus = 0;
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (jobDoc.exists()) {
+                    const jobData = jobDoc.data();
+                    const employerId = jobData.employerId;
+                    
+                    if (employerId) {
+                        const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', userId));
+                        if (employeeDoc.exists()) {
+                            const employeeData = employeeDoc.data();
+                            const likedByEmployers = employeeData.likedByEmployers || [];
+                            
+                            if (likedByEmployers.some(like => like.employerId === employerId)) {
+                                employerLikeBonus = 15; // Add 15% bonus if employer liked this employee
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking employer like:', error);
+            }
             
             // Get current user's score first
             const userScore = Math.round(
@@ -642,6 +667,12 @@
                     }
                 }
             }
+
+            if(totalApplicants > 0) {
+                isZeroCompetition = false;
+            } else {
+                isZeroCompetition = true;
+            }
             
             const competitionPercentage = totalApplicants > 0 ? 
                 Math.round((strongerApplicants / totalApplicants) * 100) : 0;
@@ -653,6 +684,7 @@
                 (availabilityPercentage * 0.2)
             );
 
+            
             return {
                 reputationScore,
                 skillMatchPercentage,
@@ -680,12 +712,20 @@
                 const matchColor = getMatchColor(likelihoodData.likelihoodScore);
                 const competitionLevel = getCompetitionLevel(likelihoodData.competitionPercentage);
 
-                let reputationScore;
+                let reputationScore = "";
+                let competitionStr = "";
 
                 if(isZeroReputationData) {
                     reputationScore = "No records";
                 } else {
                     reputationScore = likelihoodData.reputationScore;
+                }
+
+
+                if(isZeroCompetition) {
+                    competitionStr = "No Applicants";
+                } else {
+                    competitionStr = "Stronger than " + (100 - likelihoodData.competitionPercentage) + "% of " + likelihoodData.totalApplicants + "applicants";
                 }
 
                 // Generate Tailwind-based modal content
@@ -700,6 +740,13 @@
                                 Score: ${likelihoodData.likelihoodScore}
                             </div>
                         </div>
+
+                        ${likelihoodData.employerLikeBonus > 0 ? `
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-heart"></i> <strong>Employer Interest:</strong> 
+                                This employer previously liked your profile (+${likelihoodData.employerLikeBonus}%)
+                            </div>
+                        ` : ''}
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                             <div class="p-4 border rounded-lg shadow-sm">
@@ -721,7 +768,7 @@
                                 <h4 class="text-lg font-semibold mb-2">Competition</h4>
                                 <p class="text-2xl font-bold text-[#65956C]">${competitionLevel}</p>
                                 <p class="text-sm text-gray-600 mt-1">
-                                    Stronger than ${100 - likelihoodData.competitionPercentage}% of ${likelihoodData.totalApplicants} applicants
+                                    ${competitionStr}
                                 </p>
                             </div>
                         </div>
