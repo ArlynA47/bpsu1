@@ -677,6 +677,7 @@
             let totalApplications = 0;
             let allApplications = [];
             let filteredApplications = [];
+            let isZeroReputationData = false;
             
             // Initialize Bootstrap modal
             const applicantAnalysisModal = new bootstrap.Modal(document.getElementById('applicantAnalysisModal'));
@@ -823,6 +824,15 @@
                 if (likelihoodScore >= 80) scoreClass = 'score-excellent';
                 else if (likelihoodScore >= 60) scoreClass = 'score-good';
                 else if (likelihoodScore >= 40) scoreClass = 'score-fair';
+
+
+                let reputationScorestr;
+
+                if(isZeroReputationData) {
+                    reputationScorestr = "No records";
+                } else {
+                    reputationScorestr = reputationScore + "%";
+                }
                 
                 // Generate HTML
                 return `
@@ -856,7 +866,7 @@
                             <div class="col-md-6">
                                 <div class="metric-card">
                                     <h5>Reputation Score</h5>
-                                    <div class="metric-value">${reputationScore}%</div>
+                                    <div class="metric-value">${reputationScorestr}</div>
                                     <p>Based on employer feedback</p>
                                 </div>
                             </div>
@@ -1149,9 +1159,16 @@
                         totalCount++;
                     });
                     
-                    return totalCount > 0 ? Math.round((positiveCount / totalCount) * 100) : 75;
+                    if(totalCount > 0) {
+                        isZeroReputationData = false;
+                        return Math.round((positiveCount / totalCount) * 100);
+                    } else {
+                        isZeroReputationData = true;
+                        return 75;
+                    }
                 } catch (error) {
                     console.error('Error calculating reputation:', error);
+                    isZeroReputationData = true;
                     return 75;
                 }
             }

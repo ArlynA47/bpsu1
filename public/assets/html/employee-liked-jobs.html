@@ -155,6 +155,8 @@
         let currentUserData = null;
         let appliedJobIds = new Set();
 
+        let isZeroReputationData = false;
+
         // Modal handlers
         document.getElementById('closeHiredModalBtn').addEventListener('click', () => hiredJobModal.classList.add('hidden'));
         document.getElementById('closeAnalysisModalBtn').addEventListener('click', () => analysisModal.classList.add('hidden'));
@@ -678,6 +680,14 @@
                 const matchColor = getMatchColor(likelihoodData.likelihoodScore);
                 const competitionLevel = getCompetitionLevel(likelihoodData.competitionPercentage);
 
+                let reputationScore;
+
+                if(isZeroReputationData) {
+                    reputationScore = "No records";
+                } else {
+                    reputationScore = likelihoodData.reputationScore;
+                }
+
                 // Generate Tailwind-based modal content
                 return `
                     <div class="flex flex-col gap-8 text-[#3D3D3D] p-6">
@@ -694,8 +704,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                             <div class="p-4 border rounded-lg shadow-sm">
                                 <h4 class="text-lg font-semibold mb-2">Reputation Score</h4>
-                                <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.reputationScore > 0 ? likelihoodData.reputationScore + '%' : 'No data available'}</p>
-                                <p class="text-sm text-gray-600 mt-1">${likelihoodData.reputationScore > 0 ? 'Based on employer feedback' : 'Insufficient feedback data'}</p>
+                                <p class="text-2xl font-bold text-[#65956C]">${reputationScore}</p>
+                                <p class="text-sm text-gray-600 mt-1">Based on employer feedback</p>
                             </div>
                             <div class="p-4 border rounded-lg shadow-sm">
                                 <h4 class="text-lg font-semibold mb-2">Skill Match</h4>
@@ -788,7 +798,13 @@
                     totalCount++;
                 });
 
-                return totalCount > 0 ? Math.round((positiveCount / totalCount) * 100) : 75;
+                if(totalCount > 0) {
+                    isZeroReputationData = false;
+                    return Math.round((positiveCount / totalCount) * 100);
+                } else {
+                    isZeroReputationData = true;
+                    return 75;
+                }
             } catch (error) {
                 console.error('Error calculating reputation:', error);
                 return 75;
