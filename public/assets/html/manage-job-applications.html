@@ -831,9 +831,15 @@
                         <p>Applied for: <strong>${application.jobTitle || jobData.jobTitle || 'Unknown Position'}</strong></p>
                         
                         <div class="applicant-score ${scoreClass}">
-                            ${likelihoodScore}/100
+                            ${getMatchQualityText(likelihoodScore)}
                         </div>
                         
+                        <div class="text-center mb-3">
+                            <span class="badge ${getLikelihoodBadgeClass(likelihoodScore)}">
+                                ${likelihoodScore}% Match Score
+                            </span>
+                        </div>
+
                         <div class="progress mb-4" style="height: 20px;">
                             <div class="progress-bar" role="progressbar" style="width: ${likelihoodScore}%" 
                                 aria-valuenow="${likelihoodScore}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -850,15 +856,15 @@
                             <div class="col-md-6">
                                 <div class="metric-card">
                                     <h5>Reputation Score</h5>
-                                    <div class="metric-value">${reputationScore}/100</div>
+                                    <div class="metric-value">${reputationScore}%</div>
                                     <p>Based on employer feedback</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="metric-card">
-                                    <h5>Skill Match</h5>
-                                    <div class="metric-value">${skillMatchPercentage}%</div>
-                                    <p>${matchingSkills.length} of ${jobSkills.length} required skills</p>
+                                    <h5>Applicant Strength</h5>
+                                    <div class="metric-value">${likelihoodScore}%</div>
+                                    <p>Overall match quality</p>
                                 </div>
                             </div>
                         </div>
@@ -886,6 +892,13 @@
                         </div>
                     </div>
                 `;
+            }
+            
+            function getMatchQualityText(score) {
+                if (score >= 80) return 'Excellent Match!';
+                if (score >= 60) return 'Good Match';
+                if (score >= 40) return 'Fair Match';
+                return 'Poor Match';
             }
 
             

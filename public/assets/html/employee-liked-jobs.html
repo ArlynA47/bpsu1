@@ -130,32 +130,82 @@
             currentUserData = userDoc.data();
             const nurturedSeeds = currentUserData.nurturedSeeds || [];
 
-            for (const seed of nurturedSeeds) {
+            // In your onAuthStateChanged callback:
+            const jobCardPromises = nurturedSeeds.map(async (seed) => {
                 const seedDoc = await getDoc(doc(db, 'jobSeeds', seed.id));
-                if (!seedDoc.exists()) continue;
+                if (!seedDoc.exists()) return null;
 
                 const jobData = seedDoc.data();
                 const employerData = jobData.employerId ?
                     (await getDoc(doc(db, 'employers', jobData.employerId))).data() :
                     null;
 
-                const isApplied = appliedJobIds.has(seed.id);
+                // Check application status
+                let applicationStatus = null;
+                const appQuery = query(
+                    collection(db, 'applications'),
+                    where('applicantId', '==', auth.currentUser.uid),
+                    where('jobId', '==', seed.id)
+                );
+                const appSnapshot = await getDocs(appQuery);
+                
+                if (!appSnapshot.empty) {
+                    applicationStatus = appSnapshot.docs[0].data().status || 'applied';
+                }
 
-                // ✅ Remove loading text on first valid job card
+                const likelihoodData = await calculateLikelihoodData(auth.currentUser.uid, seed.id, jobData);
+                
+                return generateJobCard(seed, jobData, employerData, applicationStatus, likelihoodData);
+            });
+
+            // Wait for all cards to be generated
+            const jobCards = (await Promise.all(jobCardPromises)).filter(card => card !== null);
+
+            // Remove loading text if there are any cards
+            if (jobCards.length > 0) {
                 const loadingText = likedContainer.querySelector('p');
                 if (loadingText) loadingText.remove();
-
-                likedContainer.innerHTML += generateJobCard(seed, jobData, employerData, isApplied);
             }
+
+            // Add all cards at once
+            likedContainer.innerHTML = jobCards.join('');
 
             attachButtonHandlers();
         });
 
+        async function calculateLikelihoodScoreForCard(jobId) {
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (!jobDoc.exists()) return 0;
+                
+                const jobData = jobDoc.data();
+                const likelihoodData = await calculateLikelihoodData(auth.currentUser.uid, jobId, jobData);
+                return likelihoodData.likelihoodScore;
+            } catch (error) {
+                console.error('Error calculating score for card:', error);
+                return 0;
+            }
+        }
+
+        function getTailwindScoreClass(score) {
+            if (score >= 80) return 'bg-green-100 text-green-800';
+            if (score >= 60) return 'bg-blue-100 text-blue-800';
+            if (score >= 40) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-red-100 text-red-800';
+        }
+
+        function getMatchQualityText(score) {
+            if (score >= 80) return 'Excellent Match';
+            if (score >= 60) return 'Good Match';
+            if (score >= 40) return 'Fair Match';
+            return 'Low Match';
+        }
+
         // Create Job Card
-        function generateJobCard(seed, jobData, employerData, isApplied) {
+        function generateJobCard(seed, jobData, employerData, applicationStatus, likelihoodData) {
             const jobSkills = seed.skills || [];
             const userSkills = currentUserData?.jobPreferences?.skills || [];
-
+            
             const skillsHTML = jobSkills.map(skill => {
                 const isMatch = userSkills.some(userSkill =>
                     userSkill.toLowerCase().includes(skill.toLowerCase()) ||
@@ -169,64 +219,117 @@
 
             const locationHTML = `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${seed.location || 'N/A'}</span>`;
 
+            // Get match quality info
+            const matchQuality = getMatchQuality(likelihoodData.likelihoodScore);
+            const matchColor = getMatchColor(likelihoodData.likelihoodScore);
+            const competitionLevel = getCompetitionLevel(likelihoodData.competitionPercentage);
+
             return `
-    <div class="job-listing-card">
-        <div class="flex flex-col gap-1 md:flex-row md:items-start md:justify-between md:gap-5">
-            <div class="flex flex-col">
-                <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">${seed.jobTitle}</span>
-                <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
-                    ${employerData?.companyInfo?.name || 'Unknown'}
-                </span>
-            </div>
-            <span class="text-[#3D3D3D] text-sm flex items-center gap-1 mt-1 md:mt-0 shrink-0 whitespace-nowrap">
-                <i class="far fa-clock text-[#3D3D3D] text-xs"></i> Posted Today
-            </span>
-        </div>
+                <div class="job-listing-card border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <!-- Match Quality Badge - Top Right -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col">
+                            <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">${seed.jobTitle}</span>
+                            <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                                ${employerData?.companyInfo?.name || 'Unknown'}
+                            </span>
+                        </div>
+                        <span class="text-sm px-3 py-1 rounded-full ${matchColor.bg} ${matchColor.text} font-semibold">
+                            ${matchQuality} Match
+                        </span>
+                    </div>
 
-        <div class="mt-4">
-            <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
-            <p class="text-[#3D3D3D] text-md leading-relaxed">${seed.offer}</p>
-        </div>
+                    <div class="mt-4">
+                        <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
+                        <p class="text-[#3D3D3D] text-md leading-relaxed">${seed.offer}</p>
+                    </div>
 
-        <div class="mt-4">
-            <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
-            <div class="grid grid-cols-3 gap-2">${locationHTML}</div>
-        </div>
+                    <div class="mt-4">
+                        <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+                        <div class="grid grid-cols-3 gap-2">${locationHTML}</div>
+                    </div>
 
-        <div class="mt-4">
-            <div class="flex items-center gap-8">
-                <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
-                    ${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length}
-                    Match${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length !== 1 ? 'es' : ''}
-                </span>
+                    <div class="mt-4">
+                        <div class="flex items-center gap-8">
+                            <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
+                            <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
+                                ${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length}
+                                Match${getMatchingSkills(seed.skills, currentUserData?.jobPreferences?.skills || []).length !== 1 ? 'es' : ''}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-2">${skillsHTML}</div>
+                    </div>
 
-            </div>
-            <div class="grid grid-cols-3 gap-2 mt-2">${skillsHTML}</div>
-        </div>
+                    <div class="flex justify-between flex-1 text-[#3D3D3D] text-md gap-2 mt-4">
+                        <div class="flex flex-col gap-2">
+                            <span><i class="fas fa-door-open text-[#65956C]"></i> <strong>Vacancies:</strong> ${jobData.positionsAvailable}</span>
+                            <span><i class="fas fa-users text-[#65956C]"></i> <strong>Needed:</strong> ${jobData.positionsNeeded}</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <span><i class="fas fa-envelope text-[#65956C]"></i> <strong>Email:</strong> ${employerData?.metadata?.email || 'N/A'}</span>
+                            <span><i class="fas fa-phone-alt text-[#65956C]"></i> <strong>Contact:</strong> ${employerData?.companyInfo?.contactNumber || 'N/A'}</span>
+                        </div>
+                    </div>
 
-        <div class="flex justify-between flex-1 text-[#3D3D3D] text-md gap-2 mt-4">
-            <div class="flex flex-col gap-2">
-                <span><i class="fas fa-door-open text-[#65956C]"></i> <strong>Vacancies:</strong> ${jobData.positionsAvailable}</span>
-                <span><i class="fas fa-users text-[#65956C]"></i> <strong>Needed:</strong> ${jobData.positionsNeeded}</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <span><i class="fas fa-envelope text-[#65956C]"></i> <strong>Email:</strong> ${employerData?.metadata?.email || 'N/A'}</span>
-                <span><i class="fas fa-phone-alt text-[#65956C]"></i> <strong>Contact:</strong> ${employerData?.companyInfo?.contactNumber || 'N/A'}</span>
-            </div>
-        </div>
-
-        <div class="flex gap-2 mt-6">
-            <button data-job-id="${seed.id}" class="analyze-btn flex-1 bg-[#4B6584] text-white px-4 py-2 rounded hover:bg-[#3B5167] cursor-pointer text-md">
-                <i class="fas fa-chart-line mr-2"></i> Analyze Application Chance
-            </button>
-            <button data-job-id="${seed.id}" class="apply-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md" ${isApplied ? 'disabled' : ''}>
-                <i class="fas fa-paper-plane mr-2"></i> ${isApplied ? 'Applied' : 'Apply'}
-            </button>
-        </div>
-    </div>`;
+                    <div class="flex gap-2 mt-6">
+                        ${applicationStatus === 'hired' ? `
+                            <span class="flex-1 text-center bg-green-100 text-green-800 px-4 py-2 rounded cursor-default text-md">
+                                <i class="fas fa-check-circle mr-2"></i> Hired
+                            </span> 
+                        ` : applicationStatus === 'shortlisted' ? `
+                            <span class="flex-1 text-center bg-blue-100 text-blue-800 px-4 py-2 rounded cursor-default text-md">
+                                <i class="fas fa-list-check mr-2"></i> Shortlisted
+                            </span>
+                        ` : applicationStatus === 'rejected' ? `
+                            <span class="flex-1 text-center bg-red-100 text-red-800 px-4 py-2 rounded cursor-default text-md">
+                                <i class="fas fa-times-circle mr-2"></i> Rejected
+                            </span>
+                        ` : applicationStatus === 'applied' ? `
+                            <span class="flex-1 text-center bg-gray-200 text-gray-700 px-4 py-2 rounded cursor-default text-md">
+                                <i class="fas fa-paper-plane mr-2"></i> Applied
+                            </span>
+                        ` : `
+                            <button data-job-id="${seed.id}" class="apply-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
+                                <i class="fas fa-paper-plane mr-2"></i> Apply
+                            </button>
+                        `}
+                        <button data-job-id="${seed.id}" class="analyze-btn flex-1 bg-[#4B6584] text-white px-4 py-2 rounded hover:bg-[#3B5167] cursor-pointer text-md">
+                            <i class="fas fa-chart-line mr-2"></i> Details
+                        </button>
+                    </div>
+                </div>`;
         }
 
+        function getStatusDisplayName(status) {
+            switch(status) {
+                case 'hired': return 'Hired';
+                case 'shortlisted': return 'Shortlisted';
+                case 'rejected': return 'Rejected';
+                case 'applied': return 'Applied';
+                default: return 'Apply';
+            }
+        }
+
+        function getMatchQuality(score) {
+            if (score >= 80) return 'Excellent';
+            if (score >= 60) return 'Good';
+            if (score >= 40) return 'Fair';
+            return 'Low';
+        }
+
+        function getMatchColor(score) {
+            if (score >= 80) return { bg: 'bg-green-100', text: 'text-green-800' };
+            if (score >= 60) return { bg: 'bg-blue-100', text: 'text-blue-800' };
+            if (score >= 40) return { bg: 'bg-yellow-100', text: 'text-yellow-800' };
+            return { bg: 'bg-red-100', text: 'text-red-800' };
+        }
+
+        function getCompetitionLevel(percentage) {
+            if (percentage >= 80) return 'High';
+            if (percentage >= 60) return 'Moderate';
+            if (percentage >= 40) return 'Low';
+            return 'Very Low';
+        }
         // Event Handlers
         function attachButtonHandlers() {
             document.querySelectorAll('.analyze-btn').forEach(button => {
@@ -259,7 +362,7 @@
                         jobId,
                         jobTitle: jobData.jobTitle,
                         employerId: jobData.employerId,
-                        status: 'pending',
+                        status: 'applied', // Initial status
                         appliedAt: new Date(),
                         createdAt: new Date(),
                         likelihoodScore: likelihood.likelihoodScore,
@@ -267,8 +370,8 @@
                         reputationScore: likelihood.reputationScore
                     });
 
-                    button.disabled = true;
-                    button.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Applied';
+                    // Refresh the job cards to show the new status
+                    window.location.reload();
                 });
             });
         }
@@ -294,8 +397,33 @@
                 where('jobId', '==', jobId),
                 where('status', 'in', ['pending', 'shortlisted', 'hired']));
             const appsSnapshot = await getDocs(appsQuery);
-            const totalApplicants = appsSnapshot.size;
-
+            
+            let strongerApplicants = 0;
+            let totalApplicants = 0;
+            
+            // Get current user's score first
+            const userScore = Math.round(
+                (reputationScore * 0.4) +
+                (skillMatchPercentage * 0.4) +
+                (availabilityPercentage * 0.2)
+            );
+            
+            // Compare with other applicants
+            for (const appDoc of appsSnapshot.docs) {
+                const appData = appDoc.data();
+                if (appData.applicantId !== userId) {
+                    totalApplicants++;
+                    const otherUserScore = appData.likelihoodScore || 
+                        await calculateApplicantScore(appData.applicantId, jobId, jobData);
+                    if (otherUserScore > userScore) {
+                        strongerApplicants++;
+                    }
+                }
+            }
+            
+            const competitionPercentage = totalApplicants > 0 ? 
+                Math.round((strongerApplicants / totalApplicants) * 100) : 0;
+            
             // Calculate likelihood score (weighted average)
             const likelihoodScore = Math.round(
                 (reputationScore * 0.4) +
@@ -308,9 +436,12 @@
                 skillMatchPercentage,
                 availabilityPercentage,
                 totalApplicants,
+                strongerApplicants,
+                competitionPercentage,
                 likelihoodScore
             };
         }
+
 
         async function analyzeApplicationChances(jobId) {
             try {
@@ -323,80 +454,101 @@
                 const jobData = jobDoc.data();
                 const likelihoodData = await calculateLikelihoodData(user.uid, jobId, jobData);
 
+                const matchQuality = getMatchQuality(likelihoodData.likelihoodScore);
+                const matchColor = getMatchColor(likelihoodData.likelihoodScore);
+                const competitionLevel = getCompetitionLevel(likelihoodData.competitionPercentage);
+
                 // Generate Tailwind-based modal content
                 return `
-            <div class="flex flex-col gap-8 text-[#3D3D3D] p-6">
-                <div class="text-center">
-                    <h3 class="text-2xl font-bold mb-4">Your Application Strength</h3>
-                    <div class="w-32 h-32 mx-auto flex items-center justify-center rounded-full ${getScoreClass(likelihoodData.likelihoodScore)} shadow-lg">
-                        <span class="text-white text-4xl font-bold">${likelihoodData.likelihoodScore}</span>
-                    </div>
-                    <span class="inline-block mt-3 text-sm px-3 py-1 rounded-full bg-${getTailwindColor(likelihoodData.likelihoodScore)}-100 text-${getTailwindColor(likelihoodData.likelihoodScore)}-800 font-semibold">
-                        ${getScoreDescription(likelihoodData.likelihoodScore)}
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-                    <div class="p-4 border rounded-lg shadow-sm">
-                        <h4 class="text-lg font-semibold mb-2">Reputation Score</h4>
-                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.reputationScore} / 100</p>
-                        <p class="text-sm text-gray-600 mt-1">Based on employer feedback and ratings</p>
-                    </div>
-                    <div class="p-4 border rounded-lg shadow-sm">
-                        <h4 class="text-lg font-semibold mb-2">Skill Match</h4>
-                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.skillMatchPercentage}%</p>
-                        <p class="text-sm text-gray-600 mt-1">${getMatchingSkills(jobData.skills || [], currentUserData?.jobPreferences?.skills || []).length} of ${jobData.skills?.length || 0} required skills matched</p>
-                    </div>
-                    <div class="p-4 border rounded-lg shadow-sm">
-                        <h4 class="text-lg font-semibold mb-2">Position Availability</h4>
-                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.availabilityPercentage}%</p>
-                        <p class="text-sm text-gray-600 mt-1">${jobData.positionsAvailable || 0} of ${jobData.positionsNeeded || 1} positions available</p>
-                    </div>
-                    <div class="p-4 border rounded-lg shadow-sm">
-                        <h4 class="text-lg font-semibold mb-2">Competition</h4>
-                        <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.totalApplicants} applicants</p>
-                        <p class="text-sm text-gray-600 mt-1">Total applicants for this position</p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-4 text-left">
-                    <h4 class="text-xl font-bold">Skill Analysis</h4>
-                    <div>
-                        <h5 class="text-green-700 font-semibold mb-1">✓ Matched Skills (${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
-                        <div class="flex flex-wrap gap-2">
-                            ${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
-                                <span class="text-center text-md p-2 bg-[#65956C] text-white rounded-md">${skill}</span>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length > 0 ? `
-                        <div>
-                            <h5 class="text-red-700 font-semibold mt-4 mb-1">✗ Missing Skills (${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
-                            <div class="flex flex-wrap gap-2">
-                                ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
-                                    <span class="text-center text-md p-2 bg-red-100 text-red-800 rounded-md">${skill}</span>
-                                `).join('')}
+                    <div class="flex flex-col gap-8 text-[#3D3D3D] p-6">
+                        <div class="text-center">
+                            <h3 class="text-2xl font-bold mb-4">Your Application Strength</h3>
+                            <div class="w-32 h-32 mx-auto flex items-center justify-center rounded-full ${matchColor.bg} shadow-lg">
+                                <span class="${matchColor.text} text-4xl font-bold">${matchQuality}</span>
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">
+                                Score: ${likelihoodData.likelihoodScore}
                             </div>
                         </div>
-                    ` : ''}
-                </div>
 
-                <div class="flex flex-col gap-2 mt-4 text-left">
-                    <h4 class="text-xl font-bold">Recommendations</h4>
-                    ${getRecommendations(
-                    likelihoodData.likelihoodScore,
-                    getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []),
-                    jobData.skills || []
-                )}
-                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                            <div class="p-4 border rounded-lg shadow-sm">
+                                <h4 class="text-lg font-semibold mb-2">Reputation Score</h4>
+                                <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.reputationScore > 0 ? likelihoodData.reputationScore + '%' : 'No data available'}</p>
+                                <p class="text-sm text-gray-600 mt-1">${likelihoodData.reputationScore > 0 ? 'Based on employer feedback' : 'Insufficient feedback data'}</p>
+                            </div>
+                            <div class="p-4 border rounded-lg shadow-sm">
+                                <h4 class="text-lg font-semibold mb-2">Skill Match</h4>
+                                <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.skillMatchPercentage}%</p>
+                                <p class="text-sm text-gray-600 mt-1">${getMatchingSkills(jobData.skills || [], currentUserData?.jobPreferences?.skills || []).length} of ${jobData.skills?.length || 0} required skills matched</p>
+                            </div>
+                            <div class="p-4 border rounded-lg shadow-sm">
+                                <h4 class="text-lg font-semibold mb-2">Position Availability</h4>
+                                <p class="text-2xl font-bold text-[#65956C]">${likelihoodData.availabilityPercentage}%</p>
+                                <p class="text-sm text-gray-600 mt-1">${jobData.positionsAvailable || 0} of ${jobData.positionsNeeded || 1} positions available</p>
+                            </div>
+                            <div class="p-4 border rounded-lg shadow-sm">
+                                <h4 class="text-lg font-semibold mb-2">Competition</h4>
+                                <p class="text-2xl font-bold text-[#65956C]">${competitionLevel}</p>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    Stronger than ${100 - likelihoodData.competitionPercentage}% of ${likelihoodData.totalApplicants} applicants
+                                </p>
+                            </div>
+                        </div>
 
-            </div>
-        `;
+                        <div class="flex flex-col gap-4 text-left">
+                            <h4 class="text-xl font-bold">Skill Analysis</h4>
+                            <div>
+                                <h5 class="text-green-700 font-semibold mb-1">✓ Matched Skills (${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    ${getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
+                                        <span class="text-center text-md p-2 bg-[#65956C] text-white rounded-md">${skill}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length > 0 ? `
+                                <div>
+                                    <h5 class="text-red-700 font-semibold mt-4 mb-1">✗ Missing Skills (${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).length})</h5>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${getMissingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []).map(skill => `
+                                            <span class="text-center text-md p-2 bg-red-100 text-red-800 rounded-md">${skill}</span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="flex flex-col gap-2 mt-4 text-left">
+                            <h4 class="text-xl font-bold">Recommendations</h4>
+                            ${getRecommendations(
+                                likelihoodData.likelihoodScore,
+                                getMatchingSkills(jobData.skills, currentUserData?.jobPreferences?.skills || []),
+                                jobData.skills || []
+                            )}
+                        </div>
+
+                    </div>
+                `;
             } catch (error) {
                 console.error('Error analyzing application:', error);
                 throw error;
             }
+        }
+
+        function getQualityFromScore(score) {
+            if (score >= 80) return 'Excellent';
+            if (score >= 60) return 'Good';
+            if (score >= 40) return 'Fair';
+            return 'Low';
+        }
+
+        function getAvailabilityLevel(available, needed) {
+            const percentage = available / needed;
+            if (percentage >= 0.8) return 'High';
+            if (percentage >= 0.5) return 'Moderate';
+            if (percentage >= 0.2) return 'Low';
+            return 'Very Low';
         }
 
         async function calculateReputationScore(userId) {
