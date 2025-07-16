@@ -345,7 +345,7 @@
                 <!-- Dots will be added dynamically -->
             </div>
             
-               <button id="analyzeImagesBtn" class="analyzeimagebtn mb-4">             
+               <button id="analyzeImagesBtn" class="analyzeimagebtn mb-4 hidden">             
                 <i class="fas fa-images"></i><p class="analyzetext">Analyze Images</p> 
                </button>
         </div>
@@ -416,27 +416,25 @@
 
                  <!--Feedbacks Content-->
                 <div class="feedbackcontent">
-                    <h1 class="leaveafeedbackh1">Leave a Feedback</h1>
-                    <p class="whatindustryleaders">What industry leaders say about working with Christian</p>
+                    <h1 class="leaveafeedbackh1" id="feedbackTitle">Employer Feedbacks</h1>
+                    <p class="whatindustryleaders">What industry leaders say about working with <span id="employeeNameForFeedback">Christian</span></p>
                     
-                    <div class="feedbacktextandlikecon">
-         
-                         <textarea class="feedbackboxes"id="commentText" placeholder="Write your feedback about this employee..."></textarea>
-
-                        <div class="feedbackboxess">
-                                                <button id="likeBtn" class="feedback-btn like-btn">
-                        <i class="fas fa-thumbs-up"></i> Like
-                    </button>
-                    <button id="dislikeBtn" class="feedback-btn dislike-btn">
-                        <i class="fas fa-thumbs-down"></i> Dislike
-                    </button>
+                     <!-- Feedback Form (will be hidden for employees via JS) -->
+                    <div id="employerFeedbackForm" class="hidden">
+                        <div class="feedbacktextandlikecon">
+                            <textarea class="feedbackboxes" id="commentText" placeholder="Write your feedback about this employee..."></textarea>
+                            <div class="feedbackboxess">
+                                <button id="likeBtn" class="feedback-btn like-btn">
+                                    <i class="fas fa-thumbs-up"></i> Like
+                                </button>
+                                <button id="dislikeBtn" class="feedback-btn dislike-btn">
+                                    <i class="fas fa-thumbs-down"></i> Dislike
+                                </button>
+                            </div>
                         </div>
+                        <button class="submit-comment-btn" id="submitCommentBtn">Submit Feedback</button>
+                        <button id="analyzeBtn" class="analyzeBtn hidden">Analyze Feedbacks</button>
                     </div>
-
-
-
-                    <button class="submit-comment-btn" id="submitCommentBtn">Submit Feedback</button>
-                    <button id="analyzeBtn" class="analyzeBtn"> Analyze Feedbacks</button>
 
                     <div class="feedbacksfromeployerscontainer">
 
@@ -631,7 +629,9 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuthState();
+            checkAuthState().then(() => {
+            // Toggle employer elements based on isEmployer flag
+            toggleEmployerElements(isEmployer);
             
             // Get modal elements
             const modal = document.getElementById('summaryModal');
@@ -713,6 +713,8 @@
                     document.body.style.overflow = 'auto';
                 });
             });
+
+        });
         });
         
         async function checkAuthState() {
@@ -730,32 +732,53 @@
                 
                 if (user) {
                     currentUser = user;
-                    // Check if user is an employer (either by URL param or by checking their role)
-                    const employerDoc = await getDoc(doc(db, 'employers', user.uid));
-                    if (employerDoc.exists() || isEmployerParam) {
-                        isEmployer = true;
+                    isEmployer = isEmployerParam;
+                    
+                    if (isEmployer) {
+                        const employerDoc = await getDoc(doc(db, 'employers', user.uid));
                         employerData = employerDoc.exists() ? employerDoc.data() : null;
-                        document.body.classList.add('employer');
                     }
+                    
+                    // Set feedback title based on view
+                    document.getElementById('feedbackTitle').textContent = isEmployer 
+                        ? 'Leave a Feedback' 
+                        : 'Employer Feedbacks';
+                    
+                    // Toggle employer elements
+                    toggleEmployerElements(isEmployer);
+                    
                     loadProfileData();
                 } else {
-                    // Not logged in, but still allow viewing profile
+                    // Not logged in - hide employer elements
+                    toggleEmployerElements(false);
                     loadProfileData();
-                }
-
-                if (user && !isEmployer && (!profileUserId || profileUserId === user.uid)) {
-                    document.getElementById('manageProfileBtn').style.display = 'block';
-                    document.getElementById('manageProfileBtn').onclick = () => {
-                        window.location.href = 'manage-profile.html';
-                    };
                 }
             } catch (error) {
                 console.error('Error checking auth state:', error);
+                toggleEmployerElements(false);
                 loadProfileData();
             }
         }
         
- async function loadProfileData() {
+        function toggleEmployerElements(show) {
+            const employerElements = [
+                document.getElementById('employerFeedbackForm'),
+                document.getElementById('analyzeImagesBtn'),
+                document.getElementById('analyzeBtn')
+            ];
+            
+            employerElements.forEach(element => {
+                if (element) {
+                    if (show) {
+                        element.classList.remove('hidden');
+                    } else {
+                        element.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        async function loadProfileData() {
             try {
                 let profileData;
                 let profileUserIdToLoad = profileUserId || (currentUser ? currentUser.uid : null);

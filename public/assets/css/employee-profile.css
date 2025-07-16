@@ -1009,7 +1009,7 @@ nav ul li a:active {
 /* Center Links */
 .center-links-container {
   display: flex;
-  gap: 24px;
+  gap: 60px;
   margin: 0 auto; /* Center horizontally */
 }
 
@@ -1067,4 +1067,13 @@ nav ul li a:active {
 .analyzetext{
     margin-left: 10px;
 
+}
+
+#employerFeedbackForm{
+    display:flex;
+    flex-direction:column;
+}
+
+#employerFeedbackForm.hidden{
+    display:none;
 }
