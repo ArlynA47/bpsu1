@@ -79,6 +79,7 @@ nav ul li a:active {
     justify-content: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
     margin: 20px 0;
+
 }
 
 /* Slider Track */
@@ -167,17 +168,7 @@ nav ul li a:active {
     gap: 15px;
 }
 
-.name {
-    font-size: 36px;
-    font-weight: 600;
-    color: #212121;
-}
 
-.job-title {
-    font-size: 24px;
-    color: #555;
-    font-weight: 500;
-}
 
 .profile-details {
     display: grid;
@@ -216,6 +207,7 @@ nav ul li a:active {
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
+
 }
 
 .skill-badge {
@@ -299,21 +291,6 @@ nav ul li a:active {
     resize: vertical;
 }
 
-.submit-comment-btn {
-    background-color: #3D6585;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 500;
-    transition: background-color 0.3s;
-}
-
-.submit-comment-btn:hover {
-    background-color: #2b4a66;
-}
 
 .comments-section {
     margin-top: 30px;
@@ -569,4 +546,525 @@ nav ul li a:active {
 .modal-body {
     max-height: 60vh;
     overflow-y: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#main-nav {
+        background-color: #232323;
+        padding: 10px 40px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
+
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Logo Section */
+    .nav-logo img {
+        height: 40px;
+        width: 40px;
+    }
+
+    /* Navigation Links */
+    .nav-links {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        flex: 2;
+    }
+
+    .nav-links a {
+        color: white;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .nav-links a:hover {
+        color: #b3b3b3;
+    }
+
+    /* Logout Button */
+    #logoutBtn {
+        background-color: #B83535;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    #logoutBtn:hover {
+        background-color: #A72828;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    .maincontent{
+        display: flex;
+        width: 100%;
+        height: fit-content;
+
+    }
+
+    
+.profilecontent {
+    width: 25%;
+    height: match-parent;
+    border-right: 2px solid #cccccc; /* Changed to gray solid border */
+    box-sizing: border-box;
+    padding-top: 3px;
+    padding-left: 25px;
+    padding-right: 10px;
+    padding-bottom: 90px;
+    box-shadow: 5px 0 5px -3px rgba(0, 0, 0, 0.2); /* Right side drop shadow */
+}
+
+    .feedbackcontent{
+
+        width: 75%;
+        height: match-parent;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      
+    }
+    
+
+
+    .name{
+        font-weight: bold;
+        font-size: 30px;
+        color: #333333;
+    }
+
+    .job-title{
+        font-weight: 600;
+        font-size: 16px;
+        color: #44624A;
+        padding-bottom: 30px;
+    }
+
+
+    .thumbscontainer{
+        margin-top: 10px;
+
+        height: 50px;
+        width: 100%;
+        display: flex;
+        justify-content: start;
+    }
+
+    .pthumbsdiv{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 60px;
+    }
+
+
+    .thumbsdiv{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+    #negativeFeedback{
+        font-size: 20px;
+        margin-right: 20px;
+        color: #414141;
+        font-weight: 500;    
+    }
+
+
+    #positiveFeedback{
+        font-size: 20px;
+        margin-right: 20px;
+        color: #414141;
+        font-weight: 500;
+    }
+    
+
+    .imagethumb{
+        width: 35px;
+        height: 35px;
+    }
+
+
+    .skillsdiv{
+        width: 100%;
+        height: fit-content;
+
+        margin-top: 40px;
+    }
+
+    .skills{
+        font-weight: bold;
+        font-size: 18px;
+        color: #3e3e3e;
+        margin-bottom: 5px;
+    }
+
+    .contactinformationdiv{
+        width: 100%;
+        height: 20px;
+        display: flex;
+        margin-bottom: 5px;
+    }
+
+    .skilllabel{
+        font-weight: 600;
+        margin-left: 10px;
+        margin-right: 10px;
+        font-size: 14px;
+        color: #3b3b3b;
+    }
+    .contactdet{
+        font-weight: 600;
+         font-size: 14px;
+        color: #3b3b3b;
+    }
+    .contactdetemail{
+        font-weight: 600;
+         font-size: 14px;
+        color: #3b3b3b;
+    }
+
+
+        .preferredlocation{
+        font-weight: 600;
+        font-size: 14px;
+        color: #3b3b3b;
+        
+        
+    }
+
+
+.contactinformationiconslocation{
+    margin-right: 10px;
+}
+
+#employeePreferredLocations{
+
+    height: fit-content;
+}
+.contactinformationdivs{
+   width: 100%;
+        height: max-content;
+        display: flex;
+        margin-bottom: 5px;
+
+}
+
+.leaveafeedbackh1{
+   font-weight: 700;
+   font-size: 23px;
+   color: #404040;
+   margin-top: 30px;
+}
+
+
+
+.whatindustryleaders{
+
+   color: #315A39;
+    
+}
+
+.feedbacktextandlikecon{
+    padding: 2px        ;
+    height: fit-content;
+    width: 850px;
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: #f7f7f7;
+}
+.feedbackboxes{
+     border-radius: 10px;
+    height: 150px;
+    width: 100%;
+
+    background-color: #f7f7f7;
+    padding: 15px;
+  
+}
+.feedbackboxess{
+    height: 45px;
+     border-radius: 10px;
+    width: 100%;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content:end;
+    gap: 20px;
+}
+
+
+.submit-comment-btn {
+    background-color: #517557 !important ;
+    color: white;
+    border: none;
+     width: 850px;
+     border-radius: 10px !important ;
+     margin-top: 13px;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.submit-comment-btn:hover {
+    background-color: #406145;
+}
+
+
+
+.analyzeBtn {
+    background-color: #565656 !important ;
+    color: white;
+    border: none;
+     width: 850px;
+     border-radius: 10px !important ;
+     margin-top: 30px;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+
+
+
+
+
+.feedbacksfromeployerscontainer{
+        
+     width: 850px;
+     height: fit-content;
+     margin-top: 15px;
+       display: flex;       /* Horizontal flow */
+  flex-wrap: wrap; 
+  justify-content: space-between;
+     
+
+}
+
+
+.feedbackcommentcontainer{
+    
+     background-color: #eefae9;
+     width: 400px;
+     height: fit-content;
+     border-radius: 7px;
+     margin-top: 10px;
+     padding: 15px;
+     margin-top: 40px;
+}
+
+
+.employernamefeedback{
+   font-weight: 700;
+   font-size: 20px;
+   color: #3D3D3D;
+ 
+}
+
+
+.employerfeedbackcomm{
+    margin-top: 24px;
+    display: flex;
+    text-align: center ;
+    color: #595959;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+
+.nameandlikeordislikecontainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.dateiconanddatecontainer
+{
+    align-items: center;
+    display: flex;
+    margin-top: 22px;
+    color: #595959;
+    font-weight: 400;
+     font-size: 14vpx;
+}
+
+
+.calendarcommenticon{
+    width: 17px;
+    height: 17px;
+}
+
+.datecommented{
+    margin-left: 10px;
+}
+
+.commentlikeicon{
+    width: 36px;
+    height: 36px;
+}
+
+
+
+.feedbacksfromeployerscontainer{
+    padding-bottom: 30px;
+}
+
+
+
+
+/* Navigation Bar Styles */
+/* Navigation Bar Styles */
+
+.main-navigation-bar {
+  background-color: #232323;
+  padding: 10px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  display: flex; /* Add flex display */
+  justify-content: space-between; /* Space between logo and logout */
+  align-items: center; /* Vertically center items */
+}
+
+.nav-wrapper {
+  display: flex;
+  flex: 1; /* Take up available space */
+  justify-content: center; /* Center the links container */
+  align-items: center;
+}
+
+/* Logo Section - Left Side */
+.logo-container {
+  margin-right: auto; /* Push logo to the left */
+}
+
+.logo-img {
+  height: 40px;
+  width: 40px;
+}
+
+/* Center Links */
+.center-links-container {
+  display: flex;
+  gap: 24px;
+  margin: 0 auto; /* Center horizontally */
+}
+
+.nav-link-item {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.nav-link-item:hover {
+  color: #b3b3b3;
+}
+
+/* Logout Button - Right Side */
+.action-buttons {
+  margin-left: auto; /* Push logout to the right */
+}
+
+.logout-action-btn {
+  background-color: #B83535;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-action-btn:hover {
+  background-color: #A72828;
+}
+
+
+.analyzeimagebtn{
+    width: fit-content;
+    position: absolute;
+    right: 7px;
+    bottom: 7px;
+    display: flex;
+    align-items: center;
+    padding: 7px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 20px;
+        font-size: 18px;
+    font-weight: 500;
+    background-color: #ffffff;
+}
+
+
+.analyzetext{
+    margin-left: 10px;
+
 }

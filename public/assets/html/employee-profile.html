@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/employee-profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -310,100 +311,184 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-header">
-            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" width="50px" height="50px"> 
-            <h1>HirNa!</h1>
-        </div>
-        <nav>
-            <button class="profile-btn" onclick="window.location.href='#'">Profile</button>
-            <button class="manage-btn" id="manageProfileBtn" style="display: none;">
-                <i class="fas fa-cog"></i> Manage Profile
-            </button>
-            <button id="analyzeImagesBtn" class="feedback-btn mb-4">
-                <i class="fas fa-images"></i> Analyze Images
-            </button>
-        </nav>
-    </header>
+<nav class="main-navigation-bar">
+        <div class="logo-container">
+      <img src="../images/hirna-logo.png" alt="HirNa Logo" class="logo-img">
+    </div>
+  <div class="nav-wrapper">
+
+
+    <div class="center-links-container">
+      <a href="./employer-home.html" class="nav-link-item">Home</a>
+      <a href="./employer-browse-employees.html" class="nav-link-item">Browse Employees</a>
+      <a href="./employer-liked-employees.html" class="nav-link-item">Liked Employees</a>
+      <a href="./employer-job-listings.html" class="nav-link-item">Job Listings</a>
+    </div>
+
+
+  </div>
+      <div class="action-buttons">
+      <button id="logoutButton" class="logout-action-btn">Logout</button>
+    </div>
+</nav>
+
     <main>
         <div class="slider-container">
+               
+
+             
+
             <div class="slider" id="profileSlider">
                 <!-- Slides will be added dynamically -->
             </div>
             <div class="pagination" id="sliderPagination">
                 <!-- Dots will be added dynamically -->
             </div>
+            
+               <button id="analyzeImagesBtn" class="analyzeimagebtn mb-4">             
+                <i class="fas fa-images"></i><p class="analyzetext">Analyze Images</p> 
+               </button>
         </div>
-        <div class="profile-container">
-            <div class="profile-header">
-                <div class="profile-header-left">
-                    <div class="name" id="employeeName">Loading...</div>
-                    <div class="job-title" id="employeeJobTitle"></div>
-                </div>
-                <div class="profile-header-right">
-                    <div class="feedback">
-                        <div class="icon thumbs-up"><span id="positiveFeedback">0</span> <img src="../images/likey.png"></div>
-                        <div class="icon thumbs-down"><span id="negativeFeedback">0</span> <img src="../images/dislikey.png"></div>
+
+
+
+
+        <!--Main Content-->
+
+            <div class="maincontent">
+                <!--Employee Profile Details Content-->
+                <div class="profilecontent">
+                        
+                    <h1 class="name" id="employeeName">Loading..</h1>
+                    <p  class="job-title" id="employeeJobTitle">Loading..</p>
+
+                    <div class="thumbscontainer">
+
+                        <div class="pthumbsdiv">
+                        <span id="positiveFeedback">0</span>
+                        <img class="imagethumb" src="../images/likey.png">
+                        </div>
+
+                        <div class="thumbsdiv">
+                        <span id="negativeFeedback">0</span>
+                        <img class="imagethumb" src="../images/dislikey.png">
+                        </div>
+
                     </div>
-                </div>
-            </div>
-            
-            <div class="profile-details">
-                <div class="detail-card">
-                    <h3><i class="fas fa-address-card"></i> Contact Information</h3>
-                    <div><i class="fas fa-envelope"></i> <strong>Email:</strong> <span id="employeeEmail">Loading...</span></div>
-                    <div><i class="fas fa-phone"></i> <strong>Phone:</strong> <span id="employeePhone">Loading...</span></div>
-                    <div><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> <span id="employeeLocation">Loading...</span></div>
-                </div>
-                
-                <div class="detail-card" id="workpref">
-                    <h3><i class="fas fa-briefcase"></i> Work Preferences</h3>
-                    <div><i class="fas fa-user-tie"></i> <strong>Job Type:</strong> <span id="employeeJobType">Loading...</span></div>
-                    <div><i class="fas fa-exchange-alt"></i> <strong>Willing to Relocate:</strong> <span id="employeeWillingToRelocate">Loading...</span></div>
-                    <div><i class="fas fa-user-check"></i> <strong>Available for Work:</strong> <span id="employeeAvailableForWork">Loading...</span></div>
-                </div>
-                
-                <div class="detail-card">
-                    <h3>Skills</h3>
-                    <div class="skills-container" id="employeeSkills">
-                        <!-- Skills will be populated by JavaScript -->
+
+
+
+
+                    <div class="skillsdiv">
+                        <h1 class="skills">Skills</h1>
+                        <div class="skills-container" id="employeeSkills">Loading...</div>
                     </div>
-                </div>
-                
-                <div class="detail-card">
-                    <h3>Preferred Locations</h3>
-                    <div id="employeePreferredLocations">
-                        <!-- Locations will be populated by JavaScript -->
+
+
+                    <div class="skillsdiv">
+                        <h1 class="skills">Contact Information</h1>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/grayemail 2.png"><p class="skilllabel">Email :</p><span class="contactdetemail" id="employeeEmail">Loading...</span> </div>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/grayphone 3.png"><p class="skilllabel">Phone :</p><span class="contactdet" id="employeePhone">Loading...</span> </div>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/graylocation 1.png"><p class="skilllabel">Location :</p><span class="contactdet" id="employeeLocation">Loading...</span> </div>
+                        
                     </div>
+
+
+                    <div class="skillsdiv">
+                        <h1 class="skills">Work Preferences</h1>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/grayjob 1.png"><p class="skilllabel">Job Type :</p><span class="contactdet" id="employeeJobType">Loading...</span> </div>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/relocation 1.png"><p class="skilllabel">Willing to relocate :</p><span class="contactdet" id="employeeWillingToRelocate">Loading...</span> </div>
+                        <div class="contactinformationdiv"> <img  class="contactinformationicons" src="../images/question 1.png"><p class="skilllabel">Available for work :</p><span class="contactdet" id="employeeAvailableForWork">Loading...</span></div>
+                        
+                    </div>
+
+                    <div class="skillsdiv">
+                        <h1 class="skills">Preferred Locations</h1>
+                        <div class="contactinformationdivs"  ><span class="preferredlocation" id="employeePreferredLocations">Loading...</span> </div>
+
+                    </div>
+
                 </div>
-            </div>
-            
-            <!-- Employer Feedback Section (only visible to employers) -->
-            <div class="feedback-section employer-only" id="employerFeedbackSection">
-                <h3>Leave Feedback</h3>
-                <button id="analyzeBtn" class="feedback-btn mb-4">
-                    <i class="fas fa-thumbs-up"></i> Analyze Feedbacks
-                </button>
-                <div class="feedback-actions">
-                    <button id="likeBtn" class="feedback-btn like-btn">
+                <!--End of Employee Profile Details Content-->
+
+
+
+
+                 <!--Feedbacks Content-->
+                <div class="feedbackcontent">
+                    <h1 class="leaveafeedbackh1">Leave a Feedback</h1>
+                    <p class="whatindustryleaders">What industry leaders say about working with Christian</p>
+                    
+                    <div class="feedbacktextandlikecon">
+         
+                         <textarea class="feedbackboxes"id="commentText" placeholder="Write your feedback about this employee..."></textarea>
+
+                        <div class="feedbackboxess">
+                                                <button id="likeBtn" class="feedback-btn like-btn">
                         <i class="fas fa-thumbs-up"></i> Like
                     </button>
                     <button id="dislikeBtn" class="feedback-btn dislike-btn">
                         <i class="fas fa-thumbs-down"></i> Dislike
                     </button>
-                </div>
-                <div class="comment-form">
-                    <textarea class="comment-textarea" id="commentText" placeholder="Write your feedback about this employee..."></textarea>
+                        </div>
+                    </div>
+
+
+
                     <button class="submit-comment-btn" id="submitCommentBtn">Submit Feedback</button>
+                    <button id="analyzeBtn" class="analyzeBtn"> Analyze Feedbacks</button>
+
+                    <div class="feedbacksfromeployerscontainer">
+
+                        
+                        <div class="feedbackcommentcontainer">
+                               
+                        </div>
+
+
+
+
+
+
+
+
+                    </div>
+                    
+                    
+           
+
                 </div>
+                <!--End of Feedbacks Content-->
             </div>
-            
-            <!-- Comments Section -->
-            <div class="comments-section" id="employeeComments">
-                <h3>Employer Feedback</h3>
-                <!-- Comments will be populated by JavaScript -->
-            </div>
-        </div>
+
+        <!--End of Main Content-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <div id="summaryModal" class="modal">
             <div class="modal-content">
@@ -670,7 +755,7 @@
             }
         }
         
-        async function loadProfileData() {
+ async function loadProfileData() {
             try {
                 let profileData;
                 let profileUserIdToLoad = profileUserId || (currentUser ? currentUser.uid : null);
@@ -699,11 +784,6 @@
                     return;
                 }
                 
-                // Show work preferences section if viewing as employer
-                if (isEmployer) {
-                    document.getElementById('workpref').style.display = 'block';
-                }
-                
                 // Update profile information
                 document.getElementById('employeeName').textContent = profileData.personalInfo?.fullName || profileData.displayName || 'No name provided';
                 document.getElementById('employeeJobTitle').textContent = profileData.jobTitle || profileData.jobPreferences?.jobTitle || 'Skilled Worker';
@@ -713,6 +793,7 @@
                 document.getElementById('employeeJobType').textContent = profileData.jobType || profileData.jobPreferences?.jobType || 'Not specified';
                 document.getElementById('employeeWillingToRelocate').textContent = profileData.willingToRelocate || profileData.jobPreferences?.willingToRelocate || 'No';
                 document.getElementById('employeeAvailableForWork').textContent = profileData.employeeAvailableForWork || profileData.jobPreferences?.availableForWork || 'Not specified';
+                
                 // Update skills
                 const skillsContainer = document.getElementById('employeeSkills');
                 skillsContainer.innerHTML = '';
@@ -721,6 +802,8 @@
                     skills.forEach(skill => {
                         const skillBadge = document.createElement('div');
                         skillBadge.className = 'skill-badge';
+                        skillBadge.style.backgroundColor = '#44624A';
+                        skillBadge.style.fontWeight = '500';
                         skillBadge.innerHTML = `<i class="fas fa-check-circle"></i> ${skill}`;
                         skillsContainer.appendChild(skillBadge);
                     });
@@ -736,7 +819,7 @@
                     const locationsList = document.createElement('ul');
                     locations.forEach(location => {
                         const locationItem = document.createElement('li');
-                        locationItem.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${location}`;
+                        locationItem.innerHTML = `<div class="contactinformationdiv"> <img  class="contactinformationiconslocation" src="../images/graylocation 1.png"> ${location} </div>`;
                         locationsList.appendChild(locationItem);
                     });
                     locationsContainer.appendChild(locationsList);
@@ -820,185 +903,195 @@
             }
         }
         
-        async function loadEmployeeFeedback(employeeId) {
-            try {
-                if (!employeeId) return;
-                
-                const feedbackQuery = query(
-                    collection(db, 'employeeFeedback'),
-                    where('employeeId', '==', employeeId),
-                    orderBy('createdAt', 'desc')
-                );
-                
-                const querySnapshot = await getDocs(feedbackQuery);
-                const commentsContainer = document.getElementById('employeeComments');
-                let positiveCount = 0;
-                let negativeCount = 0;
-                
-                // Clear existing comments but keep the heading
-                const commentsHeading = commentsContainer.querySelector('h3');
-                commentsContainer.innerHTML = '';
-                if (commentsHeading) commentsContainer.appendChild(commentsHeading);
-                
-                if (querySnapshot.empty) {
-                    const noFeedback = document.createElement('p');
-                    noFeedback.textContent = 'No employer feedback yet.';
-                    commentsContainer.appendChild(noFeedback);
-                    return;
-                }
-                
-                querySnapshot.forEach(doc => {
-                    const feedback = doc.data();
-                    if (feedback.rating === 'positive') positiveCount++;
-                    else if (feedback.rating === 'negative') negativeCount++;
+async function loadEmployeeFeedback(employeeId) {
+    try {
+        if (!employeeId) return;
+        
+        const feedbackQuery = query(
+            collection(db, 'employeeFeedback'),
+            where('employeeId', '==', employeeId),
+            orderBy('createdAt', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(feedbackQuery);
+        const feedbacksContainer = document.querySelector('.feedbacksfromeployerscontainer');
+        let positiveCount = 0;
+        let negativeCount = 0;
+        
+        // Clear existing feedbacks
+        feedbacksContainer.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            const noFeedback = document.createElement('p');
+            noFeedback.textContent = 'No employer feedback yet.';
+            feedbacksContainer.appendChild(noFeedback);
+            return;
+        }
+        
+        querySnapshot.forEach(doc => {
+            const feedback = doc.data();
+            if (feedback.rating === 'positive') positiveCount++;
+            else if (feedback.rating === 'negative') negativeCount++;
 
-                    const commentDiv = document.createElement('div');
-                    commentDiv.className = 'comment';
+            // Create the feedback container
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedbackcommentcontainer';
+            
+            // Create name and rating container
+            const nameContainer = document.createElement('div');
+            nameContainer.className = 'nameandlikeordislikecontainer';
+            
+            const nameHeading = document.createElement('h1');
+            nameHeading.className = 'employernamefeedback';
+            nameHeading.textContent = feedback.employerName || 'Anonymous Employer';
+            
+            // Add rating icon based on feedback
+            const ratingIcon = document.createElement('span');
+            ratingIcon.className = feedback.rating === 'positive' ? 'like-icon' : 'dislike-icon';
+            ratingIcon.innerHTML = feedback.rating === 'positive' ? '<img class ="commentlikeicon" src="../images/likey.png" alt="Liked">' : '<img class ="commentlikeicon" src="../images/dislikey.png" alt="Disliked">';
+            
+            nameContainer.appendChild(nameHeading);
+            nameContainer.appendChild(ratingIcon);
+            
+            // Create feedback text
+            const feedbackText = document.createElement('p');
+            feedbackText.className = 'employerfeedbackcomm';
+            feedbackText.textContent = feedback.comment || 'No comment provided';
+            
+            // Create date container
+            const dateContainer = document.createElement('div');
+            dateContainer.className = 'dateiconanddatecontainer';
+            
+            const calendarIcon = document.createElement('img');
+            calendarIcon.className = 'calendarcommenticon';
+            calendarIcon.src = '../images/calendar 1.png';
+            calendarIcon.alt = 'Date icon';
+            
+            const dateText = document.createElement('p');
+            dateText.className = 'datecommented';
+            dateText.textContent = feedback.createdAt?.toDate().toLocaleDateString() || 'Date not available';
+            
+            dateContainer.appendChild(calendarIcon);
+            dateContainer.appendChild(dateText);
+            
+            // Assemble all elements
+            feedbackDiv.appendChild(nameContainer);
+            feedbackDiv.appendChild(feedbackText);
+            feedbackDiv.appendChild(dateContainer);
+            
+            // Add to container
+            feedbacksContainer.appendChild(feedbackDiv);
+        });
+        
+        // Update feedback counts
+        document.getElementById('positiveFeedback').textContent = positiveCount;
+        document.getElementById('negativeFeedback').textContent = negativeCount;
+        
+    } catch (error) {
+        console.error('Error loading feedback:', error);
+        const errorElement = document.createElement('p');
+        errorElement.textContent = 'Error loading feedback. Please try again.';
+        document.querySelector('.feedbacksfromeployerscontainer').appendChild(errorElement);
+    }
+}
 
-                    // comment-header: companySpan only
-                    const commentHeader = document.createElement('div');
-                    commentHeader.className = 'comment-header';
-                    const companySpan = document.createElement('span');
-                    companySpan.textContent = feedback.employerName;
-                    commentHeader.appendChild(companySpan);
 
-                    // comment-text: wraps the full block
-                    const commentTextBlock = document.createElement('div');
-                    commentTextBlock.className = 'comment-text';
+   async function summarizeReview() {
+    // Get all comment elements - updated to match your actual HTML structure
+    const commentElements = document.querySelectorAll('.employerfeedbackcomm');
+    const positiveCount = parseInt(document.getElementById('positiveFeedback').textContent) || 0;
+    const negativeCount = parseInt(document.getElementById('negativeFeedback').textContent) || 0;
+    const totalFeedback = positiveCount + negativeCount;
 
-                    // ✅ NEW: Wrap only the actual comment in its own <p>
-                    const commentBody = document.createElement('p');
-                    commentBody.className = 'comment-body';
-                    commentBody.textContent = feedback.comment;
-                    commentTextBlock.appendChild(commentBody);
+    // Combine all comment texts into one string
+    const allText = Array.from(commentElements)
+        .map(el => el.textContent.trim())
+        .filter(text => !!text)
+        .join(' ');
 
-                    // Date
-                    const dateSpan = document.createElement('span');
-                    dateSpan.className = 'comment-date';
-                    dateSpan.textContent = feedback.createdAt?.toDate().toLocaleDateString() || '';
-
-                    // Rating
-                    const ratingSpan = document.createElement('span');
-                    ratingSpan.className = `comment-rating ${feedback.rating === 'positive' ? 'positive-rating' : 'negative-rating'}`;
-                    ratingSpan.textContent = feedback.rating === 'positive' ? '👍 Liked' : '👎 Disliked';
-
-                    // Append the rest (date and rating)
-                    commentTextBlock.appendChild(document.createElement('br'));
-                    commentTextBlock.appendChild(dateSpan);
-                    commentTextBlock.appendChild(document.createTextNode(' '));
-                    commentTextBlock.appendChild(ratingSpan);
-
-                    // Final assembly
-                    commentDiv.appendChild(commentHeader);
-                    commentDiv.appendChild(commentTextBlock);
-                    commentsContainer.appendChild(commentDiv);
-                });
-
-                
-                // Update feedback counts
-                document.getElementById('positiveFeedback').textContent = positiveCount;
-                document.getElementById('negativeFeedback').textContent = negativeCount;
-                
-            } catch (error) {
-                console.error('Error loading feedback:', error);
-            }
+    try {
+        // Calculate reputation score (0-100 scale)
+        let reputationScore = 0;
+        if (totalFeedback > 0) {
+            reputationScore = Math.round((positiveCount / totalFeedback) * 100);
         }
 
-        async function summarizeReview() {
-            const commentElements = document.querySelectorAll('.comment-body');
-            const positiveCount = parseInt(document.getElementById('positiveFeedback').textContent) || 0;
-            const negativeCount = parseInt(document.getElementById('negativeFeedback').textContent) || 0;
-            const totalFeedback = positiveCount + negativeCount;
+        // Prepare the reputation summary
+        let reputationSummary = `
+            <div class="reputation-score">
+                <h3>Reputation Score: <span class="score-value">${reputationScore}</span>/100</h3>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${reputationScore}%"></div>
+                </div>
+                <p>Based on ${totalFeedback} feedback ratings (${positiveCount} positive, ${negativeCount} negative)</p>
+            </div>
+            <hr>
+        `;
 
-            // Combine all comment texts into one string
-            const allText = Array.from(commentElements)
-                .map(el => el.textContent.trim())
-                .filter(text => !!text)
-                .join(' ');
-
-            try {
-                // Calculate reputation score (0-100 scale)
-                let reputationScore = 0;
-                if (totalFeedback > 0) {
-                    reputationScore = Math.round((positiveCount / totalFeedback) * 100);
-                }
-
-                // Prepare the reputation summary
-                let reputationSummary = `
-                    <div class="reputation-score">
-                        <h3>Reputation Score: <span class="score-value">${reputationScore}</span>/100</h3>
-                        <div class="score-bar">
-                            <div class="score-fill" style="width: ${reputationScore}%"></div>
-                        </div>
-                        <p>Based on ${totalFeedback} feedback ratings (${positiveCount} positive, ${negativeCount} negative)</p>
-                    </div>
-                    <hr>
-                `;
-
-                // If no comments but we have ratings
-                if (!allText && totalFeedback > 0) {
-                    return reputationSummary + `
-                        <p>No detailed comments available, but the employee has received:</p>
-                        <ul>
-                            <li>${positiveCount} positive ratings</li>
-                            <li>${negativeCount} negative ratings</li>
-                        </ul>
-                    `;
-                }
-
-                // If no feedback at all
-                if (!allText && totalFeedback === 0) {
-                    return 'No feedback available for analysis.';
-                }
-
-                // Get sentiment analysis from API
-                let sentimentAnalysis = '';
-                try {
-                    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content: allText })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`API request failed with status ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    sentimentAnalysis = data.content || 'No detailed analysis available.';
-                    
-                    // Replace the word "sentiment" with "feedback"
-                    sentimentAnalysis = sentimentAnalysis
-                        .replace(/sentiment/gi, 'feedback')
-                        .replace(/text/gi, 'comment(s)');
-                } catch (error) {
-                    console.error('Sentiment API error:', error);
-                    sentimentAnalysis = 'Detailed comment analysis unavailable. Showing basic feedback summary.';
-                }
-
-                // Combine reputation score with sentiment analysis
-                return reputationSummary + `
-                    <div class="sentiment-analysis">
-                        <h3>Feedback Analysis:</h3>
-                        <p>${sentimentAnalysis}</p>
-                    </div>
-                    ${totalFeedback > 0 ? `
-                    <div class="feedback-highlights">
-                        <h3>Feedback Highlights:</h3>
-                        <ul>
-                            <li>${positiveCount} employers liked this employee</li>
-                            <li>${negativeCount} employers had concerns</li>
-                            <li>${reputationScore >= 70 ? 'Strong positive reputation' : reputationScore >= 40 ? 'Mixed reputation' : 'Needs improvement'}</li>
-                        </ul>
-                    </div>
-                    ` : ''}
-                `;
-
-            } catch (error) {
-                console.error('Error generating summary:', error);
-                return 'Error analyzing feedback. Please try again later.';
-            }
+        // If no comments but we have ratings
+        if (!allText && totalFeedback > 0) {
+            return reputationSummary + `
+                <p>No detailed comments available, but the employee has received:</p>
+                <ul>
+                    <li>${positiveCount} positive ratings</li>
+                    <li>${negativeCount} negative ratings</li>
+                </ul>
+            `;
         }
+
+        // If no feedback at all
+        if (!allText && totalFeedback === 0) {
+            return 'No feedback available for analysis.';
+        }
+
+        // Get sentiment analysis from API
+        let sentimentAnalysis = '';
+        try {
+            const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: allText })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            sentimentAnalysis = data.content || 'No detailed analysis available.';
+            
+            // Replace the word "sentiment" with "feedback"
+            sentimentAnalysis = sentimentAnalysis
+                .replace(/sentiment/gi, 'feedback')
+                .replace(/text/gi, 'comment(s)');
+        } catch (error) {
+            console.error('Sentiment API error:', error);
+            sentimentAnalysis = 'Detailed comment analysis unavailable. Showing basic feedback summary.';
+        }
+
+        // Combine reputation score with sentiment analysis
+        return reputationSummary + `
+            <div class="sentiment-analysis">
+                <h3>Feedback Analysis:</h3>
+                <p>${sentimentAnalysis}</p>
+            </div>
+            ${totalFeedback > 0 ? `
+            <div class="feedback-highlights">
+                <h3>Feedback Highlights:</h3>
+                <ul>
+                    <li>${positiveCount} employers liked this employee</li>
+                    <li>${negativeCount} employers had concerns</li>
+                    <li>${reputationScore >= 70 ? 'Strong positive reputation' : reputationScore >= 40 ? 'Mixed reputation' : 'Needs improvement'}</li>
+                </ul>
+            </div>
+            ` : ''}
+        `;
+
+    } catch (error) {
+        console.error('Error generating summary:', error);
+        return 'Error analyzing feedback. Please try again later.';
+    }
+}
 
         async function loadProfileGallery(employeeid) {
             try {
