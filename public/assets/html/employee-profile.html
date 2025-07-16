@@ -311,24 +311,34 @@
     </style>
 </head>
 <body>
-<nav class="main-navigation-bar">
-        <div class="logo-container">
-      <img src="../images/hirna-logo.png" alt="HirNa Logo" class="logo-img">
+<nav id="employerNav" class="main-navigation-bar hidden">
+    <div class="logo-container">
+        <img src="../images/hirna-logo.png" alt="HirNa Logo" class="logo-img">
     </div>
-  <div class="nav-wrapper">
-
-
-    <div class="center-links-container">
-      <a href="./employer-home.html" class="nav-link-item">Home</a>
-      <a href="./employer-browse-employees.html" class="nav-link-item">Browse Employees</a>
-      <a href="./employer-liked-employees.html" class="nav-link-item">Liked Employees</a>
-      <a href="./employer-job-listings.html" class="nav-link-item">Job Listings</a>
+    <div class="nav-wrapper">
+        <div class="center-links-container">
+            <a href="./employer-home.html" class="nav-link-item">Home</a>
+            <a href="./employer-browse-employees.html" class="nav-link-item">Browse Employees</a>
+            <a href="./employer-liked-employees.html" class="nav-link-item">Liked Employees</a>
+            <a href="./employer-job-listings.html" class="nav-link-item">Job Listings</a>
+        </div>
     </div>
+    <div class="action-buttons">
+        <button id="logoutButton" class="logout-action-btn">Logout</button>
+    </div>
+</nav>
 
-
-  </div>
-      <div class="action-buttons">
-      <button id="logoutButton" class="logout-action-btn">Logout</button>
+<nav id="employeeNav" class="employee-navigation-bar hidden">
+    <div class="nav-logo-container">
+        <img src="../images/hirna-logo.png" alt="HirNa Logo" class="nav-logo-img">
+    </div>
+    <div class="nav-center-links">
+        <a href="./employee-home.html" class="nav-link">Home</a>
+        <a href="./employee-browse-jobs.html" class="nav-link">Browse Jobs</a>
+        <a href="./employee-liked-jobs.html" class="nav-link">Liked Jobs</a>
+    </div>
+    <div class="nav-profile-button">
+        <a href="./employee-profile.html" class="profile-btn">Profile</a>
     </div>
 </nav>
 
@@ -739,28 +749,33 @@
                         employerData = employerDoc.exists() ? employerDoc.data() : null;
                     }
                     
+                    // Set the appropriate navigation based on user type
+                    toggleNavigation(isEmployer);
+                    
                     // Set feedback title based on view
                     document.getElementById('feedbackTitle').textContent = isEmployer 
                         ? 'Leave a Feedback' 
                         : 'Employer Feedbacks';
                     
-                    // Toggle employer elements
-                    toggleEmployerElements(isEmployer);
-                    
                     loadProfileData();
                 } else {
-                    // Not logged in - hide employer elements
-                    toggleEmployerElements(false);
+                    // Not logged in - default to employee view
+                    toggleNavigation(false);
                     loadProfileData();
                 }
             } catch (error) {
                 console.error('Error checking auth state:', error);
-                toggleEmployerElements(false);
+                // Default to employee view on error
+                toggleNavigation(false);
                 loadProfileData();
             }
         }
         
         function toggleEmployerElements(show) {
+            // Toggle navigation
+            toggleNavigation(show);
+            
+            // Toggle other employer elements
             const employerElements = [
                 document.getElementById('employerFeedbackForm'),
                 document.getElementById('analyzeImagesBtn'),
@@ -776,6 +791,19 @@
                     }
                 }
             });
+        }
+
+        function toggleNavigation(showEmployerNav) {
+            const employerNav = document.getElementById('employerNav');
+            const employeeNav = document.getElementById('employeeNav');
+            
+            if (showEmployerNav) {
+                employerNav.classList.remove('hidden');
+                employeeNav.classList.add('hidden');
+            } else {
+                employerNav.classList.add('hidden');
+                employeeNav.classList.remove('hidden');
+            }
         }
 
         async function loadProfileData() {
