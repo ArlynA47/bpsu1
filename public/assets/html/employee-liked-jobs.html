@@ -175,7 +175,7 @@
             <div class="flex flex-col">
                 <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">${seed.jobTitle}</span>
                 <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
-                    ${employerData?.companyInfo?.name || 'Unknown'}
+                    ${employerData?.companyInfo?.companyName || 'Unknown'}
                 </span>
             </div>
             <span class="text-[#3D3D3D] text-sm flex items-center gap-1 mt-1 md:mt-0 shrink-0 whitespace-nowrap">
@@ -211,7 +211,7 @@
                 <span><i class="fas fa-users text-[#65956C]"></i> <strong>Needed:</strong> ${jobData.positionsNeeded}</span>
             </div>
             <div class="flex flex-col gap-2">
-                <span><i class="fas fa-envelope text-[#65956C]"></i> <strong>Email:</strong> ${employerData?.metadata?.email || 'N/A'}</span>
+                <span><i class="fas fa-envelope text-[#65956C]"></i> <strong>Email:</strong> ${jobData.employerEmail || 'N/A'}</span>
                 <span><i class="fas fa-phone-alt text-[#65956C]"></i> <strong>Contact:</strong> ${employerData?.companyInfo?.contactNumber || 'N/A'}</span>
             </div>
         </div>
@@ -296,19 +296,45 @@
             const appsSnapshot = await getDocs(appsQuery);
             const totalApplicants = appsSnapshot.size;
 
-            // Calculate likelihood score (weighted average)
-            const likelihoodScore = Math.round(
-                (reputationScore * 0.4) +
-                (skillMatchPercentage * 0.4) +
-                (availabilityPercentage * 0.2)
-            );
+            // Check if employer liked this employee
+            let employerLikeBonus = 0;
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                if (jobDoc.exists()) {
+                    const jobData = jobDoc.data();
+                    const employerId = jobData.employerId;
+                    
+                    if (employerId) {
+                        const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', userId));
+                        if (employeeDoc.exists()) {
+                            const employeeData = employeeDoc.data();
+                            const likedByEmployers = employeeData.likedByEmployers || [];
+                            
+                            if (likedByEmployers.some(like => like.employerId === employerId)) {
+                                employerLikeBonus = 15; // Add 15% bonus if employer liked this employee
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking employer like:', error);
+            }
+
+            // Calculate likelihood score with employer like bonus
+            const likelihoodScore = Math.min(100, Math.round(
+                (reputationScore * 0.4) + 
+                (skillMatchPercentage * 0.4) + 
+                (availabilityPercentage * 0.2) +
+                employerLikeBonus
+            ));
 
             return {
                 reputationScore,
                 skillMatchPercentage,
                 availabilityPercentage,
                 totalApplicants,
-                likelihoodScore
+                likelihoodScore,
+                employerLikeBonus
             };
         }
 
@@ -335,6 +361,12 @@
                         ${getScoreDescription(likelihoodData.likelihoodScore)}
                     </span>
                 </div>
+
+                ${likelihoodData.employerLikeBonus > 0 ? `
+                <div class="p-4 bg-indigo-100 text-indigo-800 rounded-lg shadow-sm text-center">
+                    You received a +${likelihoodData.employerLikeBonus} bonus because this employer is interested in you!
+                </div>
+                ` : ''}
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
                     <div class="p-4 border rounded-lg shadow-sm">

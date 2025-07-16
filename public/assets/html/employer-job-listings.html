@@ -127,6 +127,13 @@
                     });
                 }
 
+                // Sort active jobs first
+                jobs.sort((a, b) => {
+                    if (a.status === 'active' && b.status !== 'active') return -1;
+                    if (a.status !== 'active' && b.status === 'active') return 1;
+                    return 0;
+                });
+
                 displayEmployerJobs(jobs);
             } catch (error) {
                 console.error("Error fetching job seeds:", error);
@@ -169,7 +176,7 @@
                 let skillsHTML = '';
                 if (Array.isArray(job.skills) && job.skills.length > 0) {
                     skillsHTML = job.skills.slice(0, 6).map(skill => `
-                <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${skill}</span>
+                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-white border-gray-300">${skill}</span>
             `).join('');
                 }
 
@@ -177,7 +184,7 @@
                 let locationHTML = '';
                 if (Array.isArray(job.location)) {
                     locationHTML = job.location.map(loc => `
-                <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${loc}</span>
+                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-white border-gray-300">${loc}</span>
             `).join('');
                 } else if (typeof job.location === 'string') {
                     locationHTML = `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${job.location}</span>`;
@@ -202,26 +209,26 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2 mt-4">
+                <div class="flex flex-col gap-2">
                     <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
                     <p class="text-[#3D3D3D] text-md leading-relaxed">${job.offer}</p>
                 </div>
 
-                <div class="flex flex-col gap-2 mt-4">
+                <div class="flex flex-col gap-2">
                     <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
                         ${locationHTML}
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2 mt-4">
+                <div class="flex flex-col gap-2">
                     <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
                         ${skillsHTML}
                     </div>
                 </div>
 
-                 <div class="flex flex-wrap items-center gap-2 mt-8">
+                 <div class="flex flex-wrap items-center gap-2 mt-4">
                     <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1">
                         <span class="flex items-center gap-2">
                             <i class="fas fa-door-open text-[#65956C]"></i>

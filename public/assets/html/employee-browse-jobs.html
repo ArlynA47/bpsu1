@@ -33,7 +33,7 @@
             <a href="./employee-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
             <a href="./employee-browse-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
                 Jobs</a>
-            <a href="./to-nurture.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+            <a href="./employee-liked-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
                 Jobs</a>
         </div>
 
@@ -303,7 +303,7 @@
         }
 
         // Display current job seed card
-        function displayCurrentSeed() {
+        async function displayCurrentSeed() {
             if (currentSeedIndex >= availableSeeds.length) {
                 jobCardsContainer.innerHTML = `
                     <div class="text flex flex-col items-center justify-center">
@@ -312,13 +312,10 @@
                         <p class="text-gray-600">Check back later for new job matchings</p>
                     </div>
                 `;
-
-                // Disable buttons
                 nurtureBtn.disabled = true;
                 passBtn.disabled = true;
                 nurtureBtn.classList.add('opacity-50');
                 passBtn.classList.add('opacity-50');
-
                 return;
             }
 
@@ -327,98 +324,112 @@
             const isNurtured = nurturedSeedIds.has(seed.id);
             const isApplied = appliedJobIds.has(seed.id);
 
-            // Format the job card HTML to match the employee-browse-jobs.html structure
-           const seedCardHTML = `
-            <div class="flex flex-col gap-1 md:flex-row md:items-start md:justify-between md:gap-5">
-                <div class="flex flex-col">
-                    <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
-                        ${seed.jobTitle}
-                    </span>
-                    <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
-                        ${seed.employerEmail || 'N/A'}
-                    </span>
-                </div>
+            // 🔍 Fetch employer info
+            let companyName = 'N/A';
+            let contactEmail = 'N/A';
+            let contactNumber = 'N/A';
 
-                <span class="text-[#3D3D3D] text-sm flex items-center gap-1 mt-1 md:mt-0 shrink-0 whitespace-nowrap">
-                    <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
-                    Posted ${formatPostDate(seed.createdAt.toDate())}
-                </span>
-            </div>
+            try {
+                const employerDoc = await getDoc(doc(db, 'employers', seed.employerId));
+                if (employerDoc.exists()) {
+                    const info = employerDoc.data().companyInfo;
+                    companyName = info?.companyName || 'N/A';
+                    contactNumber = info?.contactNumber || 'N/A';
+                }
+            } catch (e) {
+                console.error("Error fetching employer info:", e);
+            }
 
-            <div class="flex flex-col gap-2 mt-4">
-                <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
-                <p class="text-[#3D3D3D] text-md leading-relaxed">${seed.offer || 'No offer details provided'}</p>
-            </div>
-
-            <div class="flex flex-col gap-2 mt-4">
-                <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
-                <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                    <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${seed.location || 'N/A'}</span>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-2 mt-4">
-                <div class="flex items-center gap-8">
-                    <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                    ${seed.matchingSkills.length > 0 ? `
-                        <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
-                            ${seed.matchingSkills.length} Match${seed.matchingSkills.length > 1 ? 'es' : ''}
-                        </span>` : ''}
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                    ${seed.skills.map(skill => `
-                        <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ? 
-                                'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
-                            ${skill}
+            const seedCardHTML = `
+                <div class="flex flex-col gap-1 md:flex-row md:items-start md:justify-between md:gap-5">
+                    <div class="flex flex-col">
+                        <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                            ${seed.jobTitle}
                         </span>
-                    `).join('')}
+                        <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                            ${companyName}
+                        </span>
+                    </div>
+
+                    <span class="text-[#3D3D3D] text-sm flex items-center gap-1 mt-1 md:mt-0 shrink-0 whitespace-nowrap">
+                        <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
+                        Posted ${formatPostDate(seed.createdAt.toDate())}
+                    </span>
                 </div>
-            </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
+                    <p class="text-[#3D3D3D] text-md leading-relaxed">${seed.offer || 'No offer details provided'}</p>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${seed.location || 'N/A'}</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <div class="flex items-center gap-8">
+                        <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
+                        ${seed.matchingSkills.length > 0 ? `
+                            <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
+                                ${seed.matchingSkills.length} Match${seed.matchingSkills.length > 1 ? 'es' : ''}
+                            </span>` : ''}
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        ${seed.skills.map(skill => `
+                            <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ? 
+                                    'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
+                                ${skill}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
 
                 <div class="flex justify-between flex-1 text-[#3D3D3D] text-md gap-2 mt-4">
-                <div class="flex flex-col flex-1 gap-2">
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-door-open text-[#65956C]"></i>
-                        <strong class="text-[#3D3D3D]">Vacancies:</strong> ${seed.positionsAvailable ?? 'N/A'}
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-users text-[#65956C]"></i>
-                        <strong class="text-[#3D3D3D]">Needed:</strong> ${seed.positionsNeeded || 'N/A'}
-                    </span>
+                    <div class="flex flex-col flex-1 gap-2">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-door-open text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Vacancies:</strong> ${seed.positionsAvailable ?? 'N/A'}
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-users text-[#65956C]"></i>
+                            <strong class="text-[#3D3D3D]">Needed:</strong> ${seed.positionsNeeded || 'N/A'}
+                        </span>
                     </div>
 
                     <div class="flex flex-col flex-1 gap-2">
                         <span class="flex items-center gap-2">
                             <i class="fas fa-envelope text-[#65956C]"></i>
-                            <strong class="text-[#3D3D3D]">Email:</strong> ${seed.contactEmail || 'N/A'}
+                            <strong class="text-[#3D3D3D]">Email:</strong> ${seed.employerEmail || 'N/A'}
                         </span>
                         <span class="flex items-center gap-2">
                             <i class="fas fa-phone-alt text-[#65956C]"></i>
-                            <strong class="text-[#3D3D3D]">Contact:</strong> ${seed.contactNumber || 'N/A'}
+                            <strong class="text-[#3D3D3D]">Contact:</strong> ${contactNumber}
                         </span>
                     </div>
-            </div>
-
-            ${seed.isPriority ? `
-                <div class="mt-2 text-[#3D6585] font-semibold">
-                    <i class="fas fa-star"></i> Priority - This employer liked your profile
                 </div>
-            ` : ''}
 
-            ${isNurtured ? `
-                <div class="mt-4 text-[#65956C] font-semibold">
-                    <i class="fas fa-heart"></i> You've liked this job
-                </div>
-            ` : ''}
+                ${seed.isPriority ? `
+                    <div class="mt-2 text-[#3D6585] font-semibold">
+                        <i class="fas fa-star"></i> Priority - This employer liked your profile
+                    </div>
+                ` : ''}
 
-            ${isApplied ? `
-                <div class="mt-2 text-[#65956C] font-semibold">
-                    <i class="fas fa-paper-plane"></i> You've applied to this job
-                </div>
-            ` : ''}
-        `;
+                ${isNurtured ? `
+                    <div class="mt-4 text-[#65956C] font-semibold">
+                        <i class="fas fa-heart"></i> You've liked this job
+                    </div>
+                ` : ''}
 
+                ${isApplied ? `
+                    <div class="mt-2 text-[#65956C] font-semibold">
+                        <i class="fas fa-paper-plane"></i> You've applied to this job
+                    </div>
+                ` : ''}
+            `;
 
             jobCardsContainer.innerHTML = seedCardHTML;
 
