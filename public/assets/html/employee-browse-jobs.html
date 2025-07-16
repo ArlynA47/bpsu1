@@ -55,7 +55,7 @@
             </p>
         </div>
 
-        <div class="flex flex-col items-center justify-between flex-1 w-[55%] gap-8">
+        <div class="flex flex-col items-center justify-between flex-1 w-2xl gap-8">
             <!-- No Jobs Message (to be added) -->
             <div id="noJobsMessage" class="text-center hidden">
                 <i class="fas fa-seedling fa-3x mb-3 text-[#65956C]"></i>
@@ -70,20 +70,27 @@
 
             <!-- Button Card -->
             <div
-                class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
-                <!-- Skip Button -->
-                <button id="passBtn"
-                    class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer">
+                class="h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
+                <!-- Pass Button -->
+                <button
+                    class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer"
+                    id="passBtn">
                     <i class="fas fa-times text-2xl text-white"></i>
                 </button>
 
-                <!-- Keep Button -->
-                <button id="nurtureBtn"
-                    class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer">
+                <!-- Nurture Button -->
+                <button
+                    class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer"
+                    id="nurtureBtn">
                     <i class="fas fa-heart text-2xl text-white"></i>
                 </button>
             </div>
         </div>
+    </div>
+
+    <div id="toast"
+        class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
+        Employee liked!
     </div>
 
     <script type="module">
@@ -220,7 +227,7 @@
                 if (employeeDoc.exists()) {
                     const employeeData = employeeDoc.data();
                     const likedByEmployers = employeeData.likedByEmployers || [];
-                    
+
                     if (likedByEmployers.length > 0) {
                         const employerIds = [...new Set(likedByEmployers.map(like => like.employerId))];
                         const jobsQuery = query(
@@ -229,7 +236,7 @@
                             where('status', '==', 'active')
                         );
                         const jobsSnapshot = await getDocs(jobsQuery);
-                        
+
                         prioritizedJobs = jobsSnapshot.docs.map(doc => ({
                             id: doc.id,
                             ...doc.data(),
@@ -249,21 +256,21 @@
                     where('status', '==', 'active')
                 );
                 const seedsSnapshot = await getDocs(seedsQuery);
-                
+
                 seedsSnapshot.forEach((doc) => {
                     const seedData = doc.data();
                     const matchingSkills = getMatchingSkills(seedData.skills);
-                    
+
                     // Only include if:
                     // 1. Not already in prioritizedJobs
                     // 2. Not already nurtured
                     // 3. Not already applied
                     // 4. Either has matching skills OR no skills required
-                    if (!prioritizedJobs.some(j => j.id === doc.id) && 
-                        !nurturedSeedIds.has(doc.id) && 
+                    if (!prioritizedJobs.some(j => j.id === doc.id) &&
+                        !nurturedSeedIds.has(doc.id) &&
                         !appliedJobIds.has(doc.id) &&
                         (matchingSkills.length > 0 || !seedData.skills || seedData.skills.length === 0)) {
-                        
+
                         otherJobs.push({
                             id: doc.id,
                             ...seedData,
@@ -340,13 +347,51 @@
                 console.error("Error fetching employer info:", e);
             }
 
+            // Separate matched and unmatched skills
+            const matchedSkills = (seed.skills || []).filter(skill =>
+                seed.matchingSkills.includes(skill)
+            );
+            const unmatchedSkills = (seed.skills || []).filter(skill =>
+                !seed.matchingSkills.includes(skill)
+            );
+
+            // Cap unmatched skills to 3
+            const visibleUnmatched = unmatchedSkills.slice(0, 3);
+            const hiddenUnmatched = unmatchedSkills.slice(3);
+
+            // Create HTML for matched skills
+            const matchedHTML = matchedSkills.map(skill => `
+                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">
+                    ${skill}
+                </span>
+            `).join('');
+
+            // Create HTML for visible unmatched skills
+            const unmatchedHTML = visibleUnmatched.map(skill => `
+                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-white border border-gray-300 text-[#3D3D3D]">
+                    ${skill}
+                </span>
+            `).join('');
+
+            // Create "+N more" badge if needed
+            const moreCount = hiddenUnmatched.length;
+            const moreHTML = moreCount > 0
+                ? `<span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-gray-200 text-gray-600 border-gray-300 cursor-default"
+                        title="${hiddenUnmatched.join(', ')}">
+                        +${moreCount} more
+                </span>`
+                : '';
+
+            // Combine all
+            const skillsHTML = matchedHTML + unmatchedHTML + moreHTML;
+
             const seedCardHTML = `
                 <div class="flex flex-col gap-1 md:flex-row md:items-start md:justify-between md:gap-5">
                     <div class="flex flex-col">
-                        <span class="text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                        <span class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
                             ${seed.jobTitle}
                         </span>
-                        <span class="text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                        <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
                             ${companyName}
                         </span>
                     </div>
@@ -364,13 +409,15 @@
 
                 <div class="flex flex-col gap-2 mt-4">
                     <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                        <span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${seed.location || 'N/A'}</span>
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-white border border-gray-300 text-[#3D3D3D]">
+                            ${seed.location || 'N/A'}
+                        </span>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-2 mt-4">
-                    <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-4">
                         <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
                         ${seed.matchingSkills.length > 0 ? `
                             <span class="text-center text-xs px-2 py-1 bg-[#65956C] text-white rounded-md">
@@ -378,13 +425,8 @@
                             </span>` : ''}
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                        ${seed.skills.map(skill => `
-                            <span class="text-center text-md p-2 ${seed.matchingSkills.includes(skill) ? 
-                                    'bg-[#65956C] text-white' : 'border border-gray-300 bg-white'} rounded-md">
-                                ${skill}
-                            </span>
-                        `).join('')}
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                        ${skillsHTML}
                     </div>
                 </div>
 
@@ -518,13 +560,13 @@
 
         // Show toast message
         function showToastMessage(message) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#65956C] text-white px-4 py-2 rounded-md shadow-lg';
+            const toast = document.getElementById('toast');
             toast.textContent = message;
-            document.body.appendChild(toast);
+            toast.classList.remove('opacity-0', 'pointer-events-none');
 
+            // Hide after 2 seconds
             setTimeout(() => {
-                toast.remove();
+                toast.classList.add('opacity-0', 'pointer-events-none');
             }, 2000);
         }
 

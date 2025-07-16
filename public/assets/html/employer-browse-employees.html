@@ -47,7 +47,7 @@
 
         <div class="flex flex-col items-center justify-between flex-1 w-xl gap-8">
             <!-- Employee Tinder Card -->
-            <div class="tinder-card">
+            <div class="tinder-card transition-opacity duration-300">
                 <div class="flex justify-between gap-5">
                     <!-- Full Name, Current Province and Willing to Relocate -->
                     <div class="flex flex-1 flex-col">
@@ -83,10 +83,11 @@
 
                 <!-- Preferred Work Locations -->
                 <div class="flex flex-col gap-3">
-                    <h3 class="text-[#65956C] text-xl font-bold">
-                        Preferred Work Locations
-                        <span id="workLocationMatchCount" class="text-sm text-[#4CAF50] ml-2 align-middle"></span>
-                    </h3>
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+
+                        <span id="workLocationMatchCount"></span>
+                    </div>
 
                     <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="workLocationsContainer">
@@ -97,10 +98,11 @@
 
                 <!-- Skills -->
                 <div class="flex flex-col gap-3">
-                    <h3 class="text-[#65956C] text-xl font-bold">
-                        Skills
-                        <span id="skillsMatchCount" class="text-sm text-[#4CAF50] ml-2 align-middle"></span>
-                    </h3>
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+
+                        <span id="skillsMatchCount"></span>
+                    </div>
 
                     <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
@@ -447,11 +449,11 @@
             const workMatchCountEl = document.getElementById('workLocationMatchCount');
             const hasWorkMatch = !!matched;
 
-            workMatchCountEl.textContent = `(${hasWorkMatch ? '1 Match' : '0 Matches'})`;
-            workMatchCountEl.className = 'ml-2 px-2 py-[1px] rounded-md text-xs font-medium text-center align-middle ' +
+            workMatchCountEl.textContent = `${hasWorkMatch ? '1 Match' : '0 Matches'}`;
+            workMatchCountEl.className = 'font-normal text-center text-xs px-2 py-1 rounded-md ' +
                 (hasWorkMatch
-                    ? 'text-[#2E7D32]'
-                    : 'text-gray-500');
+                    ? 'bg-[#65956C] text-white'
+                    : 'border border-gray-300 bg-white text-gray-600');
 
             if (hasWorkMatch) {
                 const matchedLocationJobTitles = [...new Set(
@@ -502,11 +504,11 @@
 
                 // ✅ Skills Match Count
                 const skillsMatchCountEl = document.getElementById('skillsMatchCount');
-                const skillMatchText = `(${matchedSkills.length} ${matchedSkills.length === 1 ? 'Match' : 'Matches'})`;
+                const skillMatchText = `${matchedSkills.length} ${matchedSkills.length === 1 ? 'Match' : 'Matches'}`;
 
                 skillsMatchCountEl.textContent = skillMatchText;
-                skillsMatchCountEl.className = 'ml-2 px-2 py-[1px] rounded-md text-xs font-medium text-center align-middle ' +
-                    (matchedSkills.length > 0 ? 'text-[#2E7D32]' : 'text-gray-500');
+                skillsMatchCountEl.className = 'font-normal text-center text-xs px-2 py-1 rounded-md ' +
+                    (matchedSkills.length > 0 ? 'bg-[#65956C] text-white' : 'border border-gray-300 bg-white text-gray-600');
 
                 // 🔧 Add tooltip (title) showing job titles that matched the skills
                 const matchedJobTitles = [...new Set(
@@ -551,8 +553,15 @@
 
         // Skip current employee
         function skipEmployee() {
-            currentEmployeeIndex++;
-            displayCurrentEmployee();
+            const card = document.querySelector('.tinder-card');
+
+            card.classList.add('opacity-0');
+
+            setTimeout(() => {
+                currentEmployeeIndex++;
+                displayCurrentEmployee();
+                card.classList.remove('opacity-0');
+            }, 300);
         }
 
         // Like current employee
@@ -587,11 +596,18 @@
                 });
 
                 // Show toast popup
-                showToast("Employee liked!");
+                showToast("Employee saved to your liked employees!");
 
                 // Move to next employee
-                currentEmployeeIndex++;
-                displayCurrentEmployee();
+                const card = document.querySelector('.tinder-card');
+
+                card.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    currentEmployeeIndex++;
+                    displayCurrentEmployee();
+                    card.classList.remove('opacity-0');
+                }, 300);
 
                 // Update liked employees list
                 likedEmployees.push(employee.id);
