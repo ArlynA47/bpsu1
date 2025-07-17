@@ -46,7 +46,7 @@
                     <i class="fas fa-plus-circle"></i>
                     Create New Job Seed
                 </a>
-                <a href="./manage-job-applications.html"
+                <a href="./employer-manage-job-applications.html"
                     class="flex items-center justify-center gap-4 flex-1 bg-[#2D342E] text-white px-4 py-2 rounded hover:bg-[#1f2621] cursor-pointer text-lg no-underline">
                     <i class="fas fa-briefcase"></i>
                     Manage Applications
@@ -343,15 +343,46 @@
             window.location.href = `employee-profile.html?id=${employeeId}`;
         }
 
+        function highlightCurrentNavLink() {
+            const currentPath = window.location.pathname.split('/').pop(); // Get the filename, e.g., 'employee-home.html'
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href').split('/').pop();
+                if (linkPath === currentPath) {
+                    link.classList.add('underline', 'underline-offset-4');
+                }
+            });
+        }
+
+        function setupLogoutButton(buttonSelector = '#logoutBtn') {
+            const logoutBtn = document.querySelector(buttonSelector);
+
+            if (!logoutBtn) return;
+
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    window.location.href = './login.html';
+                } catch (error) {
+                    console.error('Error logging out:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+        }
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
+            highlightCurrentNavLink();
+            setupLogoutButton();
+
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     // User is signed in, fetch their job seeds
                     fetchEmployerJobSeeds(user.uid);
                 } else {
                     // No user is signed in, redirect to login
-                    window.location.href = 'login.html';
+                    window.location.href = './login.html';
                 }
             });
         });

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa! - Find Your Next Job</title>
+    <style>
+        .activeLink {
+            color: #7FD33B;
+        }
+        .demo-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .tinder-card {
+            width: 750px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] p-2.5 sticky top-0 z-50">
+        <div class="flex flex-1 justify-start items-end gap-2">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="../../index.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="find-employees-unauth.html" class="flex-1 text-center text-white hover:text-gray-300">Meet Talent</a>
+            <a href="find-jobs-unauth.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Explore Opportunities</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="../html/login.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Log In
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col items-center gap-6 p-10 relative">
+        <div class="demo-counter">Demo: <span id="demoCount">1</span>/7</div>
+        
+        <div class="flex flex-col items-center gap-1">
+            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Perfect Job - Platform Demo</h3>
+            <p class="text-[#545454] text-xl">
+                <span class="text-[#315E26] font-semibold">Try our platform!</span> Log in to browse jobs matching your skills
+            </p>
+        </div>
+
+        <div class="flex flex-col items-center justify-between flex-1 w-xl gap-8">
+            <!-- Job Card -->
+            <div class="tinder-card transition-opacity duration-300">
+                <div class="flex justify-between gap-5">
+                    <div class="flex flex-1 flex-col">
+                        <span class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis" id="jobTitle">
+                            Skilled Welder
+                        </span>
+                        <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis" id="companyName">
+                            MetalWorks Inc.
+                        </span>
+                    </div>
+                    <span class="text-[#3D3D3D] text-sm flex items-center gap-1">
+                        <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
+                        Posted 3 days ago
+                    </span>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
+                    <p class="text-[#3D3D3D] text-md leading-relaxed" id="jobOffer">
+                        Full-time position with competitive pay, benefits, and overtime opportunities
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold" id="jobLocation">
+                            Pampanga
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-4">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
+                        <span class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white" id="skillsMatchCount">
+                            5 Matches
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold" id="skill1">
+                            Welding
+                        </span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold" id="skill2">
+                            Metalworking
+                        </span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold" id="skill3">
+                            Blueprint Reading
+                        </span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600" id="skill4">
+                            Fabrication
+                        </span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600" id="skill5">
+                            Power Tools
+                        </span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">
+                            +2 more
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-[#3D3D3D] text-md gap-2 mt-4">
+                    <div class="flex flex-col gap-2">
+                        <span class="flex items-center gap-2" id="vacancies">
+                            <i class="fas fa-door-open text-[#65956C]"></i>
+                            <strong>Vacancies:</strong> 3
+                        </span>
+                        <span class="flex items-center gap-2" id="email">
+                            <i class="fas fa-envelope text-[#65956C]"></i>
+                            <strong>Email:</strong> hr@metalworks.com
+                        </span>
+                    </div>
+                    <span class="flex items-center gap-2" id="needed">
+                        <i class="fas fa-users text-[#65956C]"></i>
+                        <strong>Needed:</strong> Immediately
+                    </span>
+                    <span class="flex items-center gap-2" id="contact">
+                        <i class="fas fa-phone-alt text-[#65956C]"></i>
+                        <strong>Contact:</strong> (045) 123-4567
+                    </span>
+                </div>
+
+                <div class="mt-2 text-[#3D6585] font-semibold" id="priority">
+                    <i class="fas fa-star"></i> Priority - This employer likes profiles like yours
+                </div>
+            </div>
+
+            <!-- Button Card -->
+            <div class="button-card h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
+                <!-- Pass Button -->
+                <button class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer" id="passBtn">
+                    <i class="fas fa-times text-2xl text-white"></i>
+                </button>
+
+                <!-- Like Button -->
+                <button class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer" id="likeBtn">
+                    <i class="fas fa-heart text-2xl text-white"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Sign Up CTA (hidden initially) -->
+        <div id="signupCta" class="hidden flex flex-col items-center gap-4 p-6 bg-[#F8F8F8] rounded-lg border border-[#65956C] max-w-md text-center">
+            <h3 class="text-[#3D3D3D] text-2xl font-bold">Ready to find your dream job?</h3>
+            <p class="text-[#545454]">Sign up now to access of job opportunities matching your skills!</p>
+            <div class="flex gap-4 mt-2">
+                <a href="../html/employee-registration.html" class="bg-[#315E26] text-white px-6 py-2 rounded hover:bg-[#3F742F]">
+                    Register Now
+                </a>
+                <a href="../html/login.html" class="bg-white text-[#315E26] px-6 py-2 rounded border border-[#315E26] hover:bg-[#F0F0F0]">
+                    Log In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
+        Job saved!
+    </div>
+
+    <script>
+        // Demo job data
+        const demoJobs = [
+            {
+                jobTitle: "Skilled Welder",
+                companyName: "MetalWorks Inc.",
+                posted: "3 days ago",
+                offer: "Full-time position with competitive pay, benefits, and overtime opportunities",
+                location: "Pampanga",
+                skills: ["Welding", "Metalworking", "Blueprint Reading", "Fabrication", "Power Tools", "Measuring", "Safety"],
+                matches: 5,
+                vacancies: 3,
+                contact: "(045) 123-4567",
+                email: "hr@metalworks.com",
+                priority: true
+            },
+            {
+                jobTitle: "HVAC Technician",
+                companyName: "CoolAir Solutions",
+                posted: "1 week ago",
+                offer: "Permanent position with training opportunities and performance bonuses",
+                location: "Bulacan",
+                skills: ["HVAC Maintenance", "System Testing", "Pneumatics", "Troubleshooting", "Electrical"],
+                matches: 4,
+                vacancies: 2,
+                contact: "(044) 987-6543",
+                email: "careers@coolair.com",
+                priority: false
+            },
+            {
+                jobTitle: "Construction Foreman",
+                companyName: "BuildRight Construction",
+                posted: "2 days ago",
+                offer: "Leadership role with profit sharing and company vehicle",
+                location: "Tarlac",
+                skills: ["Carpentry", "Framing", "Blueprint Reading", "Project Planning", "Team Leadership"],
+                matches: 3,
+                vacancies: 1,
+                contact: "(045) 555-7890",
+                email: "jobs@buildright.ph",
+                priority: true
+            },
+            {
+                jobTitle: "Heavy Equipment Operator",
+                companyName: "EarthMovers Co.",
+                posted: "5 days ago",
+                offer: "Competitive hourly wage with overtime and hazard pay",
+                location: "Nueva Ecija",
+                skills: ["Heavy Equipment", "Load Handling", "Safety Compliance", "Logistics"],
+                matches: 4,
+                vacancies: 4,
+                contact: "(044) 222-3333",
+                email: "operations@earthmovers.ph",
+                priority: false
+            },
+            {
+                jobTitle: "Plumbing Supervisor",
+                companyName: "AquaFlow Systems",
+                posted: "1 day ago",
+                offer: "Management position with benefits package and company phone",
+                location: "Pampanga",
+                skills: ["Plumbing", "Pipefitting", "Waterproofing", "Team Management"],
+                matches: 3,
+                vacancies: 1,
+                contact: "(045) 777-8888",
+                email: "hr@aquaflow.com",
+                priority: true
+            },
+            {
+                jobTitle: "CNC Machinist",
+                companyName: "Precision Parts Ltd.",
+                posted: "3 weeks ago",
+                offer: "Shift work with night differential and production bonuses",
+                location: "Bulacan",
+                skills: ["CNC Operation", "Precision Measuring", "Quality Control", "CAD"],
+                matches: 2,
+                vacancies: 3,
+                contact: "(044) 444-5555",
+                email: "apply@precisionparts.ph",
+                priority: false
+            },
+            {
+                jobTitle: "Electrical Team Lead",
+                companyName: "PowerGrid Solutions",
+                posted: "Just now",
+                offer: "Lucrative contract position for experienced electricians",
+                location: "Pampanga",
+                skills: ["Electrical", "Circuit Testing", "PLC Programming", "Team Leadership"],
+                matches: 4,
+                vacancies: 2,
+                contact: "(045) 999-0000",
+                email: "recruitment@powergrid.ph",
+                priority: true
+            }
+        ];
+
+        // DOM Elements
+        const jobTitleEl = document.getElementById('jobTitle');
+        const companyNameEl = document.getElementById('companyName');
+        const passBtn = document.getElementById('passBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        const toast = document.getElementById('toast');
+        const signupCta = document.getElementById('signupCta');
+        const demoCountEl = document.getElementById('demoCount');
+
+        // Demo variables
+        let currentDemoIndex = 0;
+        const maxDemos = 7;
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', () => {
+            displayDemoJob();
+            
+            // Button event listeners
+            passBtn.addEventListener('click', nextDemoJob);
+            likeBtn.addEventListener('click', likeDemoJob);
+        });
+
+        // Display current demo job
+        function displayDemoJob() {
+            if (currentDemoIndex >= demoJobs.length) {
+                showSignupCta();
+                return;
+            }
+            
+            demoCountEl.textContent = currentDemoIndex + 1;
+            const job = demoJobs[currentDemoIndex];
+            
+            // Update all fields
+            jobTitleEl.textContent = job.jobTitle;
+            companyNameEl.textContent = job.companyName;
+            document.getElementById('jobOffer').textContent = job.offer;
+            document.getElementById('jobLocation').textContent = job.location;
+            document.getElementById('skillsMatchCount').textContent = job.matches + " Matches";
+            
+            // Update skills
+            for (let i = 0; i < 5; i++) {
+                const skillEl = document.getElementById('skill' + (i+1));
+                if (job.skills[i]) {
+                    skillEl.textContent = job.skills[i];
+                    // Style matched skills differently (first few are matches)
+                    skillEl.className = i < job.matches ? 
+                        'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold' :
+                        'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
+                }
+            }
+            
+            // Update other info
+            document.getElementById('vacancies').innerHTML = `<i class="fas fa-door-open text-[#65956C]"></i><strong>Vacancies:</strong> ${job.vacancies}`;
+            document.getElementById('email').innerHTML = `<i class="fas fa-envelope text-[#65956C]"></i><strong>Email:</strong> ${job.email}`;
+            document.getElementById('needed').innerHTML = `<i class="fas fa-users text-[#65956C]"></i><strong>Needed:</strong> Immediately`;
+            document.getElementById('contact').innerHTML = `<i class="fas fa-phone-alt text-[#65956C]"></i><strong>Contact:</strong> ${job.contact}`;
+            
+            // Update priority
+            const priorityEl = document.getElementById('priority');
+            if (job.priority) {
+                priorityEl.innerHTML = '<i class="fas fa-star"></i> Priority - This employer likes profiles like yours';
+                priorityEl.classList.remove('hidden');
+            } else {
+                priorityEl.classList.add('hidden');
+            }
+        }
+        
+        // Show next demo job
+        function nextDemoJob() {
+            currentDemoIndex++;
+            if (currentDemoIndex < maxDemos) {
+                displayDemoJob();
+            } else {
+                showSignupCta();
+            }
+        }
+        
+        // Like current demo job
+        function likeDemoJob() {
+            // Show toast
+            toast.textContent = "Job saved! (Sign up to apply)";
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+                nextDemoJob();
+            }, 1000);
+        }
+        
+        // Show signup CTA after all demos
+        function showSignupCta() {
+            document.querySelector('.tinder-card').classList.add('hidden');
+            document.querySelector('.button-card').classList.add('hidden');
+            signupCta.classList.remove('hidden');
+            demoCountEl.textContent = "7";
+        }
+    </script>
+</body>
+</html>

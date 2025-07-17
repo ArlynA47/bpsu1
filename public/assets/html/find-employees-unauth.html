@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa! - Find Skilled Workers</title>
+    <style>
+        .activeLink {
+            color: #7FD33B;
+        }
+        .demo-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .tinder-card {
+            width: 700px;
+        }
+
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between bg-[#232323] p-2.5 sticky top-0 z-50">
+        <div class="flex flex-1 justify-start items-end gap-2">
+            <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
+        </div>
+
+        <div class="flex flex-2 justify-between items-center gap-6">
+            <a href="../../index.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="find-employees-unauth.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Meet Talent</a>
+            <a href="find-jobs-unauth.html" class="flex-1 text-center text-white hover:text-gray-300">Explore Opportunities</a>
+        </div>
+
+        <div class="flex flex-1 justify-end items-center gap-4">
+            <a href="../html/login.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Log In
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col items-center gap-6 p-10 relative">
+        <div class="demo-counter">Demo: <span id="demoCount">1</span>/7</div>
+        
+        <div class="flex flex-col items-center gap-1">
+            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Meet Qualified Candidates - Platform Demo</h3>
+            <p class="text-[#545454] text-xl">
+                <span class="text-[#315E26] font-semibold">Try our platform!</span> Log in to browse skilled workers ready to join your team
+            </p>
+        </div>
+
+        <div class="flex flex-col items-center justify-between flex-1 w-xl gap-8">
+            <!-- Employee Tinder Card -->
+            <div class="tinder-card transition-opacity duration-300">
+                <div class="flex justify-between gap-5">
+                    <!-- Full Name, Current Province and Willing to Relocate -->
+                    <div class="flex flex-1 flex-col">
+                        <span class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis" id="fullName">
+                            Juan Dela Cruz
+                        </span>
+
+                        <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
+                            Lives in <span id="currentProvince">Pampanga</span> <span id="willingToRelocate">- Willing to Relocate</span>
+                        </span>
+                    </div>
+
+                    <!-- Reputation -->
+                    <div class="flex items-start gap-4">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-thumbs-up text-[#73A267] text-xl"></i>
+                            <span class="text-lg" id="likes">24</span>
+                        </span>
+
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-thumbs-down text-[#D33B3B] text-xl"></i>
+                            <span class="text-lg" id="dislikes">3</span>
+                        </span>
+
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-star text-[#FFD700] text-xl"></i>
+                            <span class="text-lg" id="reputationScore">89%</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Preferred Work Locations -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Preferred Locations</h3>
+
+                        <span id="workLocationMatchCount" class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white" title="Matched Jobs: Welder Position, Metal Fabricator">
+                            1 Match
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pr-1 scroll-smooth" id="workLocationsContainer">
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Pampanga</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Bulacan</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Tarlac</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+2 more</span>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+
+                        <span id="skillsMatchCount" class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white" title="Matched Jobs: Welder Position, Metal Fabricator">
+                            5 Matches
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pr-1 scroll-smooth" id="skillsContainer">
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Welding</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Metalworking</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Fabrication</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Blueprint Reading</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Safety Compliance</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">CNC Operation</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Power Tools</span>
+                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+3 more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Card -->
+            <div class="button-card h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
+                <!-- Skip Button -->
+                <button class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer" id="skipBtn">
+                    <i class="fas fa-times text-2xl text-white"></i>
+                </button>
+
+                <!-- Keep Button -->
+                <button class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer" id="keepBtn">
+                    <i class="fas fa-heart text-2xl text-white"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Sign Up CTA (hidden initially) -->
+        <div id="signupCta" class="hidden flex flex-col items-center gap-4 p-6 bg-[#F8F8F8] rounded-lg border border-[#65956C] max-w-md text-center">
+            <h3 class="text-[#3D3D3D] text-2xl font-bold">Ready to find your perfect employee?</h3>
+            <p class="text-[#545454]">Sign up now to access skilled workers and start building your dream team!</p>
+            <div class="flex gap-4 mt-2">
+                <a href="../html/employer-registration.html" class="bg-[#315E26] text-white px-6 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                    Register Now
+                </a>
+                <a href="../html/login.html" class="bg-white text-[#315E26] px-6 py-2 rounded border border-[#315E26] hover:bg-[#F0F0F0] cursor-pointer">
+                    Log In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
+        Employee liked!
+    </div>
+
+    <script>
+        // Demo employee data
+        const demoEmployees = [
+            {
+                fullName: "Juan Dela Cruz",
+                currentProvince: "Pampanga",
+                willingToRelocate: "Yes",
+                likes: 24,
+                dislikes: 3,
+                reputationScore: 89,
+                preferredLocations: ["Pampanga", "Bulacan", "Tarlac", "Nueva Ecija", "Zambales"],
+                skills: ["Welding", "Metalworking", "Fabrication", "Blueprint Reading", "Safety Compliance", "CNC Operation", "Power Tools", "Measuring", "Material Handling"]
+            },
+            {
+                fullName: "Maria Santos",
+                currentProvince: "Bulacan",
+                willingToRelocate: "No",
+                likes: 18,
+                dislikes: 1,
+                reputationScore: 95,
+                preferredLocations: ["Bulacan", "Metro Manila"],
+                skills: ["Electrical", "Circuit Testing", "PLC Programming", "Industrial Control", "Motor Control", "Troubleshooting", "Technical Writing"]
+            },
+            {
+                fullName: "Roberto Garcia",
+                currentProvince: "Benguet",
+                willingToRelocate: "Yes",
+                likes: 32,
+                dislikes: 5,
+                reputationScore: 86,
+                preferredLocations: ["Benguet", "Pangasinan", "La Union", "Pampanga"],
+                skills: ["Carpentry", "Framing", "Drywall Installation", "Tiling", "Blueprint Reading", "Material Selection", "Job Estimation"]
+            },
+            {
+                fullName: "Luzviminda Reyes",
+                currentProvince: "Ilocos Norte",
+                willingToRelocate: "Yes",
+                likes: 12,
+                dislikes: 0,
+                reputationScore: 100,
+                preferredLocations: ["Ilocos Norte", "Ilocos Sur", "La Union", "Pangasinan"],
+                skills: ["HVAC Maintenance", "HVAC Controls", "System Testing", "Pneumatics", "Safety Compliance", "Troubleshooting"]
+            },
+            {
+                fullName: "Antonio Bautista",
+                currentProvince: "Nueva Ecija",
+                willingToRelocate: "No",
+                likes: 27,
+                dislikes: 4,
+                reputationScore: 87,
+                preferredLocations: ["Nueva Ecija", "Pampanga", "Bulacan"],
+                skills: ["Heavy Equipment", "Forklift Operation", "Load Handling", "Logistics", "Material Handling", "Safety Compliance"]
+            },
+            {
+                fullName: "Sofia Mendoza",
+                currentProvince: "Zambales",
+                willingToRelocate: "Yes",
+                likes: 15,
+                dislikes: 2,
+                reputationScore: 88,
+                preferredLocations: ["Zambales", "Pampanga", "Bataan"],
+                skills: ["Plumbing", "Pipefitting", "Plumbing Codes", "Waterproofing", "Blueprint Reading", "Measuring"]
+            },
+            {
+                fullName: "Carlos Lim",
+                currentProvince: "Pangasinan",
+                willingToRelocate: "Yes",
+                likes: 21,
+                dislikes: 3,
+                reputationScore: 88,
+                preferredLocations: ["Pangasinan", "La Union", "Tarlac", "Pampanga"],
+                skills: ["Machining", "CNC Operation", "CNC Programming", "Precision Measuring", "Quality Control", "CAD Drafting"]
+            }
+        ];
+
+        // DOM Elements
+        const fullNameEl = document.getElementById('fullName');
+        const currentProvinceEl = document.getElementById('currentProvince');
+        const willingToRelocateEl = document.getElementById('willingToRelocate');
+        const likesEl = document.getElementById('likes');
+        const dislikesEl = document.getElementById('dislikes');
+        const reputationScoreEl = document.getElementById('reputationScore');
+        const workLocationsContainer = document.getElementById('workLocationsContainer');
+        const skillsContainer = document.getElementById('skillsContainer');
+        const workLocationMatchCountEl = document.getElementById('workLocationMatchCount');
+        const skillsMatchCountEl = document.getElementById('skillsMatchCount');
+        const skipBtn = document.getElementById('skipBtn');
+        const keepBtn = document.getElementById('keepBtn');
+        const toast = document.getElementById('toast');
+        const signupCta = document.getElementById('signupCta');
+        const demoCountEl = document.getElementById('demoCount');
+
+        // Demo variables
+        let currentDemoIndex = 0;
+        const maxDemos = 7;
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', () => {
+            displayDemoEmployee();
+            
+            // Button event listeners
+            skipBtn.addEventListener('click', nextDemoEmployee);
+            keepBtn.addEventListener('click', likeDemoEmployee);
+        });
+
+        // Display current demo employee
+        function displayDemoEmployee() {
+            if (currentDemoIndex >= demoEmployees.length) {
+                showSignupCta();
+                return;
+            }
+            
+            demoCountEl.textContent = currentDemoIndex + 1;
+            
+            const employee = demoEmployees[currentDemoIndex];
+            
+            // Basic Info
+            fullNameEl.textContent = employee.fullName;
+            currentProvinceEl.textContent = employee.currentProvince;
+            willingToRelocateEl.textContent = employee.willingToRelocate === "Yes" ? "- Willing to Relocate" : "";
+            likesEl.textContent = employee.likes;
+            dislikesEl.textContent = employee.dislikes;
+            reputationScoreEl.textContent = employee.reputationScore + "%";
+            
+            // Preferred Work Locations
+            workLocationsContainer.innerHTML = "";
+            employee.preferredLocations.forEach((loc, index) => {
+                const el = document.createElement('span');
+                el.className = index === 0 
+                    ? 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                    : 'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
+                el.textContent = loc;
+                workLocationsContainer.appendChild(el);
+            });
+            
+            // Skills
+            skillsContainer.innerHTML = "";
+            employee.skills.forEach((skill, index) => {
+                const el = document.createElement('span');
+                el.className = index < 5 
+                    ? 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                    : 'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
+                el.textContent = skill;
+                skillsContainer.appendChild(el);
+            });
+            
+            // Match counts
+            workLocationMatchCountEl.textContent = "1 Match";
+            skillsMatchCountEl.textContent = "5 Matches";
+        }
+        
+        // Show next demo employee
+        function nextDemoEmployee() {
+            currentDemoIndex++;
+            if (currentDemoIndex < maxDemos) {
+                displayDemoEmployee();
+            } else {
+                showSignupCta();
+            }
+        }
+        
+        // Like current demo employee
+        function likeDemoEmployee() {
+            // Show toast
+            toast.textContent = "Employee liked! (Sign up to save)";
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+                nextDemoEmployee();
+            }, 1000);
+        }
+        
+        // Show signup CTA after all demos
+        function showSignupCta() {
+            document.querySelector('.tinder-card').classList.add('hidden');
+            document.querySelector('.button-card').classList.add('hidden');
+            signupCta.classList.remove('hidden');
+            demoCountEl.textContent = "7";
+        }
+    </script>
+</body>
+
+</html>
