@@ -313,6 +313,65 @@
         #profileManagementButtons.hidden {
             display: none;
         }
+
+        .image-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        max-height: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .image-caption.expanded {
+        max-height: none;
+        white-space: normal;
+    }
+    
+    .slider-container {
+        position: relative;
+    }
+    
+    .analysis-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+    }
+    
+    .analysis-modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 8px;
+    }
+    
+    .close-analysis {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close-analysis:hover {
+        color: black;
+    }
+    
     </style>
 </head>
 <body>
@@ -530,6 +589,14 @@
         </div>
 
     </main>
+
+    <div id="analysisModal" class="analysis-modal">
+        <div class="analysis-modal-content">
+            <span class="close-analysis">&times;</span>
+            <h2>Image Analysis</h2>
+            <div id="fullAnalysisContent"></div>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -762,6 +829,7 @@
                     }
                     
                     loadProfileData(profileUserIdToLoad);
+                    
                 } else {
                     // Not logged in - default to employee view
                     toggleNavigation(false);
@@ -776,6 +844,8 @@
                 loadProfileData(profileUserId);
             }
         }
+
+
         
         function toggleEmployerElements(show) {
             // Toggle navigation
@@ -887,6 +957,7 @@
                 // Load feedback/comments
                 loadEmployeeFeedback(profileUserIdToLoad);
                 loadProfileGallery(profileUserIdToLoad);
+                loadImageAnalyses();
                 
             } catch (error) {
                 console.error('Error loading profile data:', error);
@@ -1356,6 +1427,99 @@ async function loadEmployeeFeedback(employeeId) {
             resultsContainer.style.display = 'block';
         }
     });
+
+    async function loadImageAnalyses() {
+        try {
+            const userId = profileUserId || (currentUser ? currentUser.uid : null);
+            if (!userId) return;
+            
+            const galleryRef = collection(db, 'employeeGallery', userId, 'images');
+            const querySnapshot = await getDocs(galleryRef);
+            
+            const analyses = [];
+            querySnapshot.forEach(doc => {
+                const imageData = doc.data();
+                analyses.push({
+                    url: imageData.url,
+                    analysis: imageData.editedAnalysis || imageData.analysis || 'No analysis available'
+                });
+            });
+            
+            // Add captions to slides
+            document.querySelectorAll('.slide').forEach((slide, index) => {
+                if (analyses[index]) {
+                    const caption = document.createElement('div');
+                    caption.className = 'image-caption';
+                    caption.textContent = analyses[index].analysis;
+                    caption.addEventListener('click', function() {
+                        // Toggle expanded view
+                        this.classList.toggle('expanded');
+                        
+                        // Show full analysis in modal if clicked while expanded
+                        if (this.classList.contains('expanded')) {
+                            document.getElementById('fullAnalysisContent').textContent = analyses[index].analysis;
+                            document.getElementById('analysisModal').style.display = 'block';
+                        }
+                    });
+                    slide.appendChild(caption);
+                }
+            });
+            
+            // Store analyses for the modal button
+            window.imageAnalyses = analyses;
+
+            // Add modal close functionality
+            const modal = document.getElementById('analysisModal');
+            const closeBtn = document.querySelector('.close-analysis');
+            
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                
+                // Collapse all captions when modal closes
+                document.querySelectorAll('.image-caption.expanded').forEach(caption => {
+                    caption.classList.remove('expanded');
+                });
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // Collapse all captions when clicking outside
+                    document.querySelectorAll('.image-caption.expanded').forEach(caption => {
+                        caption.classList.remove('expanded');
+                    });
+                }
+            });
+
+        } catch (error) {
+            console.error('Error loading image analyses:', error);
+        }
+    }
+
+    const showAnalysesBtn = document.createElement('button');
+        showAnalysesBtn.textContent = 'Show Gallery Analysis';
+        showAnalysesBtn.className = 'feedback-btn';
+        showAnalysesBtn.addEventListener('click', function() {
+            if (window.imageAnalyses && window.imageAnalyses.length > 0) {
+                const fullContent = window.imageAnalyses.map(analysis => 
+                    `<div style="margin-bottom: 20px;">
+                        <img src="${analysis.url}" style="max-width: 200px; max-height: 200px; display: block; margin-bottom: 10px;">
+                        <p>${analysis.analysis}</p>
+                    </div>`
+                ).join('');
+                
+                document.getElementById('fullAnalysisContent').innerHTML = fullContent;
+                document.getElementById('analysisModal').style.display = 'block';
+            } else {
+                alert('No image analyses available');
+            }
+        });
+
+        // Add the button to an appropriate container
+        document.querySelector('.feedback-section').prepend(showAnalysesBtn);
 
     </script>
 </body>
