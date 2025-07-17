@@ -664,7 +664,7 @@ nav ul li a:active {
     box-sizing: border-box;
     padding-top: 3px;
     padding-left: 25px;
-    padding-right: 10px;
+    padding-right: 25px;
     padding-bottom: 90px;
     box-shadow: 5px 0 5px -3px rgba(0, 0, 0, 0.2); /* Right side drop shadow */
 }
@@ -697,8 +697,7 @@ nav ul li a:active {
 
 
     .thumbscontainer{
-        margin-top: 10px;
-
+        margin-top: 0px;
         height: 50px;
         width: 100%;
         display: flex;
@@ -1128,4 +1127,73 @@ nav ul li a:active {
 
 #employerFeedbackForm.hidden{
     display:none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.employeebuttondiv{
+   margin-top: 20px;
+ 
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.employeeprofilebuttons {
+    background-color: #3B3C3B !important ;
+    color: white;
+    border: none;
+     width: match-parent;
+     border-radius: 30px !important ;
+    padding: 9px ;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+
+.employeeprofilebuttons:hover {
+    background-color: #2d2e2d !important ;
+
 }
