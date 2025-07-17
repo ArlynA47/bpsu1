@@ -982,6 +982,9 @@ body {
   .bg-\[\#F7FFF9\] {
     background-color: #F7FFF9;
   }
+  .bg-\[\#F8F8F8\] {
+    background-color: #F8F8F8;
+  }
   .bg-\[\#FFEA05\] {
     background-color: #FFEA05;
   }
@@ -1589,6 +1592,13 @@ body {
     &:hover {
       @media (hover: hover) {
         background-color: #A72828;
+      }
+    }
+  }
+  .hover\:bg-\[\#F0F0F0\] {
+    &:hover {
+      @media (hover: hover) {
+        background-color: #F0F0F0;
       }
     }
   }
