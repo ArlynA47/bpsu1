@@ -838,7 +838,7 @@
                 }
                 
                 // Use GCP Function to get training recommendations
-                let trainingHtml = '<div class="card-container">';
+                let trainingHtml = '<div class="card-container" style="display: flex; flex-wrap: wrap; gap: 15px;">';
                 
                 for (const skill of skillsToTrain) {
                     try {
@@ -859,7 +859,7 @@
                             const trainingContent = data.content || `No specific training found for ${skill}`;
                             
                             trainingHtml += `
-                                <div class="insight-card">
+                                <div class="insight-card" style="width: 31%;">
                                     <div class="card-header">
                                         <div class="card-icon">
                                             <i class="fas fa-graduation-cap"></i>
