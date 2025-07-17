@@ -20,6 +20,47 @@ let currentSkillFilter = 'all';
 let selectedProvince = null;
 let allSkills = [];
 
+// New function to handle the complete initialization flow
+async function initializeApplication() {
+  try {
+    // 1. Initialize Firebase and map first
+    initMap(); // This will call loadAllData() internally
+    
+    // 2. Wait until provinceData is fully populated
+    await waitForDataLoad();
+    
+    // 3. Verify we have multiple provinces
+    if (Object.keys(provinceData).length <= 1) {
+      throw new Error('Insufficient province data loaded');
+    }
+    
+    // 4. Upload to HRINA
+    await uploadHirnaData();
+    
+    console.log('Application fully initialized with', 
+      Object.keys(provinceData).length, 'provinces');
+  } catch (error) {
+    console.error('Initialization failed:', error);
+    showError(`Initialization error: ${error.message}`);
+  }
+}
+
+// Helper function to wait for data completion
+function waitForDataLoaded() {
+  return new Promise((resolve) => {
+    const checkInterval = setInterval(() => {
+      if (Object.keys(provinceData).length > 1 && 
+          Object.values(provinceData)[0].metrics.activeJobs !== undefined) {
+        clearInterval(checkInterval);
+        resolve();
+      }
+    }, 100);
+  });
+}
+
+// Update DOMContentLoaded listener
+document.addEventListener('DOMContentLoaded', initializeApplication);
+
 // Main initialization function
 function initMap() {
   map = new google.maps.Map(document.getElementById("northLuzonMap"), {
@@ -56,6 +97,8 @@ async function loadAllData() {
     const provincesResponse = await fetch('assets/js/provinces.json');
     const provinces = await provincesResponse.json();
     
+    console.log(`Initializing data for ${provinces.length} provinces`);
+    
     // Initialize province data structure
     provinces.forEach(province => {
       provinceData[province.name] = {
@@ -73,6 +116,8 @@ async function loadAllData() {
         topSkills: []
       };
     });
+    
+    console.log('Province data initialized:', Object.keys(provinceData));
 
     // Load all data in parallel
     const [
@@ -349,64 +394,344 @@ function updateProvinceInfoPanel(provinceName) {
     ? province.metrics 
     : province.metrics.bySkill[currentSkillFilter] || {};
   
+  // Calculate total demand for percentage calculation
+  const totalDemand = province.topSkills.reduce((sum, skill) => sum + skill.demandScore, 0);
+  
   const statsContainer = document.getElementById('provinceStats');
   statsContainer.innerHTML = `
-    <div class="stat-card bg-gray-50 p-3 rounded-lg">
-      <h4 class="text-sm font-medium text-gray-500">Total Jobs</h4>
-      <p class="text-2xl font-bold">${metrics.totalJobs?.toLocaleString() || 'N/A'}</p>
-    </div>
-    <div class="stat-card bg-gray-50 p-3 rounded-lg">
-      <h4 class="text-sm font-medium text-gray-500">Active Jobs</h4>
-      <p class="text-2xl font-bold">${metrics.activeJobs?.toLocaleString() || 'N/A'}</p>
-    </div>
-    <div class="stat-card bg-gray-50 p-3 rounded-lg">
-      <h4 class="text-sm font-medium text-gray-500">Available Workers</h4>
-      <p class="text-2xl font-bold">${metrics.jobSeekers?.toLocaleString() || 'N/A'}</p>
-    </div>
-    <div class="stat-card bg-gray-50 p-3 rounded-lg">
-      <h4 class="text-sm font-medium text-gray-500">Registered Employers</h4>
-      <p class="text-2xl font-bold">${currentSkillFilter === 'all' ? province.metrics.employers?.toLocaleString() || 'N/A' : 'N/A'}</p>
-    </div>
-    <div class="stat-card bg-gray-50 p-3 rounded-lg col-span-2">
-      <h4 class="text-sm font-medium text-gray-500">Job Fulfillment Rate</h4>
-      <div class="flex items-center gap-2">
-        <p class="text-2xl font-bold">${metrics.fulfillmentRate?.toLocaleString() || '0'}%</p>
-        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div class="h-full ${getFulfillmentRateColorClass(metrics.fulfillmentRate || 0)}" 
-               style="width: ${metrics.fulfillmentRate || 0}%"></div>
+    <div class="space-y-4">
+      <div>
+        <p class="text-m"><strong>${formatNumber(metrics.activeJobs || 0)}</strong> Active Jobs</p>
+      </div>
+      
+      <div>
+        <p class="text-m"><strong>${formatNumber(metrics.jobSeekers || 0)}</strong> Available Workers</p>
+      </div>
+      
+      <div class="pt-4 border-t">
+        <h4 class="font-medium mb-2">Top In-Demand Skills</h4>
+        <div class="flex flex-wrap gap-2" id="provinceTopSkills">
+          ${province.topSkills.slice(0, 5).map(skill => {
+            const percentage = totalDemand > 0 ? Math.round((skill.demandScore / totalDemand) * 100) : 0;
+            return `
+              <div class="skill-badge cursor-pointer" data-skill="${skill.skill}">
+                ${skill.skill} <span class="text-xs font-normal">(${percentage}%)</span>
+                <i class="fas fa-info-circle ml-1"></i>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
+      <br>
+      <div class="mt-auto pt-4 border-t">
+      <button id="analyzeBtn" class="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-blue-800 px-4 py-2 rounded-lg flex items-center justify-start gap-2 transition-colors cursor-pointer">
+        <i class="fas fa-robot"></i>
+        Analyze this data
+      </button>
+      </div>
     </div>
-    ${currentMetric === 'avgFulfillmentTime' ? `
-    <div class="stat-card bg-gray-50 p-3 rounded-lg col-span-2">
-      <h4 class="text-sm font-medium text-gray-500">Avg. Fulfillment Time</h4>
-      <p class="text-2xl font-bold">${metrics.avgFulfillmentTime ? 
-        Math.round(metrics.avgFulfillmentTime / (24 * 60 * 60)) + ' days' : 'N/A'}</p>
-    </div>
-    ` : ''}
   `;
   
-  // Update top skills
-  const topSkillsContainer = document.getElementById('topSkills');
-  topSkillsContainer.innerHTML = '';
-  
-  const skillsToShow = currentSkillFilter === 'all' 
-    ? province.topSkills 
-    : [{ skill: currentSkillFilter, demandScore: 100 }];
-  
-  if (skillsToShow.length > 0) {
-    skillsToShow.forEach(skill => {
-      const skillBadge = document.createElement('div');
-      skillBadge.className = 'skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm';
-      skillBadge.innerHTML = `
-        ${skill.skill} 
-        <span class="text-xs font-normal">(${Math.round(skill.demandScore)}% demand)</span>
-      `;
-      topSkillsContainer.appendChild(skillBadge);
+  // Add click handlers for skill badges
+  document.querySelectorAll('#provinceTopSkills .skill-badge').forEach(badge => {
+    badge.addEventListener('click', (e) => {
+      const skill = e.currentTarget.dataset.skill;
+      showSkillDetails(provinceName, skill);
     });
-  } else {
-    topSkillsContainer.innerHTML = '<p class="text-gray-500">No skill data available</p>';
+  });
+  
+  // Add click handler for analyze button
+  document.getElementById('analyzeBtn').addEventListener('click', () => {
+    analyzeProvinceData(provinceName);
+  });
+}
+
+function formatNumber(num) {
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}k+`;
   }
+  return num.toString();
+}
+
+async function showSkillDetails(province, skill) {
+  const skillData = provinceData[province].metrics.bySkill[skill] || {};
+  
+  // Create modal content
+  const content = `
+    <div class="p-4">
+      <h3 class="text-lg font-bold mb-2">${skill} in ${province}</h3>
+      
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-sm text-gray-500">Active Jobs</p>
+          <p class="font-bold">${formatNumber(skillData.activeJobs || 0)}</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-sm text-gray-500">Available Workers</p>
+          <p class="font-bold">${formatNumber(skillData.jobSeekers || 0)}</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-sm text-gray-500">Fulfillment Rate</p>
+          <p class="font-bold">${skillData.fulfillmentRate || 0}%</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded">
+          <p class="text-sm text-gray-500">Avg. Fulfillment Time</p>
+          <p class="font-bold">${skillData.avgFulfillmentTime ? 
+            Math.round(skillData.avgFulfillmentTime / (24 * 60 * 60)) + ' days' : 'N/A'}</p>
+        </div>
+      </div>
+      
+      <button id="getTrainingBtn" class="w-full bg-green-100 text-green-800 py-2 rounded-lg mt-2">
+        <i class="fas fa-graduation-cap"></i> Find Training Programs
+      </button>
+    </div>
+  `;
+  
+  // Show modal (you'll need to implement your modal system)
+  showModal(content);
+  
+  // Add training button handler
+  document.getElementById('getTrainingBtn')?.addEventListener('click', () => {
+    getTrainingRecommendations(skill, province);
+  });
+}
+
+async function analyzeProvinceData(provinceName) {
+  const province = provinceData[provinceName];
+  if (!province) return;
+
+  const metrics = province.metrics;
+  const topSkills = province.topSkills.map(s => s.skill);
+
+  try {
+    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        province: provinceName,
+        activeJobs: metrics.activeJobs,
+        jobSeekers: metrics.jobSeekers,
+        fulfillmentRate: metrics.fulfillmentRate,
+        topSkills: topSkills
+      })
+    });
+    
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const analysis = await response.json();
+    
+    // Format the response with proper styling
+    const formattedResponse = formatAnalysisResponse(analysis.content, provinceName);
+    
+    showModal(`
+      <div class="space-y-6">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="text-xl font-bold text-[#315E26]">Analysis for ${provinceName}</h3>
+          <span class="text-sm text-gray-500">${new Date().toLocaleDateString()}</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Active Jobs</p>
+            <p class="font-bold text-2xl">${formatNumber(metrics.activeJobs || 0)}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Available Workers</p>
+            <p class="font-bold text-2xl">${formatNumber(metrics.jobSeekers || 0)}</p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Fulfillment Rate</p>
+            <p class="font-bold text-2xl ${metrics.fulfillmentRate > 50 ? 'text-green-600' : 'text-red-600'}">
+              ${metrics.fulfillmentRate || 0}%
+            </p>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <p class="text-sm text-gray-500">Top Skills</p>
+            <div class="flex flex-wrap gap-1 mt-2">
+              ${topSkills.slice(0, 3).map(skill => `
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${skill}</span>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        
+        ${formattedResponse}
+      </div>
+    `);
+    
+  } catch (error) {
+    console.error('Error getting analysis:', error);
+    showModal(`
+      <div class="p-6 text-center">
+        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+        <h3 class="text-lg font-bold text-red-600 mb-2">Analysis Failed</h3>
+        <p class="text-gray-600">Could not get analysis. Please try again later.</p>
+        <button class="mt-4 bg-blue-100 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-200">
+          Retry
+        </button>
+      </div>
+    `);
+  }
+}
+
+function formatAnalysisResponse(text, provinceName) {
+  // Convert to proper sections with styling
+  const sections = text.split('\n\n').filter(section => section.trim());
+  
+  return sections.map(section => {
+    if (section.startsWith('**Key Metrics:**')) {
+      return ''; // We're showing metrics separately now
+    } else if (section.startsWith('**Analysis:**')) {
+      const points = section.replace('**Analysis:**', '').trim().split('\n');
+      return `
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h4 class="font-bold text-blue-800 mb-3 flex items-center">
+            <i class="fas fa-chart-line mr-2"></i> Key Insights
+          </h4>
+          <ul class="list-disc pl-5 space-y-2">
+            ${points.filter(p => p.trim()).map(p => `
+              <li class="text-gray-700">${p.replace(/^-\s*/, '').trim()}</li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    } else if (section.startsWith('**Training Programs:**')) {
+      const programs = section.replace('**Training Programs:**', '').trim().split('\n');
+      return `
+        <div class="mt-4 border-t pt-4">
+          <h4 class="font-bold text-[#315E26] mb-3 flex items-center">
+            <i class="fas fa-graduation-cap mr-2"></i> Training Recommendations
+          </h4>
+          <div class="space-y-3">
+            ${programs.filter(p => p.trim()).map(p => {
+              const match = p.match(/-\s*(.*?):\s*(.*?)\s*\|\s*(.*)/);
+              if (match) {
+                return `
+                  <div class="border-l-4 border-[#315E26] pl-3 py-1 bg-gray-50 rounded-r">
+                    <p class="font-medium text-gray-800">${match[1].trim()}</p>
+                    <p class="text-sm text-gray-600 flex items-center">
+                      <i class="fas fa-map-marker-alt mr-1 text-xs"></i> ${match[2].trim()}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">${match[3].trim()}</p>
+                  </div>
+                `;
+              }
+              return `
+                <div class="border-l-4 border-gray-300 pl-3 py-1">
+                  <p class="text-sm text-gray-600">${p.replace(/^-\s*/, '').trim()}</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="prose max-w-none mt-4 p-4 bg-gray-50 rounded-lg">
+        ${section.replace(/\n/g, '<br>')}
+      </div>
+    `;
+  }).join('');
+}
+
+async function getTrainingRecommendations(skill, location) {
+  try {
+    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/getTrainingRecommendations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ skill, location })
+    });
+    
+    const training = await response.json();
+    
+    // Format the training programs display
+    const formattedContent = formatTrainingResponse(training.content);
+    
+    showModal(`
+      <div class="p-4">
+        <h3 class="text-xl font-bold text-[#315E26] mb-4">Training for ${skill} in ${location}</h3>
+        <div class="space-y-4">
+          ${formattedContent}
+        </div>
+      </div>
+    `);
+    
+  } catch (error) {
+    console.error('Error getting training:', error);
+    showModal(`
+      <div class="p-4">
+        <h3 class="text-lg font-bold text-red-600 mb-2">Training Info Failed</h3>
+        <p>Could not get training information. Please try again later.</p>
+      </div>
+    `);
+  }
+}
+
+function formatTrainingResponse(text) {
+  // Split into sections
+  const sections = text.split('<br><br>').filter(section => section.trim());
+  
+  return sections.map(section => {
+    if (section.includes('Local Programs')) {
+      return `
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+            <i class="fas fa-map-marker-alt mr-2"></i> Local Programs
+          </h4>
+          ${formatTrainingItems(section.replace('Local Programs', ''))}
+        </div>
+      `;
+    } else if (section.includes('Nearby Options')) {
+      return `
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h4 class="font-bold text-green-800 mb-2 flex items-center">
+            <i class="fas fa-location-arrow mr-2"></i> Nearby Options
+          </h4>
+          ${formatTrainingItems(section.replace('Nearby Options', ''))}
+        </div>
+      `;
+    } else if (section.includes('National Programs')) {
+      return `
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <h4 class="font-bold text-purple-800 mb-2 flex items-center">
+            <i class="fas fa-globe-americas mr-2"></i> National Programs
+          </h4>
+          ${formatTrainingItems(section.replace('National Programs', ''))}
+        </div>
+      `;
+    }
+    return `<div class="prose">${section}</div>`;
+  }).join('');
+}
+
+function formatTrainingItems(section) {
+  const items = section.split('<br>').filter(item => item.trim());
+  
+  if (items.length === 1 && items[0].includes("No ")) {
+    return `<p class="text-gray-600">${items[0]}</p>`;
+  }
+  
+  return `
+    <ul class="list-disc pl-5 space-y-2">
+      ${items.map(item => {
+        // Format each training program item
+        const parts = item.split('|').map(p => p.trim());
+        if (parts.length >= 2) {
+          return `
+            <li class="text-gray-700">
+              <span class="font-medium">${parts[0].replace('•', '').trim()}</span>
+              ${parts.length > 1 ? `<p class="text-sm text-gray-600">${parts[1]}</p>` : ''}
+            </li>
+          `;
+        }
+        return `<li class="text-gray-700">${item.replace('•', '').trim()}</li>`;
+      }).join('')}
+    </ul>
+  `;
 }
 
 function updateSummaryCards() {
@@ -417,8 +742,6 @@ function updateSummaryCards() {
   let employers = 0;
   let totalHired = 0;
   let totalCreated = 0;
-  let totalFulfillmentTime = 0;
-  let fulfillmentTimeCount = 0;
   
   Object.values(provinceData).forEach(province => {
     totalJobs += province.metrics.totalJobs || 0;
@@ -431,23 +754,16 @@ function updateSummaryCards() {
       Object.values(province.metrics.bySkill).forEach(skillData => {
         totalCreated += skillData.totalJobs || 0;
         totalHired += Math.round(((skillData.fulfillmentRate || 0) / 100) * (skillData.totalJobs || 0));
-        
-        if (skillData.avgFulfillmentTime) {
-          totalFulfillmentTime += skillData.avgFulfillmentTime;
-          fulfillmentTimeCount++;
-        }
       });
     }
   });
   
   const fulfillmentRate = totalCreated > 0 ? Math.round((totalHired / totalCreated) * 100) : 0;
-  const avgFulfillmentTime = fulfillmentTimeCount > 0 ? 
-    Math.round(totalFulfillmentTime / fulfillmentTimeCount / (24 * 60 * 60)) : 0; // in days
   
-  // Update the cards
-  document.getElementById('totalJobsCount').textContent = totalJobs.toLocaleString();
-  document.getElementById('activeJobsCount').textContent = activeJobs.toLocaleString();
-  document.getElementById('availableWorkersCount').textContent = jobSeekers.toLocaleString();
+  // Update the cards with rounded numbers
+  document.getElementById('totalJobsCount').textContent = formatNumber(totalJobs);
+  document.getElementById('activeJobsCount').textContent = formatNumber(activeJobs);
+  document.getElementById('availableWorkersCount').textContent = formatNumber(jobSeekers);
   document.getElementById('fulfillmentRateCount').textContent = fulfillmentRate + '%';
 }
 
@@ -560,6 +876,131 @@ function setupUI() {
   document.getElementById('exportBtn').addEventListener('click', () => {
     exportProvinceData();
   });
+   let chatSessionId = null;
+  
+  // Initialize chat session
+ async function initChatSession() {
+  try {
+    // First upload the HRINA data
+    await uploadHirnaData();
+    
+    // Then initialize the chat session
+    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/initChatSession', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      chatSessionId = data.session_id;
+      return data.session_id;
+    }
+    throw new Error('Failed to initialize chat session');
+  } catch (error) {
+    console.error('Error initializing chat session:', error);
+    throw error;
+  }
+}
+
+// Update the message sending function
+async function sendChatMessage(message, context) {
+  try {
+    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: message,
+        context: {
+          ...context,
+          collection: "hirna_data"
+        }
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+    throw new Error('Failed to get response');
+  } catch (error) {
+    console.error('Error sending chat message:', error);
+    throw error;
+  }
+}
+  
+// Toggle chatbot
+document.getElementById('chatbotBtn').addEventListener('click', async () => {
+  const modal = document.getElementById('chatbotModal');
+  modal.classList.toggle('hidden');
+  
+  if (!modal.classList.contains('hidden')) {
+    // Initialize chat if not already done
+    if (!chatSessionId) {
+      try {
+        chatSessionId = await initChatSession();
+        addChatMessage('assistant', 'Hello! I\'m your HirNa assistant. How can I help you with North Luzon workforce data?');
+      } catch (error) {
+        addChatMessage('assistant', 'Sorry, I couldn\'t initialize the chat. Please try again later.');
+        console.error('Chat initialization error:', error);
+      }
+    }
+  }
+});
+
+// Close chatbot
+document.getElementById('closeChatbot').addEventListener('click', () => {
+  document.getElementById('chatbotModal').classList.add('hidden');
+});
+
+// Send message handler
+document.getElementById('sendChatbotMsg').addEventListener('click', async () => {
+  const input = document.getElementById('chatbotInput');
+  const message = input.value.trim();
+  if (!message) return;
+  
+  // Add user message to chat
+  addChatMessage('user', message);
+  input.value = '';
+  
+  try {
+    const response = await sendChatMessage(message, {
+      selectedProvince,
+      currentMetric,
+      currentSkillFilter
+    });
+    addChatMessage('assistant', response.content);
+  } catch (error) {
+    addChatMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
+  }
+});
+  
+  
+  // Helper function to add messages to chat
+  // Helper function to add messages to chat
+function addChatMessage(role, content) {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `mb-3 ${role === 'user' ? 'text-right' : 'text-left'}`;
+  
+  const bubble = document.createElement('div');
+  bubble.className = `inline-block px-4 py-2 rounded-lg max-w-[80%] ${role === 'user' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`;
+  
+  // Format the content
+  const formattedContent = content
+    .replace(/<strong>(.*?)<\/strong>/g, '<span class="font-bold">$1</span>')
+    .replace(/•/g, '•')
+    .replace(/<br>/g, '<br>');
+  
+  bubble.innerHTML = formattedContent;
+  
+  messageDiv.appendChild(bubble);
+  messagesDiv.appendChild(messageDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 }
 
 function exportProvinceData() {
@@ -615,8 +1056,6 @@ function showError(message) {
 
 }
 
-// Add these functions to your map.js file
-
 function updateTopProvincesCards() {
     // Sort provinces by total jobs
     const provincesByJobs = Object.entries(provinceData)
@@ -627,6 +1066,9 @@ function updateTopProvincesCards() {
         .sort((a, b) => b.value - a.value)
         .slice(0, 5);
     
+    // Calculate total jobs for percentage calculation
+    const totalJobs = provincesByJobs.reduce((sum, p) => sum + p.value, 0);
+    
     // Sort provinces by available workers
     const provincesByWorkers = Object.entries(provinceData)
         .map(([name, data]) => ({
@@ -636,29 +1078,38 @@ function updateTopProvincesCards() {
         .sort((a, b) => b.value - a.value)
         .slice(0, 5);
     
+    // Calculate total workers for percentage calculation
+    const totalWorkers = provincesByWorkers.reduce((sum, p) => sum + p.value, 0);
+    
     // Update top provinces by jobs
     const topJobsContainer = document.getElementById('topProvincesJobs');
-    topJobsContainer.innerHTML = provincesByJobs.map((province, index) => `
+    topJobsContainer.innerHTML = provincesByJobs.map((province, index) => {
+        const percentage = totalJobs > 0 ? Math.round((province.value / totalJobs) * 100) : 0;
+        return `
         <div class="flex justify-between items-center py-1 border-b border-gray-100">
             <div class="flex items-center gap-2">
                 <span class="font-medium text-gray-700">${index + 1}.</span>
                 <span>${province.name}</span>
             </div>
-            <span class="font-semibold">${province.value.toLocaleString()}</span>
+            <span class="font-semibold">${formatNumber(province.value)} (${percentage}%)</span>
         </div>
-    `).join('');
+        `;
+    }).join('');
     
-    // Update top provinces by workers
+    // Update top provinces by workers (percentages only)
     const topWorkersContainer = document.getElementById('topProvincesWorkers');
-    topWorkersContainer.innerHTML = provincesByWorkers.map((province, index) => `
+    topWorkersContainer.innerHTML = provincesByWorkers.map((province, index) => {
+        const percentage = totalWorkers > 0 ? Math.round((province.value / totalWorkers) * 100) : 0;
+        return `
         <div class="flex justify-between items-center py-1 border-b border-gray-100">
             <div class="flex items-center gap-2">
                 <span class="font-medium text-gray-700">${index + 1}.</span>
                 <span>${province.name}</span>
             </div>
-            <span class="font-semibold">${province.value.toLocaleString()}</span>
+            <span class="font-semibold">${percentage}%</span>
         </div>
-    `).join('');
+        `;
+    }).join('');
     
     // Update market insights
     updateMarketInsights(provincesByJobs, provincesByWorkers);
@@ -703,20 +1154,26 @@ function updateTopSkillsCards() {
         .sort((a, b) => b.demandScore - a.demandScore)
         .slice(0, 10);
     
+    // Calculate total demand for percentages
+    const totalDemand = topSkills.reduce((sum, skill) => sum + skill.demandScore, 0);
+    
     // Update top skills demand list
     const topSkillsContainer = document.getElementById('topSkillsDemand');
-    topSkillsContainer.innerHTML = topSkills.map((skillData, index) => `
+    topSkillsContainer.innerHTML = topSkills.map((skillData, index) => {
+        const percentage = totalDemand > 0 ? Math.round((skillData.demandScore / totalDemand) * 100) : 0;
+        return `
         <div class="flex justify-between items-center py-1 border-b border-gray-100">
             <div class="flex items-center gap-2">
                 <span class="font-medium text-gray-700">${index + 1}.</span>
                 <span>${skillData.skill}</span>
             </div>
             <div class="flex flex-col items-end">
-                <span class="text-sm font-semibold">${skillData.activeJobs} jobs</span>
-                <span class="text-xs text-gray-500">${skillData.jobSeekers} workers</span>
+                <span class="text-xs font-semibold">${percentage}% of total demand</span>
+                <span class="text-sm text-gray-500">${formatNumber(skillData.activeJobs)} jobs</span>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
     
     // Update skills analysis
     updateSkillsAnalysis(topSkills);
@@ -800,6 +1257,125 @@ function updateSkillsAnalysis(topSkills) {
             </div>
         </div>
     `;
+}
+
+function showModal(content) {
+  // Remove any existing modal first
+  const existingModal = document.querySelector('.modal-content');
+  if (existingModal) existingModal.remove();
+
+  // Create modal container
+  const modal = document.createElement('div');
+  modal.className = 'modal-content';
+  
+  // Modal content
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="bg-[#315E26] text-white p-4 flex justify-between items-center">
+        <h3 class="text-lg font-bold">Analysis Details</h3>
+        <button class="text-white hover:text-gray-200 focus:outline-none modal-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        ${content}
+      </div>
+    </div>
+  `;
+
+  // Add to document
+  document.body.appendChild(modal);
+
+  // Close handler
+  const closeBtn = modal.querySelector('.modal-close-btn');
+  const closeModal = () => {
+    modal.remove();
+  };
+  
+  closeBtn.addEventListener('click', closeModal);
+
+  // Escape key handler
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+  };
+  
+  document.addEventListener('keydown', handleKeyDown);
+}
+
+async function uploadHirnaData() {
+  try {
+    // Validate data first
+    const provinces = Object.keys(provinceData);
+    if (provinces.length === 0) {
+      throw new Error('No province data available to upload');
+    }
+
+    console.log('Preparing to upload data for provinces:', provinces);
+
+    // Generate the data text
+    const hirnaDataText = generateHirnaDataText();
+    
+    // Debug: Verify content
+    console.log('Data sample:', hirnaDataText.substring(0, 500) + '...');
+    
+    // Upload with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    
+    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net//uploadHirnaData', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: hirnaDataText }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error(`Upload failed: ${response.status} - ${errorDetails}`);
+    }
+
+    const result = await response.json();
+    console.log('Upload successful. Backend response:', result);
+    return true;
+  } catch (error) {
+    console.error('Upload error:', error);
+    showError(`Data upload failed: ${error.message}`);
+    return false;
+  }
+}
+
+function generateHirnaDataText() {
+  let text = "HRINA Workforce Data\n\n";
+  
+  // Add timestamp
+  text += `Last Updated: ${new Date().toISOString()}\n\n`;
+  
+  // Add summary
+  text += "## Region Summary\n";
+  text += `- Total Provinces: ${Object.keys(provinceData).length}\n`;
+  text += `- Total Active Jobs: ${Object.values(provinceData)
+    .reduce((sum, p) => sum + (p.metrics.activeJobs || 0), 0)}\n\n`;
+  
+  // Add detailed province data
+  text += "## Province Details\n";
+  for (const [name, data] of Object.entries(provinceData)) {
+    text += `### ${name}\n`;
+    text += `- Active Jobs: ${data.metrics.activeJobs || 0}\n`;
+    text += `- Job Seekers: ${data.metrics.jobSeekers || 0}\n`;
+    text += `- Fulfillment Rate: ${data.metrics.fulfillmentRate || 0}%\n`;
+    
+    if (data.topSkills?.length > 0) {
+      text += `- Top Skills: ${data.topSkills.map(s => s.skill).join(', ')}\n`;
+    }
+    text += '\n';
+  }
+  
+  return text;
 }
 
 // Make initMap available globally
