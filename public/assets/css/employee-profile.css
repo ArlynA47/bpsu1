@@ -977,18 +977,6 @@ nav ul li a:active {
 /* Navigation Bar Styles */
 /* Navigation Bar Styles */
 
-.main-navigation-bar {
-  background-color: #232323;
-  padding: 10px 40px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  width: 100%;
-  display: flex; /* Add flex display */
-  justify-content: space-between; /* Space between logo and logout */
-  align-items: center; /* Vertically center items */
-}
-
 .nav-wrapper {
   display: flex;
   flex: 1; /* Take up available space */
@@ -996,35 +984,6 @@ nav ul li a:active {
   align-items: center;
 }
 
-/* Logo Section - Left Side */
-.logo-container {
-  margin-right: auto; /* Push logo to the left */
-}
-
-.logo-img {
-  height: 40px;
-  width: 40px;
-}
-
-/* Center Links */
-.center-links-container {
-  display: flex;
-  gap: 24px;
-  margin: 0 auto; /* Center horizontally */
-}
-
-.nav-link-item {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-  transition: color 0.3s ease;
-  padding: 8px 12px;
-  white-space: nowrap;
-}
-
-.nav-link-item:hover {
-  color: #b3b3b3;
-}
 
 /* Logout Button - Right Side */
 .action-buttons {
@@ -1067,4 +1026,106 @@ nav ul li a:active {
 .analyzetext{
     margin-left: 10px;
 
+}
+
+
+/* Employer Nav */
+.main-navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #232323;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.logo-img {
+    height: 40px;
+    width: 40px;
+}
+
+.center-links-container {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+}
+
+.nav-link-item {
+    color: white;
+    text-decoration: none;
+}
+
+.nav-link-item:hover {
+    color: #ccc;
+}
+
+/* Employee Nav */
+.employee-navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #232323;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.nav-logo-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.nav-logo-img {
+    height: 40px;
+    width: 40px;
+}
+
+.nav-center-links {
+    display: flex;
+    justify-content: space-between;
+    width: 40%;
+    gap: 80px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.nav-link:hover {
+    color: #ccc;
+}
+
+.profile-btn {
+    background-color: #315E26;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.profile-btn:hover {
+    background-color: #3F742F;
+}
+
+.hidden {
+    display: none;
+}
+
+#employerFeedbackForm{
+    display:flex;
+    flex-direction:column;
+}
+
+#employerFeedbackForm.hidden{
+    display:none;
 }
