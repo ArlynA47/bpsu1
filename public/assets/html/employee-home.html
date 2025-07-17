@@ -6,29 +6,764 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../css/output.css" />
+    <style>
+        /* Map Container Styles */
+        .map-container {
+            height: 70vh;
+            width: 100%;
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            background-color: #f8fafc;
+            /* Light background for the map */
+        }
+
+        #northLuzonMap {
+            height: 100%;
+            width: 100%;
+            background-color: #f1f5f9;
+            /* Slightly darker background for contrast */
+        }
+
+        /* Province Label Styles */
+        .province-label {
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8),
+                -1px -1px 2px rgba(255, 255, 255, 0.8);
+            pointer-events: auto;
+            /* Make sure labels are clickable */
+        }
+
+        .province-label:hover {
+            transform: scale(1.05);
+            text-shadow: 1px 1px 4px rgba(255, 255, 255, 1),
+                -1px -1px 4px rgba(255, 255, 255, 1);
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .map-search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .map-search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-search-box i {
+            color: #777;
+            margin-right: 10px;
+        }
+
+        .map-search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .map-filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        /* Map Legend */
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        .legend-title {
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card span {
+            color: #1e293b;
+            font-size: 1.875rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-card p {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        /* Analysis Cards */
+        #topProvincesJobs,
+        #topProvincesWorkers,
+        #topSkillsDemand {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            transition: all 0.2s ease;
+        }
+
+        .skill-badge:hover {
+            background-color: #DBEAFE;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .map-filters {
+                flex-direction: column;
+            }
+
+            .map-legend {
+                bottom: 70px;
+                right: auto;
+                left: 20px;
+            }
+
+            #topProvincesJobs,
+            #topProvincesWorkers,
+            #topSkillsDemand {
+                max-height: 200px;
+            }
+
+            .map-controls {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Remove all borders */
+        .stat-card,
+        .bg-white,
+        .map-container,
+        .map-legend {
+            border: none !important;
+        }
+
+        #chatbotBtn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        #chatbotBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .skill-badge:hover {
+            background-color: #DBEAFE;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-panel {
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;
+        }
+
+        .info-panel h3 {
+            font-size: 1.1rem;
+        }
+
+        .info-panel h4 {
+            font-size: 0.95rem;
+        }
+
+        .info-panel .text-xl {
+            font-size: 1.25rem;
+        }
+
+        .modal-overlay {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Info panel styles */
+        #provinceStats {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .skill-badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            background-color: #eff6ff;
+            color: #1e40af;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .skill-badge:hover {
+            background-color: #dbeafe;
+            transform: translateY(-1px);
+        }
+
+        /* Updated Modal Styles */
+        .modal-overlay {
+            background-color: transparent !important;
+            backdrop-filter: none;
+        }
+
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 0.5rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        /* Chatbot Modal Styles */
+        #chatbotModal {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1050;
+            border: 1px solid #e2e8f0;
+            transform: none !important;
+        }
+
+        #chatbotModal.hidden {
+            display: none;
+        }
+
+        /* Ensure modals stay above map controls */
+        .map-controls {
+            z-index: 100 !important;
+        }
+
+        /* Chatbot Styles */
+        #chatbotMessages {
+            font-size: 0.9rem;
+        }
+
+        #chatbotMessages strong {
+            font-weight: 600;
+        }
+
+        #chatbotMessages .font-medium {
+            font-weight: 500;
+        }
+
+        #chatbotMessages ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #chatbotMessages li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Training Program Styles */
+        .training-program-item {
+            border-left: 3px solid #315E26;
+            padding-left: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .training-program-name {
+            font-weight: 600;
+            color: #1a365d;
+        }
+
+        .training-program-location {
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .training-program-desc {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        /* Loading indicators */
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #315E26;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Chatbot refresh button */
+        #refreshChatbot {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0.25rem;
+        }
+
+        #refreshChatbot:hover {
+            color: #dbeafe;
+        }
+
+        .activeLink {
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+    </style>
     <title>HirNa!</title>
 </head>
 
 <body>
     <!-- Navigation Bar -->
-    <nav class="flex justify-between bg-[#232323] py-2.5 px-10 sticky top-0 z-50">
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
             <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
 
         <div class="flex flex-2 justify-between items-center gap-6">
-            <a href="./employee-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
-            <a href="./employee-browse-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Browse Jobs</a>
-            <a href="./employee-liked-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Liked Jobs</a>
+            <a href="./employee-home.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Home</a>
+            <a href="./employee-browse-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
+                Jobs</a>
+            <a href="./employee-liked-jobs.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
+                Jobs</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="./employee-profile.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+            <a href="./employer-profile.html"
+                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
                 Profile
             </a>
         </div>
     </nav>
+
+    <!-- North Luzon Job Market Overview -->
+    <div id="findJobs" class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-10 md:px-20 gap-8">
+        <div class="flex flex-col items-center gap-8 w-full md:w-[80%]">
+            <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Workforce Heatmap</h1>
+            <div class="flex flex-wrap justify-center gap-4 w-full">
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D33B3B]"></div>
+                    <span class="text-[#474747]">High Activity (Top 25%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D3733B]"></div>
+                    <span class="text-[#474747]">Medium Activity (25-50%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#FFEA05]"></div>
+                    <span class="text-[#474747]">Moderate Activity (50-75%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#7FD33B]"></div>
+                    <span class="text-[#474747]">Lower Activity (Bottom 25%)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full flex flex-col lg:flex-row gap-6">
+            <!-- Map Container -->
+            <div class="flex-1 relative">
+                <div class="map-container shadow-lg">
+                    <div id="northLuzonMap"></div>
+
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <div class="map-search-container">
+                            <div class="map-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="provinceSearch" placeholder="Search province...">
+                            </div>
+                            <button id="resetViewBtn" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-globe-americas"></i>
+                            </button>
+                        </div>
+
+                        <div class="map-filters">
+                            <select id="heatmapMetric" class="filter-select">
+                                <option value="totalJobs">Total Job Listings</option>
+                                <option value="activeJobs">Active Job Listings</option>
+                                <option value="jobSeekers">Available Workers</option>
+                                <option value="employers">Registered Employers</option>
+                                <option value="fulfillmentRate">Job Fulfillment Rate</option>
+                                <option value="avgFulfillmentTime">Avg. Fulfillment Time</option>
+                            </select>
+
+                            <select id="skillFilter" class="filter-select">
+                                <option value="all">All Skills</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="w-full lg:w-96 bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 info-panel">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 id="selectedProvince" class="text-xl font-semibold">Select a Province</h3>
+                    <div class="flex gap-2">
+                        <button id="exportBtn" class="p-2 rounded-full hover:bg-gray-100" title="Export data">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="provinceStats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Will be populated dynamically -->
+                    <div class="col-span-2 text-center py-10 text-gray-400">
+                        <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+                        <p>Click on a province to view detailed statistics</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="w-full border-t border-gray-200 my-6 relative">
+            <div class="absolute left-0 -top-3 px-4 bg-[#F5FFF1] text-gray-500 text-sm">
+                Overall North Luzon Data
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all"
+                data-metric="totalJobs">
+                <h3 class="text-[#5E5E5E]">Total Job Seeds</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="totalJobsCount">0</span>
+                <p class="text-sm text-gray-500">All job opportunities in North Luzon</p>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all"
+                data-metric="activeJobs">
+                <h3 class="text-[#5E5E5E]">Active Job Seeds</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="activeJobsCount">0</span>
+                <p class="text-sm text-gray-500">Open for applications</p>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all"
+                data-metric="jobSeekers">
+                <h3 class="text-[#5E5E5E]">Available Workers</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="availableWorkersCount">0</span>
+                <p class="text-sm text-gray-500">Ready for work</p>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all"
+                data-metric="fulfillmentRate">
+                <h3 class="text-[#5E5E5E]">Fulfillment Rate</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="fulfillmentRateCount">0%</span>
+                <p class="text-sm text-gray-500">Job Seeds successfully filled</p>
+            </div>
+        </div>
+
+        <!-- Top Provinces Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Job Activity</h3>
+                <p class="text-sm text-gray-500 mb-2">Provinces with the highest number of active job listings</p>
+                <div id="topProvincesJobs" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Workforce</h3>
+                <p class="text-sm text-gray-500 mb-2">Provinces with the highest number of registered job seekers</p>
+                <div id="topProvincesWorkers" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Market Insights</h3>
+                <div id="marketInsights" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Skills Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 10 In-Demand Skills</h3>
+                <div id="topSkillsDemand" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Skills Analysis</h3>
+                <div id="skillsAnalysis" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing skills data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot modal (hidden by default) -->
+    <div id="chatbotModal" class="hidden">
+        <div class="bg-[#315E26] text-white p-3 rounded-t-lg flex justify-between items-center">
+            <h3 class="font-medium">HirNa Assistant</h3>
+            <div class="flex items-center">
+                <button id="refreshChatbot" class="text-white hover:text-gray-200 mr-2" title="Refresh Chat">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="closeChatbot" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="chatbotMessages" class="flex-1 p-4 overflow-y-auto"></div>
+        <div class="p-3 border-t">
+            <div class="flex gap-2">
+                <input id="chatbotInput" type="text" placeholder="Type your question..."
+                    class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#315E26]">
+                <button id="sendChatbotMsg" class="bg-[#315E26] text-white px-4 rounded-lg hover:bg-[#3F742F]">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Initialization -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+        firebase.initializeApp(firebaseConfig); 
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const employeeDocRef = firebase.firestore().collection("careerstepEmployees").doc(user.uid);
+                    const docSnap = await employeeDocRef.get();
+
+                    if (docSnap.exists) {
+                        console.log("✅ User exists in employees:", docSnap.data());
+                        // You can allow access or proceed to load the page
+                    } else {
+                        console.warn("⛔ User is logged in but not registered as employee.");
+                        // Optionally sign them out or redirect
+                        await firebase.auth().signOut();
+                        window.location.href = './login.html'; // or back to login
+                    }
+                } catch (error) {
+                    console.error("🔥 Error checking employee document:", error);
+                    alert("An error occurred while checking user access.");
+                }
+            } else {
+                console.warn("🚫 No user session. Redirecting to login...");
+                window.location.href = './login.html';
+            }
+        });
+    </script>
+
+    <!-- Load Google Maps API -->
+    <script>
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyClDJB3NHPBo3NtbbpZz770bYFZH13nu5A&libraries=places,drawing&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        // Ensure initMap exists in case Google Maps loads first
+        window.initMap = function () {
+            console.log('Google Maps is ready, but initMap implementation not loaded yet');
+        };
+
+        // Load scripts in correct order
+        function loadScripts() {
+            const mapsJs = document.createElement('script');
+            mapsJs.src = '../js/employee-employer-map.js';
+            mapsJs.onload = loadGoogleMaps;
+            document.head.appendChild(mapsJs);
+        }
+
+        function setLoading(element, isLoading) {
+            if (isLoading) {
+                element.disabled = true;
+                const spinner = document.createElement('span');
+                spinner.className = 'loading-spinner';
+                element.appendChild(spinner);
+            } else {
+                element.disabled = false;
+                const spinner = element.querySelector('.loading-spinner');
+                if (spinner) {
+                    spinner.remove();
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadScripts();
+        });
+    </script>
 </body>
 
 </html>

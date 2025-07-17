@@ -10,13 +10,15 @@
     <title>HirNa! - Find Skilled Workers</title>
     <style>
         .activeLink {
-            color: #7FD33B;
+            text-decoration: underline;
+            text-underline-offset: 4px;
         }
+
         .demo-counter {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
@@ -26,7 +28,6 @@
         .tinder-card {
             width: 700px;
         }
-
     </style>
 </head>
 
@@ -39,12 +40,15 @@
 
         <div class="flex flex-2 justify-between items-center gap-6">
             <a href="../../index.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
-            <a href="find-employees-unauth.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Meet Talent</a>
-            <a href="find-jobs-unauth.html" class="flex-1 text-center text-white hover:text-gray-300">Explore Opportunities</a>
+            <a href="find-employees-unauth.html"
+                class="flex-1 text-center text-white hover:text-gray-300 activeLink">Meet Talent</a>
+            <a href="find-jobs-unauth.html" class="flex-1 text-center text-white hover:text-gray-300">Explore
+                Opportunities</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="../html/login.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+            <a href="../html/login.html"
+                class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
                 Log In
             </a>
         </div>
@@ -53,11 +57,12 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center gap-6 p-10 relative">
         <div class="demo-counter">Demo: <span id="demoCount">1</span>/7</div>
-        
+
         <div class="flex flex-col items-center gap-1">
             <h3 class="text-[#3D3D3D] text-3xl font-semibold">Meet Qualified Candidates - Platform Demo</h3>
             <p class="text-[#545454] text-xl">
-                <span class="text-[#315E26] font-semibold">Try our platform!</span> Log in to browse skilled workers ready to join your team
+                <span class="text-[#315E26] font-semibold">Try our platform!</span> Log in to browse skilled workers
+                ready to join your team
             </p>
         </div>
 
@@ -67,12 +72,15 @@
                 <div class="flex justify-between gap-5">
                     <!-- Full Name, Current Province and Willing to Relocate -->
                     <div class="flex flex-1 flex-col">
-                        <span class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis" id="fullName">
+                        <span
+                            class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
+                            id="fullName">
                             Juan Dela Cruz
                         </span>
 
                         <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
-                            Lives in <span id="currentProvince">Pampanga</span> <span id="willingToRelocate">- Willing to Relocate</span>
+                            Lives in <span id="currentProvince">Pampanga</span> <span id="willingToRelocate">- Willing
+                                to Relocate</span>
                         </span>
                     </div>
 
@@ -100,16 +108,23 @@
                     <div class="flex items-center gap-4">
                         <h3 class="text-[#65956C] text-xl font-bold">Preferred Locations</h3>
 
-                        <span id="workLocationMatchCount" class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white" title="Matched Jobs: Welder Position, Metal Fabricator">
+                        <span id="workLocationMatchCount"
+                            class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white"
+                            title="Matched Jobs: Welder Position, Metal Fabricator">
                             1 Match
                         </span>
                     </div>
 
                     <div class="flex flex-wrap gap-2 pr-1 scroll-smooth" id="workLocationsContainer">
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Pampanga</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Bulacan</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Tarlac</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+2 more</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Pampanga</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Bulacan</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Tarlac</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+2
+                            more</span>
                     </div>
                 </div>
 
@@ -118,54 +133,78 @@
                     <div class="flex items-center gap-4">
                         <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
 
-                        <span id="skillsMatchCount" class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white" title="Matched Jobs: Welder Position, Metal Fabricator">
+                        <span id="skillsMatchCount"
+                            class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white"
+                            title="Matched Jobs: Welder Position, Metal Fabricator">
                             5 Matches
                         </span>
                     </div>
 
                     <div class="flex flex-wrap gap-2 pr-1 scroll-smooth" id="skillsContainer">
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Welding</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Metalworking</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Fabrication</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Blueprint Reading</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Safety Compliance</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">CNC Operation</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Power Tools</span>
-                        <span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+3 more</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Welding</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Metalworking</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Fabrication</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Blueprint
+                            Reading</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">Safety
+                            Compliance</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">CNC
+                            Operation</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600">Power
+                            Tools</span>
+                        <span
+                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">+3
+                            more</span>
                     </div>
                 </div>
             </div>
 
             <!-- Button Card -->
-            <div class="button-card h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
+            <div
+                class="button-card h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
                 <!-- Skip Button -->
-                <button class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer" id="skipBtn">
+                <button
+                    class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer"
+                    id="skipBtn">
                     <i class="fas fa-times text-2xl text-white"></i>
                 </button>
 
                 <!-- Keep Button -->
-                <button class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer" id="keepBtn">
+                <button
+                    class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer"
+                    id="keepBtn">
                     <i class="fas fa-heart text-2xl text-white"></i>
                 </button>
             </div>
         </div>
-        
+
         <!-- Sign Up CTA (hidden initially) -->
-        <div id="signupCta" class="hidden flex flex-col items-center gap-4 p-6 bg-[#F8F8F8] rounded-lg border border-[#65956C] max-w-md text-center">
+        <div id="signupCta"
+            class="hidden flex flex-col items-center gap-4 p-6 bg-[#F8F8F8] rounded-lg border border-[#65956C] max-w-md text-center">
             <h3 class="text-[#3D3D3D] text-2xl font-bold">Ready to find your perfect employee?</h3>
             <p class="text-[#545454]">Sign up now to access skilled workers and start building your dream team!</p>
             <div class="flex gap-4 mt-2">
-                <a href="../html/employer-registration.html" class="bg-[#315E26] text-white px-6 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                <a href="../html/employer-registration.html"
+                    class="bg-[#315E26] text-white px-6 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
                     Register Now
                 </a>
-                <a href="../html/login.html" class="bg-white text-[#315E26] px-6 py-2 rounded border border-[#315E26] hover:bg-[#F0F0F0] cursor-pointer">
+                <a href="../html/login.html"
+                    class="bg-white text-[#315E26] px-6 py-2 rounded border border-[#315E26] hover:bg-[#F0F0F0] cursor-pointer">
                     Log In
                 </a>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
+    <div id="toast"
+        class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
         Employee liked!
     </div>
 
@@ -268,7 +307,7 @@
         // Initialize the demo
         document.addEventListener('DOMContentLoaded', () => {
             displayDemoEmployee();
-            
+
             // Button event listeners
             skipBtn.addEventListener('click', nextDemoEmployee);
             keepBtn.addEventListener('click', likeDemoEmployee);
@@ -280,11 +319,11 @@
                 showSignupCta();
                 return;
             }
-            
+
             demoCountEl.textContent = currentDemoIndex + 1;
-            
+
             const employee = demoEmployees[currentDemoIndex];
-            
+
             // Basic Info
             fullNameEl.textContent = employee.fullName;
             currentProvinceEl.textContent = employee.currentProvince;
@@ -292,34 +331,34 @@
             likesEl.textContent = employee.likes;
             dislikesEl.textContent = employee.dislikes;
             reputationScoreEl.textContent = employee.reputationScore + "%";
-            
+
             // Preferred Work Locations
             workLocationsContainer.innerHTML = "";
             employee.preferredLocations.forEach((loc, index) => {
                 const el = document.createElement('span');
-                el.className = index === 0 
+                el.className = index === 0
                     ? 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
                     : 'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
                 el.textContent = loc;
                 workLocationsContainer.appendChild(el);
             });
-            
+
             // Skills
             skillsContainer.innerHTML = "";
             employee.skills.forEach((skill, index) => {
                 const el = document.createElement('span');
-                el.className = index < 5 
+                el.className = index < 5
                     ? 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
                     : 'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
                 el.textContent = skill;
                 skillsContainer.appendChild(el);
             });
-            
+
             // Match counts
             workLocationMatchCountEl.textContent = "1 Match";
             skillsMatchCountEl.textContent = "5 Matches";
         }
-        
+
         // Show next demo employee
         function nextDemoEmployee() {
             currentDemoIndex++;
@@ -329,19 +368,19 @@
                 showSignupCta();
             }
         }
-        
+
         // Like current demo employee
         function likeDemoEmployee() {
             // Show toast
             toast.textContent = "Employee liked! (Sign up to save)";
             toast.classList.remove('opacity-0', 'pointer-events-none');
-            
+
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'pointer-events-none');
                 nextDemoEmployee();
             }, 1000);
         }
-        
+
         // Show signup CTA after all demos
         function showSignupCta() {
             document.querySelector('.tinder-card').classList.add('hidden');

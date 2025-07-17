@@ -581,6 +581,9 @@ body {
   .max-w-\[40\%\] {
     max-width: 40%;
   }
+  .max-w-\[60\%\] {
+    max-width: 60%;
+  }
   .max-w-\[80\%\] {
     max-width: 80%;
   }
