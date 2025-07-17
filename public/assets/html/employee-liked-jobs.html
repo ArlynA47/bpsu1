@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    
+
     <!-- Hired Job Details Modal -->
     <div id="hiredJobModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
@@ -143,14 +143,19 @@
 
         // Auth Check
         onAuthStateChanged(auth, async (user) => {
+            highlightCurrentNavLink();
+            
             if (!user) {
-                alert("Please log in to view your liked jobs.");
-                return;
+                window.location.href = './login.html';
             }
 
             // Get all applications
             const appsQuery = query(collection(db, 'applications'), where('applicantId', '==', user.uid));
             const appsSnapshot = await getDocs(appsQuery);
+
+            if (appsSnapshot.empty) {
+                window.location.href = './login.html';
+            }
 
             // Separate hired jobs from other applications
             const hiredJobs = [];
@@ -840,6 +845,18 @@
                 console.error('Error analyzing application:', error);
                 throw error;
             }
+        }
+
+        function highlightCurrentNavLink() {
+            const currentPath = window.location.pathname.split('/').pop(); // Get the filename, e.g., 'employee-home.html'
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href').split('/').pop();
+                if (linkPath === currentPath) {
+                    link.classList.add('underline', 'underline-offset-4');
+                }
+            });
         }
 
         function getQualityFromScore(score) {
