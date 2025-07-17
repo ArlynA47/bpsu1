@@ -772,7 +772,7 @@
                     const applicantCell = document.createElement('td');
                     applicantCell.className = 'p-4';
                     applicantCell.innerHTML = `
-                        <a href="employee-profile.html?userId=${application.userId || application.applicantId}&isEmployer=true" class="text-green-800 hover:underline font-medium">
+                        <a href="employee-profile.html?userId=${application.userId || application.applicantId}&isEmployer=true&jobId=${application.jobId}&status=${application.status}" class="text-green-800 hover:underline font-medium">
                             ${application.applicantName || 'N/A'}
                         </a>
                         <br><small class="text-sm text-gray-500">${application.applicantEmail || ''}</small>

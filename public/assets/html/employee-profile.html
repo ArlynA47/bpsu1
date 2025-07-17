@@ -512,9 +512,8 @@
                             </div>
                         </div>
                         <button class="submit-comment-btn" id="submitCommentBtn">Submit Feedback</button>
-                        <button id="analyzeBtn" class="analyzeBtn hidden">Analyze Feedbacks</button>
                     </div>
-
+                    <button id="analyzeBtn" class="analyzeBtn hidden">Analyze Feedbacks</button>
                     <div class="feedbacksfromeployerscontainer">
 
                         
@@ -633,6 +632,8 @@
         let selectedRating = null;
         let employerData = null;
         let analyzeBtn = document.getElementById('analyzeBtn');
+        let status = null;
+        let jobId = null;
 
         class ImageSlider {
             constructor() {
@@ -774,7 +775,7 @@
                     document.body.style.overflow = 'auto';
                 });
             });
-
+            updateFeedbackHeader();
         });
         });
         
@@ -790,6 +791,8 @@
                 // Check for isEmployer URL parameter
                 const urlParams = new URLSearchParams(window.location.search);
                 const isEmployerParam = urlParams.get('isEmployer') === 'true';
+                status = urlParams.get('status');
+                jobId = urlParams.get('jobId');
                 
                 if (user) {
                     currentUser = user;
@@ -845,28 +848,43 @@
             }
         }
 
-
-        
         function toggleEmployerElements(show) {
             // Toggle navigation
             toggleNavigation(show);
             
             // Toggle other employer elements
-            const employerElements = [
-                document.getElementById('employerFeedbackForm'),
-                document.getElementById('analyzeImagesBtn'),
-                document.getElementById('analyzeBtn')
-            ];
-            
-            employerElements.forEach(element => {
-                if (element) {
-                    if (show) {
-                        element.classList.remove('hidden');
-                    } else {
-                        element.classList.add('hidden');
-                    }
+            document.getElementById('analyzeImagesBtn').style.display = show ? 'block' : 'none';
+            document.getElementById('analyzeBtn').style.display = show ? 'block' : 'none';
+
+            // Handle feedback form visibility
+            const feedbackForm = document.getElementById('employerFeedbackForm');
+            if (feedbackForm) {
+                if (show && status === 'hired') {
+                    feedbackForm.classList.remove('hidden');
+                    feedbackForm.style.display = 'block'; // Force show
+                } else {
+                    feedbackForm.classList.add('hidden');
+                    feedbackForm.style.display = 'none'; // Force hide
                 }
-            });
+            }
+        }
+
+        function updateFeedbackHeader() {
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const industryLeadersText = document.querySelector('.whatindustryleaders');
+            const employeeNameSpan = document.getElementById('employeeNameForFeedback');
+            
+            if (status === 'hired') {
+                feedbackTitle.textContent = 'Leave a Feedback';
+                industryLeadersText.textContent = 'Share your experience working with ';
+            } else {
+                feedbackTitle.textContent = 'Employer Feedbacks';
+                industryLeadersText.textContent = 'What industry leaders say about working with ';
+            }
+            
+            // Get employee name (you may need to adjust this based on your data structure)
+            const employeeName = document.getElementById('employeeName').textContent;
+            employeeNameSpan.textContent = employeeName;
         }
 
         function toggleNavigation(showEmployerNav) {
@@ -958,11 +976,12 @@
                 loadEmployeeFeedback(profileUserIdToLoad);
                 loadProfileGallery(profileUserIdToLoad);
                 loadImageAnalyses();
-                
             } catch (error) {
                 console.error('Error loading profile data:', error);
                 alert('Error loading profile information. Please try again.');
             }
+            
+                updateFeedbackHeader();
         }
         
         function selectRating(rating) {
@@ -1007,7 +1026,8 @@
                     employerName: employerData?.companyInfo?.companyName || 'Anonymous Employer',
                     rating: selectedRating,
                     comment: commentText,
-                    createdAt: serverTimestamp()
+                    createdAt: serverTimestamp(),
+                    jobId: jobId
                 };
                 
                 // Add to feedback collection
