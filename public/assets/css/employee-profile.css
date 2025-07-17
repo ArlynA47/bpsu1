@@ -1125,11 +1125,13 @@ nav ul li a:active {
     flex-direction:column;
 }
 
-#employerFeedbackForm.hidden{
-    display:none;
+#employerFeedbackForm.hidden {
+    display: none !important;
 }
 
-
+#employerFeedbackForm:not(.hidden) {
+    display: flex !important;
+}
 
 
 
