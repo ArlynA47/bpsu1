@@ -399,6 +399,41 @@
   color: #718096;
 }
 
+/* Loading indicators */
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: 50%;
+  border-top-color: #315E26;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Chatbot refresh button */
+#refreshChatbot {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0.25rem;
+}
+
+#refreshChatbot:hover {
+  color: #dbeafe;
+}
+
+.activeLink {
+    color: #7FD33B;
+}
+
+
     </style>
     <title>HirNa!</title>
 </head>
@@ -411,14 +446,14 @@
         </div>
 
         <div class="flex flex-2 justify-between items-center gap-6">
-            <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="index.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Explore Heat Map</a>
             <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Find Employees</a>
             <a href="#" class="flex-1 text-center text-white hover:text-gray-300">Job LIstings</a>
         </div>
 
         <div class="flex flex-1 justify-end items-center gap-4">
-            <a href="" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
-                Profile
+            <a href="assets/html/login.html" class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
+                Log In
             </a>
         </div>
     </nav>
@@ -431,7 +466,7 @@
                 <h1 class="text-7xl font-bold text-[#315A39]">HirNa!</h1>
                 <h2 class="text-2xl">Para sa Talentado. Hindi lang sa Pulido.</h2>
 
-                <button
+                <button onclick="document.getElementById('findJobs').scrollIntoView({ behavior: 'smooth' })"
                     class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[40%] mt-4">Explore<i
                         class="fas fa-arrow-right"></i></button>
             </div>
@@ -533,15 +568,15 @@
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
             <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="totalJobs">
-                <h3 class="text-[#5E5E5E]">Total Job Listings</h3>
+                <h3 class="text-[#5E5E5E]">Total Job Seeds</h3>
                 <span class="text-3xl font-bold text-[#3D3D3D]" id="totalJobsCount">0</span>
-                <p class="text-sm text-gray-500">Across North Luzon</p>
+                <p class="text-sm text-gray-500">All job opportunities in North Luzon</p>
             </div>
             
             <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="activeJobs">
-                <h3 class="text-[#5E5E5E]">Active Job Listings</h3>
+                <h3 class="text-[#5E5E5E]">Active Job Seeds</h3>
                 <span class="text-3xl font-bold text-[#3D3D3D]" id="activeJobsCount">0</span>
-                <p class="text-sm text-gray-500">Currently available</p>
+                <p class="text-sm text-gray-500">Open for applications</p>
             </div>
             
             <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="jobSeekers">
@@ -553,7 +588,7 @@
             <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="fulfillmentRate">
                 <h3 class="text-[#5E5E5E]">Fulfillment Rate</h3>
                 <span class="text-3xl font-bold text-[#3D3D3D]" id="fulfillmentRateCount">0%</span>
-                <p class="text-sm text-gray-500">Jobs filled through platform</p>
+                <p class="text-sm text-gray-500">Job Seeds successfully filled</p>
             </div>
         </div>
 
@@ -672,9 +707,14 @@
     <div id="chatbotModal" class="hidden">
     <div class="bg-[#315E26] text-white p-3 rounded-t-lg flex justify-between items-center">
         <h3 class="font-medium">HirNa Assistant</h3>
-        <button id="closeChatbot" class="text-white hover:text-gray-200">
-        <i class="fas fa-times"></i>
+        <div class="flex items-center">
+        <button id="refreshChatbot" class="text-white hover:text-gray-200 mr-2" title="Refresh Chat">
+            <i class="fas fa-sync-alt"></i>
         </button>
+        <button id="closeChatbot" class="text-white hover:text-gray-200">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
     </div>
     <div id="chatbotMessages" class="flex-1 p-4 overflow-y-auto"></div>
     <div class="p-3 border-t">
@@ -728,6 +768,21 @@
             mapsJs.src = 'assets/js/map.js';
             mapsJs.onload = loadGoogleMaps;
             document.head.appendChild(mapsJs);
+        }
+
+        function setLoading(element, isLoading) {
+            if (isLoading) {
+                element.disabled = true;
+                const spinner = document.createElement('span');
+                spinner.className = 'loading-spinner';
+                element.appendChild(spinner);
+            } else {
+                element.disabled = false;
+                const spinner = element.querySelector('.loading-spinner');
+                if (spinner) {
+                spinner.remove();
+                }
+            }
         }
 
         window.addEventListener('DOMContentLoaded', loadScripts);

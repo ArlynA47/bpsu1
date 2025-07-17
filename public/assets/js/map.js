@@ -454,6 +454,16 @@ function formatNumber(num) {
 }
 
 async function showSkillDetails(province, skill) {
+  const badge = document.querySelector(`.skill-badge[data-skill="${skill}"]`);
+  if (badge) {
+    const spinner = document.createElement('span');
+    spinner.className = 'loading-spinner';
+    badge.appendChild(spinner);
+    badge.disabled = true;
+  }
+
+  try {
+
   const skillData = provinceData[province].metrics.bySkill[skill] || {};
   
   // Create modal content
@@ -494,9 +504,21 @@ async function showSkillDetails(province, skill) {
   document.getElementById('getTrainingBtn')?.addEventListener('click', () => {
     getTrainingRecommendations(skill, province);
   });
+
+  } catch(error) {
+
+  } finally {
+    if (badge) {
+      const spinner = badge.querySelector('.loading-spinner');
+      if (spinner) spinner.remove();
+      badge.disabled = false;
+    }
+  }
 }
 
 async function analyzeProvinceData(provinceName) {
+  const btn = document.getElementById('analyzeBtn');
+  setLoading(btn, true);
   const province = provinceData[provinceName];
   if (!province) return;
 
@@ -550,7 +572,7 @@ async function analyzeProvinceData(provinceName) {
           <div class="bg-gray-50 p-3 rounded-lg">
             <p class="text-sm text-gray-500">Top Skills</p>
             <div class="flex flex-wrap gap-1 mt-2">
-              ${topSkills.slice(0, 3).map(skill => `
+              ${topSkills.slice(0, 5).map(skill => `
                 <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${skill}</span>
               `).join('')}
             </div>
@@ -573,6 +595,8 @@ async function analyzeProvinceData(provinceName) {
         </button>
       </div>
     `);
+  } finally {
+    setLoading(btn, false);
   }
 }
 
@@ -637,6 +661,8 @@ function formatAnalysisResponse(text, provinceName) {
 }
 
 async function getTrainingRecommendations(skill, location) {
+  const btn = document.getElementById('getTrainingBtn');
+  setLoading(btn, true);
   try {
     const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/getTrainingRecommendations', {
       method: 'POST',
@@ -668,6 +694,8 @@ async function getTrainingRecommendations(skill, location) {
         <p>Could not get training information. Please try again later.</p>
       </div>
     `);
+  } finally {
+    setLoading(btn, false);
   }
 }
 
@@ -938,15 +966,26 @@ document.getElementById('chatbotBtn').addEventListener('click', async () => {
   modal.classList.toggle('hidden');
   
   if (!modal.classList.contains('hidden')) {
-    // Initialize chat if not already done
+    const messagesDiv = document.getElementById('chatbotMessages');
+    
+    // Show loading only if we need to initialize
     if (!chatSessionId) {
-      try {
+      const spinner = document.createElement('div');
+      spinner.className = 'text-center py-4';
+      spinner.innerHTML = '<i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Initializing chat...</p>';
+      messagesDiv.appendChild(spinner);
+    }
+    
+    try {
+      if (!chatSessionId) {
         chatSessionId = await initChatSession();
+        messagesDiv.innerHTML = '';
         addChatMessage('assistant', 'Hello! I\'m your HirNa assistant. How can I help you with North Luzon workforce data?');
-      } catch (error) {
-        addChatMessage('assistant', 'Sorry, I couldn\'t initialize the chat. Please try again later.');
-        console.error('Chat initialization error:', error);
       }
+    } catch (error) {
+      messagesDiv.innerHTML = '';
+      addChatMessage('assistant', 'Sorry, I couldn\'t initialize the chat. Please try again later.');
+      console.error('Chat initialization error:', error);
     }
   }
 });
@@ -975,6 +1014,28 @@ document.getElementById('sendChatbotMsg').addEventListener('click', async () => 
     addChatMessage('assistant', response.content);
   } catch (error) {
     addChatMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
+  }
+});
+
+document.getElementById('refreshChatbot').addEventListener('click', async () => {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  messagesDiv.innerHTML = '';
+  
+  try {
+    const spinner = document.createElement('div');
+    spinner.className = 'text-center py-4';
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Initializing chat...</p>';
+    messagesDiv.appendChild(spinner);
+    
+    chatSessionId = null;
+    chatSessionId = await initChatSession();
+    
+    messagesDiv.innerHTML = '';
+    addChatMessage('assistant', 'Hello! I\'m your refreshed HirNa assistant. How can I help you with North Luzon workforce data?');
+  } catch (error) {
+    messagesDiv.innerHTML = '';
+    addChatMessage('assistant', 'Sorry, I couldn\'t refresh the chat. Please try again later.');
+    console.error('Chat refresh error:', error);
   }
 });
   
@@ -1159,21 +1220,39 @@ function updateTopSkillsCards() {
     
     // Update top skills demand list
     const topSkillsContainer = document.getElementById('topSkillsDemand');
-    topSkillsContainer.innerHTML = topSkills.map((skillData, index) => {
-        const percentage = totalDemand > 0 ? Math.round((skillData.demandScore / totalDemand) * 100) : 0;
-        return `
-        <div class="flex justify-between items-center py-1 border-b border-gray-100">
-            <div class="flex items-center gap-2">
-                <span class="font-medium text-gray-700">${index + 1}.</span>
-                <span>${skillData.skill}</span>
-            </div>
-            <div class="flex flex-col items-end">
-                <span class="text-xs font-semibold">${percentage}% of total demand</span>
-                <span class="text-sm text-gray-500">${formatNumber(skillData.activeJobs)} jobs</span>
-            </div>
-        </div>
-        `;
-    }).join('');
+    const halfLength = Math.ceil(topSkills.length / 2);
+    
+    topSkillsContainer.innerHTML = `
+      <div class="space-y-2">
+        ${topSkills.slice(0, halfLength).map((skillData, index) => `
+          <div class="flex justify-between items-center py-1 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                  <span class="font-medium text-gray-700">${index + 1}.</span>
+                  <span>${skillData.skill}</span>
+              </div>
+              <div class="flex flex-col items-end">
+                  <span class="text-xs font-semibold">${Math.round((skillData.demandScore / totalDemand) * 100)}% of demand</span>
+                  <span class="text-sm text-gray-500">${formatNumber(skillData.activeJobs)} jobs</span>
+              </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="space-y-2">
+        ${topSkills.slice(halfLength).map((skillData, index) => `
+          <div class="flex justify-between items-center py-1 border-b border-gray-100">
+              <div class="flex items-center gap-2">
+                  <span class="font-medium text-gray-700">${index + halfLength + 1}.</span>
+                  <span>${skillData.skill}</span>
+              </div>
+              <div class="flex flex-col items-end">
+                  <span class="text-xs font-semibold">${Math.round((skillData.demandScore / totalDemand) * 100)}% of demand</span>
+                  <span class="text-sm text-gray-500">${formatNumber(skillData.activeJobs)} jobs</span>
+              </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
     
     // Update skills analysis
     updateSkillsAnalysis(topSkills);
@@ -1235,7 +1314,7 @@ function updateSkillsAnalysis(topSkills) {
     );
     
     analysisContainer.innerHTML = `
-        <div class="space-y-3">
+        <div class="space-y-2">
             <div>
                 <h4 class="font-medium">Highest Demand</h4>
                 <p>${highestDemandSkill.skill} is the most in-demand skill with ${highestDemandSkill.activeJobs} active jobs and ${highestDemandSkill.jobSeekers} available workers.</p>
