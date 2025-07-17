@@ -308,6 +308,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Add this to your CSS */
+        #profileManagementButtons.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -387,11 +392,9 @@
                     </div>
 
 
-                    <div class="employeebuttondiv">
-
-                        <button class="employeeprofilebuttons"> <i class="fa-solid fa-pen"></i>  Manage Profile</button>
-                        <button class="employeeprofilebuttons"><i class="fa-solid fa-chart-simple"></i>  Skills Insights</button>
-                        
+                    <div class="employeebuttondiv hidden" id="profileManagementButtons">
+                        <button class="employeeprofilebuttons" id="manageProfileBtn"> <i class="fa-solid fa-pen"></i>  Manage Profile</button>
+                        <button class="employeeprofilebuttons" id="personalizedInsightsBtn"><i class="fa-solid fa-chart-simple"></i>  Skills Insights</button>
                     </div>
 
 
@@ -477,32 +480,6 @@
             </div>
 
         <!--End of Main Content-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         <div id="summaryModal" class="modal">
@@ -764,17 +741,39 @@
                         ? 'Leave a Feedback' 
                         : 'Employer Feedbacks';
                     
-                    loadProfileData();
+                    // Check if viewing own profile
+                    const profileUserIdToLoad = profileUserId || user.uid;
+                    const isViewingOwnProfile = profileUserIdToLoad === user.uid && !isEmployer;
+                    
+                    // Show profile management buttons only if viewing own profile
+                    const profileButtons = document.getElementById('profileManagementButtons');
+                    if (isViewingOwnProfile) {
+                        profileButtons.classList.remove('hidden');
+                        
+                        document.getElementById('manageProfileBtn').onclick = () => {
+                            window.location.href = 'manage-profile.html';
+                        };
+
+                        document.getElementById('personalizedInsightsBtn').onclick = () => {
+                            window.location.href = 'skills-insights.html';
+                        };
+                    } else {
+                        profileButtons.classList.add('hidden');
+                    }
+                    
+                    loadProfileData(profileUserIdToLoad);
                 } else {
                     // Not logged in - default to employee view
                     toggleNavigation(false);
-                    loadProfileData();
+                    document.getElementById('profileManagementButtons').classList.add('hidden');
+                    loadProfileData(profileUserId);
                 }
             } catch (error) {
                 console.error('Error checking auth state:', error);
                 // Default to employee view on error
                 toggleNavigation(false);
-                loadProfileData();
+                document.getElementById('profileManagementButtons').classList.add('hidden');
+                loadProfileData(profileUserId);
             }
         }
         

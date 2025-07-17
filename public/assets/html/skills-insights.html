@@ -8,34 +8,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #3D6585;
-            --secondary-color: #2b4a66;
+            --primary-color: #315A39;
+            --secondary-color: #74B17D;
             --success-color: #28a745;
             --info-color: #17a2b8;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --light-color: #f8f9fa;
-            --dark-color: #343a40;
+            --dark-color: #7FD33B;
         }
         
         body {
-            background-color: #f5f7fa;
+            background-color: white;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 80%;
             margin: 0 auto;
             padding: 20px;
         }
         
         header {
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: 50px;
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #ddd;
+            max-width: 80%;
         }
         
         .logo {
@@ -55,7 +58,7 @@
         }
         
         .dashboard-section {
-            background: white;
+            background: #F7FFF9;
             border-radius: 10px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             padding: 25px;
@@ -213,6 +216,15 @@
             color: #666;
         }
         
+        .location-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--primary-color);
@@ -301,6 +313,24 @@
             color: var(--danger-color);
         }
         
+        .skills-to-learn-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .skills-to-learn-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .skill-reason {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
         @media (max-width: 768px) {
             .card-container {
                 grid-template-columns: 1fr;
@@ -323,7 +353,7 @@
     
     <div class="container">
         <h1><i class="fas fa-lightbulb"></i> Skills Insights</h1>
-        <p>Personalized recommendations to improve your employability and skills</p>
+        <p>Personalized recommendations to improve your employability and skills</p> <br>
         
         <div class="dashboard-section">
             <div class="section-title">
@@ -336,17 +366,6 @@
             <div id="skillsAnalysisContainer">
                 <div class="loading-spinner"></div>
                 <p class="text-center">Analyzing your skills...</p>
-            </div>
-        </div>
-        
-        <div class="dashboard-section">
-            <div class="section-title">
-                <h2><i class="fas fa-bullseye"></i> Recommended Skills to Learn</h2>
-            </div>
-            
-            <div id="recommendedSkillsContainer">
-                <div class="loading-spinner"></div>
-                <p class="text-center">Finding skill recommendations...</p>
             </div>
         </div>
         
@@ -408,6 +427,7 @@
         let currentUser = null;
         let userSkills = [];
         let userLocation = "";
+        let preferredLocations = [];
         
         document.addEventListener('DOMContentLoaded', async function() {
             // Check auth state
@@ -431,6 +451,13 @@
             document.getElementById('refreshTraining').addEventListener('click', loadTrainingOpportunities);
         });
         
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return `${(num / 1000).toFixed(1)}k+`;
+            }
+            return Math.floor(num).toString();
+        }
+        
         async function loadAllData() {
             try {
                 // Load user profile data first
@@ -438,8 +465,11 @@
                     getDoc(doc(db, 'careerstepEmployees', currentUser.uid)),
                     getDoc(doc(db, 'careerstepPublicProfiles', currentUser.uid))
                 ]);
+
                 
                 if (employeeDoc.exists() || publicDoc.exists()) {
+
+
                     const profileData = employeeDoc.exists() ? employeeDoc.data() : {};
                     const publicData = publicDoc.exists() ? publicDoc.data() : {};
                     
@@ -455,10 +485,22 @@
                                   publicData.currentProvince || 
                                   "";
                     
+                    // Get preferred locations
+                   // Get preferred locations - ensure it's always an array
+                    preferredLocations = [];
+                    if (profileData.jobPreferences?.preferredLocations) {
+                        preferredLocations = Array.isArray(profileData.jobPreferences.preferredLocations) ? 
+                                            profileData.jobPreferences.preferredLocations : 
+                                            [];
+                    } else if (publicData.preferredLocations) {
+                        preferredLocations = Array.isArray(publicData.preferredLocations) ?
+                                            publicData.preferredLocations :
+                                            [];
+                    }
+                    
                     // Load all sections
                     await Promise.all([
                         loadSkillsAnalysis(),
-                        loadRecommendedSkills(),
                         loadTrainingOpportunities(),
                         loadFeedbackInsights()
                     ]);
@@ -471,82 +513,298 @@
             }
         }
         
-        async function loadSkillsAnalysis() {
+       async function loadSkillsAnalysis() {
             try {
                 const container = document.getElementById('skillsAnalysisContainer');
                 container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Analyzing your skills...</p>';
                 
-                // Get job seeds analytics to see what skills are in demand
-                const analyticsQuery = query(
-                    collection(db, 'jobSeedsAnalytics'),
-                    where('skillType', 'in', userSkills),
-                    orderBy('currentCount', 'desc')
-                );
+                // Ensure preferredLocations is defined and an array
+                if (!preferredLocations || !Array.isArray(preferredLocations)) {
+                    preferredLocations = [];
+                }
                 
-                const querySnapshot = await getDocs(analyticsQuery);
+                // Get the overall job count from both collections
+                const overallRef = doc(db, 'jobSeedsAnalytics', 'overall_overall');
+                const overallSnap = await getDoc(overallRef);
+                const analyticsJobCount = overallSnap.exists() ? overallSnap.data().currentCount || 0 : 0;
+                
+                // Also get count from actual job seeds
+                const activeJobSeedsQuery = query(
+                    collection(db, 'jobSeeds'),
+                    where('status', '==', 'active')
+                );
+                const activeJobSeedsSnapshot = await getDocs(activeJobSeedsQuery);
+                const activeJobCount = activeJobSeedsSnapshot.size;
+                const totalJobs = analyticsJobCount + activeJobCount;
+                
+                // Split userSkills into chunks of 30 to avoid Firebase limits
+                const chunkSize = 30;
+                const skillChunks = [];
+                for (let i = 0; i < userSkills.length; i += chunkSize) {
+                    skillChunks.push(userSkills.slice(i, i + chunkSize));
+                }
+                
+                // Process each chunk separately
                 const skillDemand = {};
                 
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    skillDemand[data.skillType] = data.currentCount || 0;
-                });
-                
-                // Sort skills by demand (highest first)
-                const sortedSkills = [...userSkills].sort((a, b) => {
-                    return (skillDemand[b] || 0) - (skillDemand[a] || 0);
-                });
-                
-                // Get top 5 most demanded skills
-                const topSkills = sortedSkills.slice(0, 5);
-                
-                // Generate HTML
-                let html = `
-                    <div class="card-container">
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h3 class="card-title">Your Top Skills</h3>
-                            </div>
-                            <div class="card-content">
-                                <p>These are your most in-demand skills based on current job trends:</p>
-                                <div class="skill-list" style="margin-top: 15px;">
-                                    ${topSkills.map(skill => `
-                                        <span class="skill-badge success-badge">
-                                            <i class="fas fa-check-circle"></i> ${skill}
-                                        </span>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
+                // First get overall counts for each skill from both collections
+                for (const chunk of skillChunks) {
+                    // Query from jobSeedsAnalytics
+                    const analyticsQuery = query(
+                        collection(db, 'jobSeedsAnalytics'),
+                        where('skillType', 'in', chunk),
+                        where('province', '==', 'overall')
+                    );
+                    
+                    const analyticsSnapshot = await getDocs(analyticsQuery);
+                    analyticsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (!skillDemand[data.skillType]) {
+                            skillDemand[data.skillType] = {
+                                preferredCount: 0,
+                                overallCount: data.currentCount || 0,
+                                preferredLocations: new Set()
+                            };
+                        }
+                    });
+                    
+                    // Query from actual jobSeeds
+                    const jobSeedsQuery = query(
+                        collection(db, 'jobSeeds'),
+                        where('status', '==', 'active'),
+                        where('skills', 'array-contains-any', chunk)
+                    );
+                    
+                    const jobSeedsSnapshot = await getDocs(jobSeedsQuery);
+                    jobSeedsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const skills = data.skills || [];
+                        const positions = data.positionsAvailable || 1;
                         
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-chart-pie"></i>
-                                </div>
-                                <h3 class="card-title">Skills Demand</h3>
+                        skills.forEach(skill => {
+                            if (chunk.includes(skill)) {
+                                if (!skillDemand[skill]) {
+                                    skillDemand[skill] = {
+                                        preferredCount: 0,
+                                        overallCount: 0,
+                                        preferredLocations: new Set()
+                                    };
+                                }
+                                skillDemand[skill].overallCount += positions;
+                            }
+                        });
+                    });
+                }
+                
+                // Then get location-specific counts if preferred locations exist
+                if (preferredLocations.length > 0) {
+                    // Limit to first 10 preferred locations to avoid too many queries
+                    const locationsToQuery = preferredLocations.slice(0, 10);
+                    
+                    for (const location of locationsToQuery) {
+                        for (const chunk of skillChunks) {
+                            // Query from jobSeedsAnalytics
+                            const analyticsQuery = query(
+                                collection(db, 'jobSeedsAnalytics'),
+                                where('skillType', 'in', chunk),
+                                where('province', '==', location)
+                            );
+                            
+                            const analyticsSnapshot = await getDocs(analyticsQuery);
+                            analyticsSnapshot.forEach(doc => {
+                                const data = doc.data();
+                                if (!skillDemand[data.skillType]) {
+                                    skillDemand[data.skillType] = {
+                                        preferredCount: 0,
+                                        overallCount: 0,
+                                        preferredLocations: new Set()
+                                    };
+                                }
+                                skillDemand[data.skillType].preferredCount += data.currentCount || 0;
+                                skillDemand[data.skillType].preferredLocations.add(location);
+                            });
+                            
+                            // Query from actual jobSeeds for this location
+                            const jobSeedsQuery = query(
+                                collection(db, 'jobSeeds'),
+                                where('status', '==', 'active'),
+                                where('location', '==', location),
+                                where('skills', 'array-contains-any', chunk)
+                            );
+                            
+                            const jobSeedsSnapshot = await getDocs(jobSeedsQuery);
+                            jobSeedsSnapshot.forEach(doc => {
+                                const data = doc.data();
+                                const skills = data.skills || [];
+                                const positions = data.positionsAvailable || 1;
+                                
+                                skills.forEach(skill => {
+                                    if (chunk.includes(skill)) {
+                                        if (!skillDemand[skill]) {
+                                            skillDemand[skill] = {
+                                                preferredCount: 0,
+                                                overallCount: 0,
+                                                preferredLocations: new Set()
+                                            };
+                                        }
+                                        skillDemand[skill].preferredCount += positions;
+                                        skillDemand[skill].preferredLocations.add(location);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    
+                    // Normalize counts to not exceed total jobs
+                    for (const skill in skillDemand) {
+                        skillDemand[skill].preferredCount = Math.min(skillDemand[skill].preferredCount, totalJobs);
+                        skillDemand[skill].overallCount = Math.min(skillDemand[skill].overallCount, totalJobs);
+                    }
+                }
+                
+                // Sort skills by overall demand (highest first)
+                const sortedSkills = [...userSkills].sort((a, b) => {
+                    return (skillDemand[b]?.overallCount || 0) - (skillDemand[a]?.overallCount || 0);
+                });
+                    
+                // Get skills to learn (skills not in user's skills but in demand)
+                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
+                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
+                
+                const skillsToLearn = [];
+                const skillsCombinations = {};
+                
+                // Find skills that are often paired with the user's skills
+                // First from jobSeedsAnalytics
+                const analyticsComboQuery = query(
+                    collection(db, 'jobSeedsAnalytics'),
+                    where('skillType', 'not-in', userSkills)
+                );
+                
+                const analyticsComboSnapshot = await getDocs(analyticsComboQuery);
+                analyticsComboSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.skillType && !userSkills.includes(data.skillType)) {
+                        if (!skillsCombinations[data.skillType]) {
+                            skillsCombinations[data.skillType] = {
+                                count: 0,
+                                pairedWith: []
+                            };
+                        }
+                        skillsCombinations[data.skillType].count += data.currentCount || 0;
+                        
+                        // Find which user skill this is often paired with
+                        if (data.province !== 'overall' && userSkills.includes(data.province)) {
+                            skillsCombinations[data.skillType].pairedWith.push(data.province);
+                        }
+                    }
+                });
+                
+                // Then from actual jobSeeds
+                const jobSeedsComboQuery = query(
+                    collection(db, 'jobSeeds'),
+                    where('status', '==', 'active')
+                );
+                
+                const jobSeedsComboSnapshot = await getDocs(jobSeedsComboQuery);
+                jobSeedsComboSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const skills = data.skills || [];
+                    const positions = data.positionsAvailable || 1;
+                    
+                    // Find skills that are paired with user's skills in this job
+                    const hasUserSkill = skills.some(skill => userSkills.includes(skill));
+                    const nonUserSkills = skills.filter(skill => !userSkills.includes(skill));
+                    
+                    if (hasUserSkill && nonUserSkills.length > 0) {
+                        nonUserSkills.forEach(skill => {
+                            if (!skillsCombinations[skill]) {
+                                skillsCombinations[skill] = {
+                                    count: 0,
+                                    pairedWith: []
+                                };
+                            }
+                            skillsCombinations[skill].count += positions;
+                            
+                            // Record which user skills this is paired with
+                            const pairedWith = skills.filter(s => userSkills.includes(s));
+                            skillsCombinations[skill].pairedWith.push(...pairedWith);
+                        });
+                    }
+                });
+                
+                // Get top 5 recommended skills to learn
+                const recommendedSkills = Object.keys(skillsCombinations)
+                    .sort((a, b) => skillsCombinations[b].count - skillsCombinations[a].count)
+                    .slice(0, 5);
+                
+                // Generate HTML for Skills Analysis
+                let html = `
+                <div class="card-container" style="display: flex; gap: 20px;">
+                    <div class="insight-card" style="width: 50%;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-pie"></i>
                             </div>
-                            <div class="card-content">
-                                <p>How your skills compare in the current job market:</p>
-                                <div class="progress-container">
-                                    ${sortedSkills.map(skill => `
+                            <h3 class="card-title">Skills Demand</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>How your skills compare in the current job market:</p>
+                            <div class="progress-container">
+                                ${sortedSkills.map(skill => {
+                                    const demand = skillDemand[skill] || { preferredCount: 0, overallCount: 0 };
+                                    const locations = Array.from(demand.preferredLocations || []).join(', ');
+                                    return `
                                         <div style="margin: 15px 0;">
                                             <div class="progress-label">
-                                                <span>${skill}</span>
-                                                <span>${skillDemand[skill] || 0} jobs</span>
+                                                <span>${skill} 
+                                                    ${locations ? `<span class="location-tag" title="Demand in ${locations}">${locations.split(',')[0]}${locations.includes(',') ? '...' : ''}</span>` : ''}
+                                                </span>
+                                                <span>${formatNumber(demand.preferredCount)} jobs (your locations)<br>
+                                                ${formatNumber(demand.overallCount)} jobs (North Luzon)</span>
                                             </div>
                                             <div class="progress">
-                                                <div class="progress-bar" style="width: ${Math.min(100, (skillDemand[skill] || 0) / 5 * 100)}%"></div>
+                                                <div class="progress-bar" style="width: ${Math.min(100, (demand.overallCount || 0) / 5 * 100)}%"></div>
                                             </div>
                                         </div>
-                                    `).join('')}
-                                </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                     </div>
-                `;
+                    
+                    <div class="insight-card" style="width: 50%;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h3 class="card-title">Skills to Learn</h3>
+                        </div>
+                        <div class="card-content">
+                            <p>These skills can complement your current skillset and improve your employability:</p>
+                            <div style="margin-top: 15px;">
+                                ${recommendedSkills.map(skill => {
+                                    const comboData = skillsCombinations[skill];
+                                    const pairedWith = comboData.pairedWith.length > 0 ? 
+                                        `Often paired with: ${Array.from(new Set(comboData.pairedWith)).join(', ')}` : 
+                                        'High demand skill';
+                                    return `
+                                        <div class="skills-to-learn-item">
+                                            <div class="skills-to-learn-header">
+                                                <span><i class="fas fa-arrow-circle-right"></i> ${skill}</span>
+                                                <span class="trend-indicator trend-up">
+                                                    <i class="fas fa-arrow-up"></i> ${formatNumber(comboData.count/2)} jobs
+                                                </span>
+                                            </div>
+                                            <div class="skill-reason">${pairedWith}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
                 
                 container.innerHTML = html;
             } catch (error) {
@@ -560,140 +818,13 @@
             }
         }
         
-        async function loadRecommendedSkills() {
-            try {
-                const container = document.getElementById('recommendedSkillsContainer');
-                container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Finding skill recommendations...</p>';
-                
-                // Get all skills from database
-                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
-                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
-                
-                // Get job seeds analytics to find skill combinations
-                const analyticsQuery = query(
-                    collection(db, 'jobSeedsAnalytics'),
-                    orderBy('currentCount', 'desc')
-                );
-                
-                const querySnapshot = await getDocs(analyticsQuery);
-                const skillCombinations = {};
-                
-                // Find skills that are often paired with the user's skills
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.skillType && !userSkills.includes(data.skillType)) {
-                        skillCombinations[data.skillType] = data.currentCount || 0;
-                    }
-                });
-                
-                // Sort recommended skills by demand (highest first)
-                const recommendedSkills = Object.keys(skillCombinations)
-                    .sort((a, b) => skillCombinations[b] - skillCombinations[a])
-                    .slice(0, 5);
-                
-                // Generate HTML
-                let html = `
-                    <div class="card-container">
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-lightbulb"></i>
-                                </div>
-                                <h3     class="card-title">Complementary Skills</h3>
-                            </div>
-                            <div class="card-content">
-                                <p>These skills are often required together with your current skills:</p>
-                                <div class="skill-combo-list" style="margin-top: 15px;">
-                                    ${recommendedSkills.map(skill => {
-                                        // Find a skill that this skill is often paired with
-                                        const pairedSkill = userSkills.find(userSkill => {
-                                            return querySnapshot.docs.some(doc => {
-                                                const data = doc.data();
-                                                return data.skillType === skill && 
-                                                       data.province !== "overall" && 
-                                                       data.province.includes(userSkill);
-                                            });
-                                        });
-                                        
-                                        return `
-                                            <div class="skill-combo">
-                                                <span class="skill-badge primary-badge">${pairedSkill || 'Your skill'}</span>
-                                                <i class="fas fa-plus" style="margin: 0 5px;"></i>
-                                                <span class="skill-badge success-badge">${skill}</span>
-                                                <span class="trend-indicator trend-up">
-                                                    <i class="fas fa-arrow-up"></i> ${skillCombinations[skill]} jobs
-                                                </span>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
-                                <h3 class="card-title">Skill Gaps</h3>
-                            </div>
-                            <div class="card-content">
-                                <p>These are the most in-demand skills you don't currently have:</p>
-                                <div style="margin-top: 15px;">
-                                    ${recommendedSkills.map(skill => `
-                                        <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                            <div style="font-weight: 600; margin-bottom: 5px;">
-                                                <i class="fas fa-arrow-circle-right"></i> ${skill}
-                                            </div>
-                                            <div style="font-size: 0.9rem; color: #666;">
-                                                Appears in ${skillCombinations[skill]} job postings
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading recommended skills:', error);
-                document.getElementById('recommendedSkillsContainer').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Could not load skill recommendations. Please try again later.</p>
-                    </div>
-                `;
-            }
-        }
-        
         async function loadTrainingOpportunities() {
             try {
                 const container = document.getElementById('trainingOpportunitiesContainer');
                 container.innerHTML = '<div class="loading-spinner"></div><p class="text-center">Finding training opportunities...</p>';
                 
-                // Get recommended skills first
-                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
-                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
-                
-                const analyticsQuery = query(
-                    collection(db, 'jobSeedsAnalytics'),
-                    orderBy('currentCount', 'desc')
-                );
-                
-                const querySnapshot = await getDocs(analyticsQuery);
-                const recommendedSkills = [];
-                
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.skillType && !userSkills.includes(data.skillType)) {
-                        recommendedSkills.push(data.skillType);
-                    }
-                });
-                
-                // Take top 3 recommended skills
-                const skillsToTrain = recommendedSkills.slice(0, 3);
+                // Get recommended skills first from skills analysis
+                const skillsToTrain = await getRecommendedSkills();
                 
                 if (skillsToTrain.length === 0) {
                     container.innerHTML = `
@@ -776,6 +907,50 @@
             }
         }
         
+        async function getRecommendedSkills() {
+            try {
+                // Get all skills from database
+                const skillsDoc = await getDoc(doc(db, 'skills', 'skilled_worker_skills'));
+                const allSkills = skillsDoc.exists() ? skillsDoc.data().items : [];
+                
+                // Get job seeds analytics to find skill combinations
+                const analyticsQuery = query(
+                    collection(db, 'jobSeedsAnalytics'),
+                    orderBy('currentCount', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(analyticsQuery);
+                const skillCombinations = {};
+                
+                // Find skills that are often paired with the user's skills
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.skillType && !userSkills.includes(data.skillType)) {
+                        if (!skillCombinations[data.skillType]) {
+                            skillCombinations[data.skillType] = {
+                                count: 0,
+                                pairedWith: []
+                            };
+                        }
+                        skillCombinations[data.skillType].count += data.currentCount || 0;
+                        
+                        // Find which user skill this is often paired with
+                        if (data.province !== 'overall' && userSkills.includes(data.province)) {
+                            skillCombinations[data.skillType].pairedWith.push(data.province);
+                        }
+                    }
+                });
+                
+                // Take top 3 recommended skills
+                return Object.keys(skillCombinations)
+                    .sort((a, b) => skillCombinations[b].count - skillCombinations[a].count)
+                    .slice(0, 3);
+            } catch (error) {
+                console.error('Error getting recommended skills:', error);
+                return [];
+            }
+        }
+        
         function formatTrainingResponse(text) {
             // Convert markdown-like list to HTML
             return text
@@ -825,90 +1000,101 @@
                 
                 // Get sentiment analysis of all feedback comments using GCP Function
                 let sentimentAnalysis = "No detailed analysis available";
+                let recommendations = "";
                 try {
-                    const allComments = feedbacks.map(f => f.comment).join(' ');
-                    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/sentimentAnalysis', {
+                    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/skillsAnalysis', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content: allComments })
+                        body: JSON.stringify({ 
+                            feedback: feedbacks,
+                            skills: userSkills 
+                        })
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        sentimentAnalysis = data.content || sentimentAnalysis;
+                        recommendations = data.analysis || "No specific recommendations available";
                     }
                 } catch (error) {
-                    console.error('Error getting sentiment analysis:', error);
+                    console.error('Error getting skills analysis:', error);
+                    recommendations = "Could not load personalized recommendations";
                 }
                 
                 // Generate HTML
                 const reputationScore = Math.round((positiveCount / (positiveCount + negativeCount)) * 100) || 0;
                 
                 let html = `
-                    <div class="card-container">
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-chart-bar"></i>
-                                </div>
-                                <h3 class="card-title">Feedback Summary</h3>
+                <div class="card-container" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="insight-card" style="width: 100%;">
+                        <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-bar"></i>
                             </div>
-                            <div class="card-content">
-                                <div style="text-align: center; margin: 20px 0;">
-                                    <div style="font-size: 3rem; font-weight: bold; color: ${reputationScore >= 70 ? '#28a745' : reputationScore >= 40 ? '#ffc107' : '#dc3545'}">
-                                        ${reputationScore}/100
-                                    </div>
-                                    <div style="font-size: 1.2rem; margin-bottom: 10px;">
-                                        Reputation Score
-                                    </div>
-                                    <div style="display: flex; justify-content: space-around; margin: 20px 0;">
-                                        <div>
-                                            <div style="font-size: 1.5rem; color: #28a745;">${positiveCount}</div>
-                                            <div>Positive</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 1.5rem; color: #dc3545;">${negativeCount}</div>
-                                            <div>Negative</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div style="margin-top: 20px;">
-                                    <h4 style="margin-bottom: 10px;">Analysis:</h4>
-                                    <p>${sentimentAnalysis.replace(/sentiment/gi, 'feedback')}</p>
-                                </div>
-                            </div>
+                            <h3 class="card-title">Feedback Summary</h3>
                         </div>
-                        
-                        <div class="insight-card">
-                            <div class="card-header">
-                                <div class="card-icon">
-                                    <i class="fas fa-comments"></i>
+                        <div class="card-content" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 2.5rem; font-weight: bold; color: ${reputationScore >= 70 ? '#28a745' : reputationScore >= 40 ? '#ffc107' : '#dc3545'}">
+                                    ${reputationScore}/100
                                 </div>
-                                <h3 class="card-title">Recent Feedback</h3>
+                                <div style="font-size: 1rem; margin-bottom: 10px;">
+                                    Reputation Score
+                                </div>
                             </div>
-                            <div class="card-content">
-                                ${feedbacks.slice(0, 3).map(feedback => `
-                                    <div class="feedback-item ${feedback.rating === 'positive' ? 'positive-feedback' : 'negative-feedback'}">
-                                        <div class="feedback-header">
-                                            <div class="feedback-employer">${feedback.employerName || 'Anonymous Employer'}</div>
-                                            <div class="feedback-date">${feedback.createdAt?.toDate ? feedback.createdAt.toDate().toLocaleDateString() : 'Unknown date'}</div>
-                                        </div>
-                                        <div class="feedback-content">
-                                            <p>${feedback.comment || 'No comment provided'}</p>
-                                        </div>
+                            <div style="flex: 2;">
+                                <div style="display: flex; justify-content: center; gap: 30px;">
+                                    <div>
+                                        <div style="font-size: 1.2rem; color: #28a745;">${positiveCount}</div>
+                                        <div>Positive</div>
                                     </div>
-                                `).join('')}
-                                
-                                ${feedbacks.length > 3 ? `
-                                    <div style="text-align: center; margin-top: 15px;">
-                                        <a href="employee-profile.html" style="color: #3D6585;">View all feedback on your profile</a>
+                                    <div>
+                                        <div style="font-size: 1.2rem; color: #dc3545;">${negativeCount}</div>
+                                        <div>Negative</div>
                                     </div>
-                                ` : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
-                `;
+
+                    <div class="insight-card" style="width: 100%;">
+                        <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                            <div class="card-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3 class="card-title">Recent Feedback & Recommendations</h3>
+                        </div>
+                        <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
+                            ${feedbacks.slice(0, 3).map(feedback => `
+                                <div class="feedback-item ${feedback.rating === 'positive' ? 'positive-feedback' : 'negative-feedback'}" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                                    <div class="feedback-header" style="display: flex; justify-content: space-between; font-weight: bold;">
+                                        <div>${feedback.employerName || 'Anonymous Employer'}</div>
+                                        <div style="font-size: 0.9rem;">${feedback.createdAt?.toDate ? feedback.createdAt.toDate().toLocaleDateString() : 'Unknown date'}</div>
+                                    </div>
+                                    <div class="feedback-content" style="margin-top: 5px;">
+                                        <p>${feedback.comment || 'No comment provided'}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+
+                            ${recommendations ? `
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                                    <h4 style="margin-bottom: 8px;">Recommendations:</h4>
+                                    <p>${recommendations.replace(/\n/g, '<br>')}</p>
+                                </div>
+                            ` : ''}
+
+                            ${feedbacks.length > 3 ? `
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <a href="employee-profile.html" style="color: #3D6585;">View all feedback on your profile</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+
+
                 
                 container.innerHTML = html;
             } catch (error) {
