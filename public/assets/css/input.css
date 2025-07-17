@@ -14,7 +14,7 @@ body {
 }
 
 .tinder-card, .job-listing-card {
-  @apply w-full bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-2;
+  @apply w-full bg-white rounded-xl border-3 border-[#65956C] px-10 py-10 flex flex-col shadow-xl gap-6;
 }
 
 .status-badge {

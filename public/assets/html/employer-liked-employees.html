@@ -82,6 +82,12 @@
         // Global variables
         let currentUser = null;
         let likedEmployees = [];
+        let employerJobSkills = [];
+        let employerJobLocations = [];
+        let currentEmployer = null;
+        let employerProvince = "";
+        let employerSkillToJobs = {};
+        let employerLocationToJobs = {};
 
         // DOM Elements
         const likedEmployeesContainer = document.getElementById('likedEmployeesContainer');
@@ -92,13 +98,69 @@
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     currentUser = user;
-                    await loadLikedEmployees();
+                    await loadEmployerProfile(); // ✅ Load this first
+                    await loadLikedEmployees();  // ✅ Then this can use the matched data
                 } else {
-                    // Redirect to login if not authenticated
                     window.location.href = '../login.html';
                 }
             });
         });
+
+        async function loadEmployerProfile() {
+            try {
+                const employerDoc = await getDoc(doc(db, 'employers', currentUser.uid));
+                if (employerDoc.exists()) {
+                    currentEmployer = employerDoc.data();
+                    console.log("Employer Profile:", currentEmployer);
+
+                    const jobsQuery = query(
+                        collection(db, 'jobSeeds'),
+                        where('employerId', '==', currentUser.uid),
+                        where('status', '==', 'active')
+                    );
+
+                    const jobsSnapshot = await getDocs(jobsQuery);
+
+                    jobsSnapshot.forEach(doc => {
+                        const jobData = doc.data();
+                        const jobTitle = jobData.jobTitle || "Untitled Job";
+
+                        // Skills
+                        if (Array.isArray(jobData.skills)) {
+                            for (const skill of jobData.skills) {
+                                employerJobSkills.push(skill);
+
+                                if (!employerSkillToJobs[skill]) {
+                                    employerSkillToJobs[skill] = [];
+                                }
+                                employerSkillToJobs[skill].push(jobTitle);
+                            }
+                        }
+
+                        // Locations
+                        if (jobData.location) {
+                            employerJobLocations.push(jobData.location);
+
+                            if (!employerLocationToJobs[jobData.location]) {
+                                employerLocationToJobs[jobData.location] = [];
+                            }
+                            employerLocationToJobs[jobData.location].push(jobTitle);
+                        }
+                    });
+
+                    // Remove duplicates
+                    employerJobSkills = [...new Set(employerJobSkills)];
+                    employerJobLocations = [...new Set(employerJobLocations)];
+
+                    console.log("Employer Job Skills:", employerJobSkills);
+                    console.log("Employer Job Locations:", employerJobLocations);
+                } else {
+                    console.error('Employer profile not found');
+                }
+            } catch (error) {
+                console.error('Error loading employer profile:', error);
+            }
+        }
 
         // Load liked employees from Firestore
         async function loadLikedEmployees() {
@@ -155,6 +217,8 @@
                     // Create cards for each liked employee
                     employeesSnapshot.forEach(doc => {
                         const employee = doc.data();
+                        const matchedSkills = (employee.skills || []).filter(skill => employerJobSkills.includes(skill));
+                        const matchedLocations = (employee.preferredLocations || []).filter(loc => employerJobLocations.includes(loc));
                         const feedback = feedbackCounts[doc.id] || { likes: 0, dislikes: 0 };
                         const likedEmployeeData = likedEmployees.find(emp => emp.employeeId === doc.id);
 
@@ -167,67 +231,139 @@
 
                         // Create employee card
                         const employeeCard = document.createElement('div');
-                        employeeCard.className = 'tinder-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out';
+                        employeeCard.className = 'tinder-card h-[28rem] flex flex-col justify-between p-4 bg-white rounded-xl shadow-md hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out';
                         employeeCard.innerHTML = `
+                        <div>
                             <div class="flex justify-between gap-5">
                                 <!-- Full Name, Current Province and Willing to Relocate -->
                                 <div class="flex flex-1 flex-col">
-                                    <span class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                                    <span
+                                        class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
+                                        style="cursor: pointer;"
+                                    >
                                         ${employee.fullName || employee.displayName || "No name provided"}
                                     </span>
-                                    <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis">
-                                        Lives in ${employee.currentProvince || "Unknown location"} 
-                                        ${employee.willingToRelocate === "Yes" ? "- Willing to Relocate" : ""}
+                                    <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis">
+                                        Lives in <span>${employee.currentProvince || "Unknown location"}</span> 
+                                        ${employee.willingToRelocate === "Yes" ? '<span>- Willing to Relocate</span>' : ''}
                                     </span>
                                 </div>
-                                <!-- Likes and Dislikes -->
-                                <div class="flex items-start gap-6">
-                                    <span class="flex items-end gap-2">
-                                        <i class="fas fa-thumbs-up text-[#73A267] text-2xl"></i>
-                                        <span class="text-xl">${feedback.likes}</span>
+
+                                <!-- Reputation -->
+                                <div class="flex items-start gap-4">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fas fa-thumbs-up text-[#73A267] text-xl"></i>
+                                        <span class="text-lg">${feedback.likes}</span>
                                     </span>
-                                    <span class="flex items-end gap-2">
-                                        <i class="fas fa-thumbs-down text-[#D33B3B] text-2xl"></i>
-                                        <span class="text-xl">${feedback.dislikes}</span>
+                                    <span class="flex items-center gap-2">
+                                        <i class="fas fa-thumbs-down text-[#D33B3B] text-xl"></i>
+                                        <span class="text-lg">${feedback.dislikes}</span>
                                     </span>
-                                    <span class="flex items-end gap-2">
-                                        <i class="fas fa-star text-[#FFD700] text-2xl"></i>
-                                        <span class="text-xl">${reputationScore}%</span>
+                                    <span class="flex items-center gap-2">
+                                        <i class="fas fa-star text-[#FFD700] text-xl"></i>
+                                        <span class="text-lg">${reputationScore}%</span>
                                     </span>
                                 </div>
                             </div>
+
                             <!-- Preferred Work Locations -->
-                            <div class="flex flex-col gap-2">
-                                <h3 class="text-[#65956C] text-lg font-bold">Preferred Work Locations</h3>
-                                <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                                    ${employee.preferredLocations?.length > 0
-                                ? employee.preferredLocations.map(location =>
-                                    `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${location}</span>`
-                                ).join('')
-                                : '<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">No preferred locations</span>'}
+                            <div class="flex flex-col gap-3 mt-4">
+                                <h3 class="text-[#65956C] text-xl font-bold">
+                                    Preferred Work Locations
+                                    <span 
+                                        class="ml-2 px-2 py-[1px] rounded-md text-xs font-medium text-center align-middle text-[#2E7D32]"
+                                        title="Matched Jobs: ${[...new Set(matchedLocations.flatMap(loc => employerLocationToJobs[loc] || []))].join(', ')}"
+
+                                    >
+                                        (${matchedLocations.length || 0} Match${(matchedLocations.length || 0) !== 1 ? 'es' : ''})
+                                    </span>
+                                </h3>
+                                <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                    ${(() => {
+                                const preferred = employee.preferredLocations || [];
+                                if (preferred.length === 0) {
+                                    return '<span class="text-gray-500">No preferred locations</span>';
+                                }
+
+                                const sorted = [
+                                    ...preferred.filter(loc => matchedLocations.includes(loc)),
+                                    ...preferred.filter(loc => !matchedLocations.includes(loc))
+                                ];
+
+                                return sorted.map(loc => {
+                                    const isMatch = matchedLocations.includes(loc);
+                                    return `
+                                                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center
+                                                    ${isMatch
+                                            ? 'bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                                            : 'bg-white border-gray-300 text-gray-600'}">
+                                                    ${loc}
+                                                </span>`;
+                                }).join('');
+                            })()}
                                 </div>
                             </div>
+
                             <!-- Skills -->
-                            <div class="flex flex-col gap-2">
-                                <h3 class="text-[#65956C] text-lg font-bold">Skills</h3>
-                                <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                                    ${employee.skills?.length > 0
-                                ? employee.skills.map(skill =>
-                                    `<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">${skill}</span>`
-                                ).join('')
-                                : '<span class="text-center text-md p-2 border border-gray-300 bg-white rounded-md">No skills listed</span>'}
+                            <div class="flex flex-col gap-3 mt-4">
+                                <h3 class="text-[#65956C] text-xl font-bold">
+                                    Skills
+                                <span 
+                                    class="ml-2 px-2 py-[1px] rounded-md text-xs font-medium text-center align-middle text-[#2E7D32]"
+                                    title="Matched Jobs: ${[...new Set(matchedSkills.flatMap(skill => employerSkillToJobs[skill] || []))].join(', ')}"
+                                >
+                                    (${matchedSkills.length || 0} Match${(matchedSkills.length || 0) !== 1 ? 'es' : ''})
+                                </span>
+                                </h3>
+                                <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                    ${(() => {
+                                const skills = employee.skills || [];
+                                if (skills.length === 0) {
+                                    return '<span class="text-gray-500">No skills listed</span>';
+                                }
+
+                                const sorted = [
+                                    ...skills.filter(skill => matchedSkills.includes(skill)),
+                                    ...skills.filter(skill => !matchedSkills.includes(skill))
+                                ];
+
+                                const visibleSkills = sorted.slice(0, 4);
+                                const hiddenSkills = sorted.slice(5);
+
+                                const skillTags = visibleSkills.map(skill => {
+                                    const isMatch = matchedSkills.includes(skill);
+                                    return `
+                                                <span class="inline-block text-md px-4 py-1 rounded-lg border text-center 
+                                                    ${isMatch
+                                            ? 'bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                                            : 'bg-white border-gray-300 text-gray-600'}">
+                                                    ${skill}
+                                                </span>`;
+                                }).join('');
+
+                                const moreTag = hiddenSkills.length > 0
+                                    ? `<span class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center" title="${hiddenSkills.join(', ')}">
+                                                    +${hiddenSkills.length} more
+                                                </span>`
+                                    : '';
+
+                                return skillTags + moreTag;
+                            })()}
                                 </div>
                             </div>
-                            <!-- Action Buttons -->
-                            <div class="flex gap-2 mt-6">
-                                <button data-employee-id="${doc.id}" class="unlike-btn flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-md">
-                                    Unlike
-                                </button>
-                                <button data-employee-id="${doc.id}" class="view-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
-                                    View Profile
-                                </button>
-                            </div>
-                        `;
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex gap-2 mt-6">
+                            <button data-employee-id="${doc.id}" class="unlike-btn flex-1 bg-[#D33B3B] text-white px-4 py-2 rounded hover:bg-[#b32f2f] cursor-pointer text-md">
+                                Unlike
+                            </button>
+                            <button data-employee-id="${doc.id}" class="view-btn flex-1 bg-[#73A267] text-white px-4 py-2 rounded hover:bg-[#5c8651] cursor-pointer text-md">
+                                View Profile
+                            </button>
+                        </div>
+                    `;
+
 
                         likedEmployeesContainer.appendChild(employeeCard);
                     });

@@ -45,9 +45,9 @@
             </p>
         </div>
 
-        <div class="flex flex-col items-center justify-between flex-1 w-[55%] gap-8">
+        <div class="flex flex-col items-center justify-between flex-1 w-xl gap-8">
             <!-- Employee Tinder Card -->
-            <div class="tinder-card">
+            <div class="tinder-card transition-opacity duration-300">
                 <div class="flex justify-between gap-5">
                     <!-- Full Name, Current Province and Willing to Relocate -->
                     <div class="flex flex-1 flex-col">
@@ -63,63 +63,78 @@
                     </div>
 
                     <!-- Reputation -->
-                    <div class="flex items-start gap-6">
-                        <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-up text-[#73A267] text-3xl"></i>
-                            <span class="text-xl" id="likes">0</span>
+                    <div class="flex items-start gap-4">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-thumbs-up text-[#73A267] text-xl"></i>
+                            <span class="text-lg" id="likes">0</span>
                         </span>
 
-                        <span class="flex items-end gap-2">
-                            <i class="fas fa-thumbs-down text-[#D33B3B] text-3xl"></i>
-                            <span class="text-xl" id="dislikes">0</span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-thumbs-down text-[#D33B3B] text-xl"></i>
+                            <span class="text-lg" id="dislikes">0</span>
                         </span>
 
-                        <span class="flex items-end gap-2">
-                            <i class="fas fa-star text-[#FFD700] text-3xl"></i>
-                            <span class="text-xl" id="reputationScore">0%</span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-star text-[#FFD700] text-xl"></i>
+                            <span class="text-lg" id="reputationScore">0%</span>
                         </span>
                     </div>
                 </div>
 
                 <!-- Preferred Work Locations -->
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-xl font-bold">Preferred Work Locations</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
 
-                    <div class="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
+                        <span id="workLocationMatchCount"></span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="workLocationsContainer">
                         <span
-                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
+                            class="inline-block text-md px-4 py-1 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
 
                 <!-- Skills -->
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-4">
+                        <h3 class="text-[#65956C] text-xl font-bold">Skills</h3>
 
-                    <div class="grid grid-cols-3 gap-2 w-full overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
+                        <span id="skillsMatchCount"></span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth"
                         id="skillsContainer">
                         <span
-                            class="text-center text-lg p-2 border border-gray-300 bg-white rounded-md">Loading...</span>
+                            class="inline-block text-md px-4 py-1 border border-gray-300 bg-white rounded-md">Loading...</span>
                     </div>
                 </div>
             </div>
 
             <!-- Button Card -->
             <div
-                class="h-[100px] w-[60%] bg-[#F7FFF9] rounded-xl border-3 border-[#65956C] p-4 flex justify-center shadow-xl gap-24">
+                class="h-[100px] w-[75%] bg-white rounded-xl border-3 border-[#65956C] p-4 flex justify-center items-center shadow-xl gap-24">
                 <!-- Skip Button -->
-                <button class="h-auto w-[15%] bg-[#D33B3B] rounded-full p-4 hover:bg-[#b32f2f] cursor-pointer"
+                <button
+                    class="w-16 h-16 bg-[#D33B3B] rounded-full flex items-center justify-center hover:bg-[#b32f2f] cursor-pointer"
                     id="skipBtn">
                     <i class="fas fa-times text-2xl text-white"></i>
                 </button>
 
                 <!-- Keep Button -->
-                <button class="h-auto w-[15%] bg-[#73A267] rounded-full p-4 hover:bg-[#5c8651] cursor-pointer"
+                <button
+                    class="w-16 h-16 bg-[#73A267] rounded-full flex items-center justify-center hover:bg-[#5c8651] cursor-pointer"
                     id="keepBtn">
                     <i class="fas fa-heart text-2xl text-white"></i>
                 </button>
             </div>
         </div>
+    </div>
+
+    <div id="toast"
+        class="fixed top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[12rem] bg-[#73A267] text-white px-6 py-3 rounded opacity-0 shadow-lg pointer-events-none transition-opacity duration-300 z-50">
+        Employee liked!
     </div>
 
     <!-- Firebase SDK -->
@@ -164,7 +179,10 @@
         let availableEmployees = [];
         let likedEmployees = [];
         let employerJobSkills = [];
+        let employerJobLocations = [];
         let employerProvince = "";
+        let employerSkillToJobs = {};
+        let employerLocationToJobs = {};
 
         // DOM Elements
         const fullNameEl = document.getElementById('fullName');
@@ -202,14 +220,11 @@
         // Load employer profile data
         async function loadEmployerProfile() {
             try {
-
-                // Get employer profile
                 const employerDoc = await getDoc(doc(db, 'employers', currentUser.uid));
                 if (employerDoc.exists()) {
                     currentEmployer = employerDoc.data();
-                    employerProvince = currentEmployer?.companyInfo?.companyAddress || "";
+                    console.log("Employer Profile:", currentEmployer);
 
-                    // Get employer's job listings to extract required skills
                     const jobsQuery = query(
                         collection(db, 'jobSeeds'),
                         where('employerId', '==', currentUser.uid),
@@ -217,14 +232,40 @@
                     );
 
                     const jobsSnapshot = await getDocs(jobsQuery);
-                    employerJobSkills = [];
 
                     jobsSnapshot.forEach(doc => {
                         const jobData = doc.data();
-                        if (jobData.skills) {
-                            employerJobSkills = [...new Set([...employerJobSkills, ...jobData.skills])];
+                        const jobTitle = jobData.jobTitle || "Untitled Job";
+
+                        // Skills
+                        if (Array.isArray(jobData.skills)) {
+                            for (const skill of jobData.skills) {
+                                employerJobSkills.push(skill);
+
+                                if (!employerSkillToJobs[skill]) {
+                                    employerSkillToJobs[skill] = [];
+                                }
+                                employerSkillToJobs[skill].push(jobTitle);
+                            }
+                        }
+
+                        // Locations
+                        if (jobData.location) {
+                            employerJobLocations.push(jobData.location);
+
+                            if (!employerLocationToJobs[jobData.location]) {
+                                employerLocationToJobs[jobData.location] = [];
+                            }
+                            employerLocationToJobs[jobData.location].push(jobTitle);
                         }
                     });
+
+                    // Remove duplicates
+                    employerJobSkills = [...new Set(employerJobSkills)];
+                    employerJobLocations = [...new Set(employerJobLocations)];
+
+                    console.log("Employer Job Skills:", employerJobSkills);
+                    console.log("Employer Job Locations:", employerJobLocations);
                 } else {
                     console.error('Employer profile not found');
                 }
@@ -303,8 +344,12 @@
                             matchScore += (matchingSkills.length / employerJobSkills.length) * 50;
                         }
 
-                        if (employerProvince && employee.preferredLocations) {
-                            if (employee.preferredLocations.includes(employerProvince)) {
+                        if (employerJobLocations.length > 0 && employee.preferredLocations) {
+                            const locationMatch = employee.preferredLocations.find(loc =>
+                                employerJobLocations.includes(loc)
+                            );
+
+                            if (locationMatch) {
                                 matchScore += 30;
                             } else if (employee.willingToRelocate === "Yes") {
                                 matchScore += 15;
@@ -337,7 +382,7 @@
         }
 
         // Display current employee card
-        function displayCurrentEmployee() {
+        async function displayCurrentEmployee() {
             if (currentEmployeeIndex >= availableEmployees.length) {
                 showNoEmployeesMessage();
                 return;
@@ -347,18 +392,19 @@
             console.log("Loaded employee data:", employee);
             currentEmployee = employee.id;
 
-            // Basic info
+            const employeeDoc = await getDoc(doc(db, 'careerstepEmployees', currentEmployee));
+            const fullEmployeeData = employeeDoc.exists() ? employeeDoc.data() : {};
+
+            // Basic Info
             fullNameEl.textContent = employee.fullName || employee.displayName || "No name provided";
             currentProvinceEl.textContent = employee.currentProvince || "Unknown location";
 
-            willingToRelocateEl.textContent = employee.willingToRelocate === "Yes"
+            willingToRelocateEl.textContent = fullEmployeeData.jobPreferences.willingToRelocate === "Yes"
                 ? "- Willing to Relocate" : "";
 
-            // Feedback counts - use correct field names
             likesEl.textContent = employee.likes || employee.positiveFeedback || 0;
             dislikesEl.textContent = employee.dislikes || employee.negativeFeedback || 0;
 
-            // Calculate reputation score if not provided
             const totalFeedback = (employee.likes || 0) + (employee.dislikes || 0);
             let reputationScore = 0;
             if (totalFeedback > 0) {
@@ -366,44 +412,126 @@
             }
             document.getElementById('reputationScore').textContent = reputationScore + "%";
 
-            // Preferred locations
+            // Preferred Work Locations
             workLocationsContainer.innerHTML = "";
-            if (employee.preferredLocations?.length > 0) {
-                employee.preferredLocations.forEach(location => {
-                    const locationEl = document.createElement('span');
-                    locationEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
-                    locationEl.textContent = location;
-                    workLocationsContainer.appendChild(locationEl);
-                });
+            const preferred = employee.preferredLocations || [];
+            const matched = preferred.find(loc => employerJobLocations.includes(loc));
+            const others = preferred.filter(loc => !employerJobLocations.includes(loc));
+
+            const maxVisible = 4;
+            const allOrdered = matched ? [matched, ...others] : preferred;
+            const visible = allOrdered.slice(0, maxVisible);
+            const remaining = preferred.length - visible.length;
+
+            visible.forEach(loc => {
+                const isMatch = employerJobLocations.includes(loc); // ✅ FIXED
+                const el = document.createElement('span');
+                el.className =
+                    'inline-block text-md px-4 py-1 rounded-lg border text-center ' +
+                    (isMatch
+                        ? 'bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                        : 'bg-white border-gray-300 text-gray-600');
+                el.textContent = loc;
+                workLocationsContainer.appendChild(el);
+            });
+
+            if (remaining > 0) {
+                const moreEl = document.createElement('span');
+                moreEl.className =
+                    'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center';
+                moreEl.textContent = `+${remaining} more`;
+                moreEl.title = preferred.slice(maxVisible).join(', ');
+                workLocationsContainer.appendChild(moreEl);
+            }
+
+
+            // ✅ Work Location Match Count
+            const workMatchCountEl = document.getElementById('workLocationMatchCount');
+            const hasWorkMatch = !!matched;
+
+            workMatchCountEl.textContent = `${hasWorkMatch ? '1 Match' : '0 Matches'}`;
+            workMatchCountEl.className = 'font-normal text-center text-xs px-2 py-1 rounded-md ' +
+                (hasWorkMatch
+                    ? 'bg-[#65956C] text-white'
+                    : 'border border-gray-300 bg-white text-gray-600');
+
+            if (hasWorkMatch) {
+                const matchedLocationJobTitles = [...new Set(
+                    employerLocationToJobs[matched] || []
+                )];
+                if (matchedLocationJobTitles.length > 0) {
+                    workMatchCountEl.title = `Matched Job${matchedLocationJobTitles.length > 1 ? 's' : ''}: ${matchedLocationJobTitles.join(', ')}`;
+                } else {
+                    workMatchCountEl.removeAttribute('title');
+                }
             } else {
-                const noLocationEl = document.createElement('span');
-                noLocationEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
-                noLocationEl.textContent = "No preferred locations";
-                workLocationsContainer.appendChild(noLocationEl);
+                workMatchCountEl.removeAttribute('title');
             }
 
             // Skills
             skillsContainer.innerHTML = "";
-            if (employee.skills?.length > 0) {
-                employee.skills.forEach(skill => {
-                    const skillEl = document.createElement('span');
-                    skillEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
 
-                    // Highlight matching skills
-                    if (employerJobSkills.includes(skill)) {
-                        skillEl.classList.add('bg-[#E8F5E9]', 'border-[#73A267]');
-                    }
+            if (employee.skills?.length > 0) {
+                const matchedSkills = employee.skills.filter(skill => employerJobSkills.includes(skill));
+                const unmatchedSkills = employee.skills.filter(skill => !employerJobSkills.includes(skill));
+
+                const allOrdered = [...matchedSkills, ...unmatchedSkills];
+                const visible = allOrdered.slice(0, maxVisible);
+                const remaining = allOrdered.length - visible.length;
+
+                visible.forEach(skill => {
+                    const isMatched = employerJobSkills.includes(skill);
+                    const skillEl = document.createElement('span');
+
+                    skillEl.className =
+                        'inline-block text-md px-4 py-1 rounded-lg border text-center ' +
+                        (isMatched
+                            ? 'bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold'
+                            : 'bg-white border-gray-300 text-gray-600');
 
                     skillEl.textContent = skill;
                     skillsContainer.appendChild(skillEl);
                 });
+
+                if (remaining > 0) {
+                    const moreEl = document.createElement('span');
+                    moreEl.className =
+                        'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center';
+                    moreEl.textContent = `+${remaining} more`;
+                    moreEl.title = allOrdered.slice(maxVisible).join(', ');
+                    skillsContainer.appendChild(moreEl);
+                }
+
+                // ✅ Skills Match Count
+                const skillsMatchCountEl = document.getElementById('skillsMatchCount');
+                const skillMatchText = `${matchedSkills.length} ${matchedSkills.length === 1 ? 'Match' : 'Matches'}`;
+
+                skillsMatchCountEl.textContent = skillMatchText;
+                skillsMatchCountEl.className = 'font-normal text-center text-xs px-2 py-1 rounded-md ' +
+                    (matchedSkills.length > 0 ? 'bg-[#65956C] text-white' : 'border border-gray-300 bg-white text-gray-600');
+
+                // 🔧 Add tooltip (title) showing job titles that matched the skills
+                const matchedJobTitles = [...new Set(
+                    matchedSkills.flatMap(skill => employerSkillToJobs[skill] || [])
+                )];
+
+                if (matchedJobTitles.length > 0) {
+                    skillsMatchCountEl.title = `Matched Job${matchedJobTitles.length > 1 ? 's' : ''}: ${matchedJobTitles.join(', ')}`;
+                } else {
+                    skillsMatchCountEl.removeAttribute('title'); // clean fallback
+                }
+
             } else {
                 const noSkillsEl = document.createElement('span');
-                noSkillsEl.className = 'text-center text-lg p-2 border border-gray-300 bg-white rounded-md';
+                noSkillsEl.className = 'inline-block text-md px-4 py-1 border border-gray-300 bg-white rounded-md';
                 noSkillsEl.textContent = "No skills listed";
                 skillsContainer.appendChild(noSkillsEl);
+
+                // ✅ No skills = 0 match
+                document.getElementById('skillsMatchCount').textContent = '0 Matches';
             }
         }
+
 
         // Show message when no employees are available
         function showNoEmployeesMessage() {
@@ -425,8 +553,15 @@
 
         // Skip current employee
         function skipEmployee() {
-            currentEmployeeIndex++;
-            displayCurrentEmployee();
+            const card = document.querySelector('.tinder-card');
+
+            card.classList.add('opacity-0');
+
+            setTimeout(() => {
+                currentEmployeeIndex++;
+                displayCurrentEmployee();
+                card.classList.remove('opacity-0');
+            }, 300);
         }
 
         // Like current employee
@@ -460,9 +595,19 @@
                     likedByEmployers: arrayUnion(likeData)
                 });
 
+                // Show toast popup
+                showToast("Employee saved to your liked employees!");
+
                 // Move to next employee
-                currentEmployeeIndex++;
-                displayCurrentEmployee();
+                const card = document.querySelector('.tinder-card');
+
+                card.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    currentEmployeeIndex++;
+                    displayCurrentEmployee();
+                    card.classList.remove('opacity-0');
+                }, 300);
 
                 // Update liked employees list
                 likedEmployees.push(employee.id);
@@ -482,6 +627,17 @@
         document.getElementById('fullName').addEventListener('click', () => {
             viewEmployeeProfile(currentEmployee);
         });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+
+            // Hide after 2 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
     </script>
 </body>
 
