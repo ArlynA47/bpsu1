@@ -133,6 +133,8 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
+            highlightCurrentNavLink();
+
             // Check auth state
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -143,7 +145,8 @@
                     await loadJobSeeds();
                     showApp();
                 } else {
-                    showLoginPrompt();
+                    // Redirect to login if not authenticated
+                    window.location.href = './login.html';
                 }
             });
 
@@ -172,6 +175,18 @@
             }, false);
         });
 
+        function highlightCurrentNavLink() {
+            const currentPath = window.location.pathname.split('/').pop(); // Get the filename, e.g., 'employee-home.html'
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href').split('/').pop();
+                if (linkPath === currentPath) {
+                    link.classList.add('underline', 'underline-offset-4');
+                }
+            });
+        }
+
         // Load user profile from Firestore
         async function loadUserProfile() {
             try {
@@ -181,7 +196,7 @@
                     userSkills = userData.jobPreferences?.skills || [];
                 } else {
                     console.error('User profile not found');
-                    window.location.href = 'profile-setup.html';
+                    window.location.href = './login.html';
                 }
             } catch (error) {
                 console.error('Error loading user profile:', error);

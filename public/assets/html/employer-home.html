@@ -33,6 +33,59 @@
             </button>
         </div>
     </nav>
+
+    <!-- Your Firebase config and initialization -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function highlightCurrentNavLink() {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href').split('/').pop();
+                if (linkPath === currentPath) {
+                    link.classList.add('underline', 'underline-offset-4');
+                }
+            });
+        }
+
+        function setupLogoutButton(buttonSelector = '#logoutBtn') {
+            const logoutBtn = document.querySelector(buttonSelector);
+
+            if (!logoutBtn) return;
+
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    window.location.href = './login.html';
+                } catch (error) {
+                    console.error('Error logging out:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            highlightCurrentNavLink();
+            setupLogoutButton();
+        });
+    </script>
 </body>
 
 </html>
