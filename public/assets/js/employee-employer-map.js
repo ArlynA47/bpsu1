@@ -1,13 +1,25 @@
 // Initialize Firebase
+// Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
-            authDomain: "careerstep-bpsu1.firebaseapp.com",
-            projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.appspot.com",
-            messagingSenderId: "17047315291",
-            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
-            measurementId: "G-WH6DT9HQW2"
+    authDomain: "careerstep-bpsu1.firebaseapp.com",
+    projectId: "careerstep-bpsu1",
+    storageBucket: "careerstep-bpsu1.appspot.com",
+    messagingSenderId: "17047315291",
+    appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+    measurementId: "G-WH6DT9HQW2"
+  });
+
+  // Enable offline persistence and force long polling
+  firebase.firestore().enablePersistence()
+    .catch((err) => {
+      console.error("Firestore persistence failed:", err);
+    });
+  
+  // Force long polling instead of WebChannel/QUIC
+  firebase.firestore().settings({
+    experimentalForceLongPolling: true
   });
 }
 
@@ -15,12 +27,13 @@ const db = firebase.firestore();
 let map;
 let provinceLayers = {};
 let provinceData = {};
-let currentMetric = 'totalJobs';
+let currentMetric = 'activeJobs';
 let currentSkillFilter = 'all';
 let selectedProvince = null;
 let allSkills = [];
 
 // New function to handle the complete initialization flow
+// Update the initializeApplication function
 async function initializeApplication() {
   try {
     // 1. Initialize Firebase and map first
@@ -34,8 +47,11 @@ async function initializeApplication() {
       throw new Error('Insufficient province data loaded');
     }
     
-    // 4. Upload to HRINA
-    await uploadHirnaData();
+    // 4. Upload to HRINA in the background (don't await)
+    uploadHirnaData().catch(error => {
+      console.error('Background HRINA upload failed:', error);
+      // We'll retry when user opens chat if needed
+    });
     
     console.log('Application fully initialized with', 
       Object.keys(provinceData).length, 'provinces');
@@ -45,8 +61,8 @@ async function initializeApplication() {
   }
 }
 
-// Helper function to wait for data completion
-function waitForDataLoaded() {
+// Update the waitForDataLoad function
+function waitForDataLoad() {
   return new Promise((resolve) => {
     const checkInterval = setInterval(() => {
       if (Object.keys(provinceData).length > 1 && 
@@ -94,7 +110,7 @@ function initMap() {
 async function loadAllData() {
   try {
     // Load province geometries
-    const provincesResponse = await fetch('../js/provinces.json');
+    const provincesResponse = await fetch('assets/js/provinces.json');
     const provinces = await provincesResponse.json();
     
     console.log(`Initializing data for ${provinces.length} provinces`);
@@ -847,21 +863,13 @@ function setupUI() {
     currentMetric = e.target.value;
     renderMapWithMetric(currentMetric);
     
-    // Update info panel if a province is selected
-    if (selectedProvince) {
-      updateProvinceInfoPanel(selectedProvince);
-    }
   });
   
   // Skill filter
   document.getElementById('skillFilter').addEventListener('change', (e) => {
     currentSkillFilter = e.target.value;
     renderMapWithMetric(currentMetric);
-    
-    // Update info panel if a province is selected
-    if (selectedProvince) {
-      updateProvinceInfoPanel(selectedProvince);
-    }
+  
   });
   
   // Reset view button
@@ -909,8 +917,11 @@ function setupUI() {
   // Initialize chat session
  async function initChatSession() {
   try {
-    // First upload the HRINA data
-    await uploadHirnaData();
+    // First check if we have HRINA data (try to upload if not)
+    const uploadSuccess = await uploadHirnaData();
+    if (!uploadSuccess) {
+      throw new Error('HRINA data upload failed');
+    }
     
     // Then initialize the chat session
     const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/initChatSession', {
@@ -1385,74 +1396,283 @@ function showModal(content) {
 }
 
 async function uploadHirnaData() {
+  const CHUNK_SIZE = 5000; // Optimal chunk size for RAG API
+  const MAX_RETRIES = 2;
+  
   try {
-    // Validate data first
-    const provinces = Object.keys(provinceData);
-    if (provinces.length === 0) {
-      throw new Error('No province data available to upload');
+    // Check cache first
+    const lastUpload = localStorage.getItem('lastHirnaUpload');
+    if (lastUpload && Date.now() - parseInt(lastUpload) < 30 * 60 * 1000) {
+      console.log('Using cached HRINA data');
+      return true;
     }
 
-    console.log('Preparing to upload data for provinces:', provinces);
-
-    // Generate the data text
-    const hirnaDataText = generateHirnaDataText();
-    
-    // Debug: Verify content
-    console.log('Data sample:', hirnaDataText.substring(0, 500) + '...');
-    
-    // Upload with timeout
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    
-    const response = await fetch('https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net//uploadHirnaData', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: hirnaDataText }),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeout);
-
-    if (!response.ok) {
-      const errorDetails = await response.text();
-      throw new Error(`Upload failed: ${response.status} - ${errorDetails}`);
+    // 1. First delete any existing collection
+    try {
+      const deleteResponse = await fetch(
+        'https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/finalizeHirnaUpload',
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      
+      if (!deleteResponse.ok) {
+        throw new Error(`Delete failed: ${deleteResponse.status}`);
+      }
+    } catch (deleteError) {
+      console.warn('Collection delete warning:', deleteError.message);
+      // Continue anyway - might be first upload
     }
 
-    const result = await response.json();
-    console.log('Upload successful. Backend response:', result);
+    // 2. Prepare and upload chunks
+    const fullText = generateHirnaDataText();
+    const chunks = [];
+    for (let i = 0; i < fullText.length; i += CHUNK_SIZE) {
+      chunks.push(fullText.substring(i, i + CHUNK_SIZE));
+    }
+
+    const uploadWithRetry = async (chunk, index, retries = 0) => {
+      try {
+        const response = await fetch(
+          'https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/uploadHirnaData',
+          {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-Chunk-Index': index.toString(),
+              'X-Total-Chunks': chunks.length.toString()
+            },
+            body: JSON.stringify({ 
+              text: chunk,
+              metadata: {
+                chunkNumber: index + 1,
+                totalChunks: chunks.length,
+                timestamp: new Date().toISOString()
+              }
+            })
+          }
+        );
+        
+        if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
+        return response.json();
+      } catch (error) {
+        if (retries >= MAX_RETRIES) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+        return uploadWithRetry(chunk, index, retries + 1);
+      }
+    };
+
+    // Upload chunks in parallel (limited to 3 at a time)
+    const uploadPromises = [];
+    const parallelLimit = 3;
+    
+    for (let i = 0; i < chunks.length; i += parallelLimit) {
+      const chunkBatch = chunks.slice(i, i + parallelLimit);
+      const batchPromises = chunkBatch.map((chunk, idx) => 
+        uploadWithRetry(chunk, i + idx)
+      );
+      const batchResults = await Promise.all(batchPromises);
+      uploadPromises.push(...batchResults);
+    }
+
+    // 3. Finalize the upload
+    const finalizeResponse = await fetch(
+      'https://asia-southeast1-careerstep-bpsu1.cloudfunctions.net/finalizeHirnaUpload',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ totalChunks: chunks.length })
+      }
+    );
+
+    if (!finalizeResponse.ok) {
+      throw new Error(`Finalization failed: ${finalizeResponse.status}`);
+    }
+
+    // Cache the successful upload
+    localStorage.setItem('lastHirnaUpload', Date.now().toString());
     return true;
+
   } catch (error) {
-    console.error('Upload error:', error);
-    showError(`Data upload failed: ${error.message}`);
+    console.error('HRINA upload failed:', error);
+    showToast(`Data upload failed: ${error.message}`, 'error');
     return false;
   }
 }
 
+// Helper function to show toast notifications
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast-notification ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">
+      ${type === 'loading' ? '<i class="fas fa-spinner fa-spin"></i>' : 
+       type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' : 
+       '<i class="fas fa-check-circle"></i>'}
+    </div>
+    <div class="toast-message">${message}</div>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  // Auto-remove after 5 seconds (except for loading)
+  if (type !== 'loading') {
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 500);
+    }, 5000);
+  }
+  
+  return toast;
+}
+
 function generateHirnaDataText() {
-  let text = "HRINA Workforce Data\n\n";
+  let text = "HRINA Workforce Data Analysis Report\n\n";
   
-  // Add timestamp
-  text += `Last Updated: ${new Date().toISOString()}\n\n`;
+  // Add timestamp and overview
+  text += `Report Generated: ${new Date().toISOString()}\n\n`;
+  text += "## Region Overview\n";
   
-  // Add summary
-  text += "## Region Summary\n";
+  // Calculate region-wide totals
+  const totalActiveJobs = Object.values(provinceData)
+    .reduce((sum, p) => sum + (p.metrics.activeJobs || 0), 0);
+  const totalJobSeekers = Object.values(provinceData)
+    .reduce((sum, p) => sum + (p.metrics.jobSeekers || 0), 0);
+  const totalEmployers = Object.values(provinceData)
+    .reduce((sum, p) => sum + (p.metrics.employers || 0), 0);
+  
   text += `- Total Provinces: ${Object.keys(provinceData).length}\n`;
-  text += `- Total Active Jobs: ${Object.values(provinceData)
-    .reduce((sum, p) => sum + (p.metrics.activeJobs || 0), 0)}\n\n`;
+  text += `- Total Active Jobs: ${totalActiveJobs}\n`;
+  text += `- Total Available Workers: ${totalJobSeekers}\n`;
+  text += `- Total Registered Employers: ${totalEmployers}\n\n`;
+  
+  // Add top skills analysis
+  text += "## Top Skills Analysis\n";
+  
+  // Aggregate skills across all provinces
+  const skillAggregate = {};
+  Object.values(provinceData).forEach(province => {
+    Object.entries(province.metrics.bySkill).forEach(([skill, data]) => {
+      if (!skillAggregate[skill]) {
+        skillAggregate[skill] = {
+          activeJobs: 0,
+          jobSeekers: 0,
+          fulfillmentRate: 0,
+          count: 0
+        };
+      }
+      skillAggregate[skill].activeJobs += data.activeJobs || 0;
+      skillAggregate[skill].jobSeekers += data.jobSeekers || 0;
+      skillAggregate[skill].fulfillmentRate += data.fulfillmentRate || 0;
+      skillAggregate[skill].count++;
+    });
+  });
+  
+  // Calculate average fulfillment rates
+  Object.keys(skillAggregate).forEach(skill => {
+    skillAggregate[skill].fulfillmentRate = skillAggregate[skill].count > 0 ? 
+      Math.round(skillAggregate[skill].fulfillmentRate / skillAggregate[skill].count) : 0;
+  });
+  
+  // Get top 10 skills by demand
+  const topSkills = Object.entries(skillAggregate)
+    .map(([skill, data]) => ({
+      skill,
+      activeJobs: data.activeJobs,
+      jobSeekers: data.jobSeekers,
+      fulfillmentRate: data.fulfillmentRate,
+      demandScore: data.activeJobs * 0.6 + data.jobSeekers * 0.4
+    }))
+    .sort((a, b) => b.demandScore - a.demandScore)
+    .slice(0, 10);
+  
+  // Add top skills by demand
+  text += "### Top 10 In-Demand Skills\n";
+  topSkills.forEach((skillData, index) => {
+    text += `${index + 1}. ${skillData.skill} - ${skillData.activeJobs} jobs | ${skillData.jobSeekers} workers | ${skillData.fulfillmentRate}% fulfillment\n`;
+  });
+  
+  // Add skills with highest/lowest fulfillment
+  const highestFulfillment = [...topSkills].sort((a, b) => b.fulfillmentRate - a.fulfillmentRate)[0];
+  const lowestFulfillment = [...topSkills].sort((a, b) => a.fulfillmentRate - b.fulfillmentRate)[0];
+  
+  text += `\nHighest Fulfillment: ${highestFulfillment.skill} (${highestFulfillment.fulfillmentRate}%)\n`;
+  text += `Lowest Fulfillment: ${lowestFulfillment.skill} (${lowestFulfillment.fulfillmentRate}%)\n\n`;
+  
+  // Add top provinces analysis
+  text += "## Top Provinces Analysis\n";
+  
+  // Get top provinces by jobs and workers
+  const provincesByJobs = Object.entries(provinceData)
+    .map(([name, data]) => ({
+      name,
+      activeJobs: data.metrics.activeJobs || 0
+    }))
+    .sort((a, b) => b.activeJobs - a.activeJobs)
+    .slice(0, 5);
+  
+  const provincesByWorkers = Object.entries(provinceData)
+    .map(([name, data]) => ({
+      name,
+      jobSeekers: data.metrics.jobSeekers || 0
+    }))
+    .sort((a, b) => b.jobSeekers - a.jobSeekers)
+    .slice(0, 5);
+  
+  text += "### Top 5 Provinces by Job Opportunities\n";
+  provincesByJobs.forEach((province, index) => {
+    text += `${index + 1}. ${province.name} - ${province.activeJobs} active jobs\n`;
+  });
+  
+  text += "\n### Top 5 Provinces by Available Workforce\n";
+  provincesByWorkers.forEach((province, index) => {
+    text += `${index + 1}. ${province.name} - ${province.jobSeekers} available workers\n`;
+  });
+  
+  // Add market balance analysis
+  const imbalanceExists = provincesByJobs.some(p => 
+    !provincesByWorkers.some(w => w.name === p.name)
+  );
+  
+  text += `\nMarket Balance: ${imbalanceExists ? "Imbalanced" : "Balanced"}\n\n`;
   
   // Add detailed province data
-  text += "## Province Details\n";
+  text += "## Province-Specific Data\n";
   for (const [name, data] of Object.entries(provinceData)) {
     text += `### ${name}\n`;
     text += `- Active Jobs: ${data.metrics.activeJobs || 0}\n`;
-    text += `- Job Seekers: ${data.metrics.jobSeekers || 0}\n`;
-    text += `- Fulfillment Rate: ${data.metrics.fulfillmentRate || 0}%\n`;
+    text += `- Available Workers: ${data.metrics.jobSeekers || 0}\n`;
+    text += `- Registered Employers: ${data.metrics.employers || 0}\n`;
+    text += `- Job Fulfillment Rate: ${data.metrics.fulfillmentRate || 0}%\n`;
+    text += `- Avg. Fulfillment Time: ${data.metrics.avgFulfillmentTime ? 
+      Math.round(data.metrics.avgFulfillmentTime / (24 * 60 * 60)) + ' days' : 'N/A'}\n`;
     
+    // Add top skills for the province
     if (data.topSkills?.length > 0) {
-      text += `- Top Skills: ${data.topSkills.map(s => s.skill).join(', ')}\n`;
+      text += `- Top In-Demand Skills:\n`;
+      data.topSkills.forEach((skill, index) => {
+        text += `  ${index + 1}. ${skill.skill} (${skill.demandScore.toFixed(1)} demand score)\n`;
+      });
     }
+    
+    // Add skill-specific metrics
+    if (Object.keys(data.metrics.bySkill).length > 0) {
+      text += `- Skill-Specific Metrics:\n`;
+      Object.entries(data.metrics.bySkill).forEach(([skill, metrics]) => {
+        text += `  - ${skill}: ${metrics.activeJobs || 0} jobs | ${metrics.jobSeekers || 0} workers | ${metrics.fulfillmentRate || 0}% fulfillment\n`;
+      });
+    }
+    
     text += '\n';
   }
+  
+  // Add recommendations section
+  text += "## Recommendations\n";
+  text += "1. Focus recruitment efforts in provinces with high worker availability\n";
+  text += "2. Address skill gaps in provinces with low fulfillment rates\n";
+  text += "3. Promote training programs for skills with high demand but low fulfillment\n";
+  text += "4. Encourage employer registration in provinces with worker surpluses\n";
   
   return text;
 }
