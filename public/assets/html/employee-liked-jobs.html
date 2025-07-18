@@ -30,6 +30,9 @@
                 class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
                 Profile
             </a>
+            <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">
+                Logout
+            </button>
         </div>
     </nav>
 
@@ -95,7 +98,8 @@
         } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import {
             getAuth,
-            onAuthStateChanged
+            onAuthStateChanged,
+            signOut
         } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
         import {
             getFirestore,
@@ -147,15 +151,12 @@
             
             if (!user) {
                 window.location.href = './login.html';
+                return; // Exit if no user
             }
 
-            // Get all applications
+            // Get all applications (but don't redirect if empty)
             const appsQuery = query(collection(db, 'applications'), where('applicantId', '==', user.uid));
             const appsSnapshot = await getDocs(appsQuery);
-
-            if (appsSnapshot.empty) {
-                window.location.href = './login.html';
-            }
 
             // Separate hired jobs from other applications
             const hiredJobs = [];
@@ -199,6 +200,15 @@
 
                 const hiredJobCards = (await Promise.all(hiredJobPromises)).filter(card => card !== null);
                 hiredJobsList.innerHTML = hiredJobCards.join('');
+            } else {
+                // Show message when no hired jobs found
+                hiredJobsList.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-briefcase text-4xl text-gray-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold text-gray-600">No hired jobs yet</h4>
+                        <p class="text-gray-500 mt-2">Keep applying to increase your chances!</p>
+                    </div>
+                `;
             }
 
             // Load and display other liked jobs
@@ -234,8 +244,15 @@
                 if (loadingText) loadingText.remove();
                 likedContainer.innerHTML = jobCards.join('');
             } else {
-                likedContainer.innerHTML = '<p class="text-[#545454] text-lg col-span-2">No liked jobs found</p>';
+                likedContainer.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold text-gray-600">No liked jobs yet</h4>
+                        <p class="text-gray-500 mt-2">Browse jobs to find opportunities you like!</p>
+                    </div>
+                `;
             }
+
 
             attachButtonHandlers();
         });
@@ -977,6 +994,26 @@
         `;
             }
         }
+
+        function setupLogoutButton(buttonSelector = '#logoutBtn') {
+            const logoutBtn = document.querySelector(buttonSelector);
+
+            if (!logoutBtn) return;
+
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth); // Use the imported signOut function
+                    window.location.href = './login.html';
+                } catch (error) {
+                    console.error('Error logging out:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLogoutButton();
+        });
     </script>
 </body>
 

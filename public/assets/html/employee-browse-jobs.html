@@ -42,6 +42,9 @@
                 class="bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer">
                 Profile
             </a>
+            <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">
+                Logout
+            </button>
         </div>
     </nav>
 
@@ -95,7 +98,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         // Firebase configuration
@@ -131,10 +134,28 @@
         const nurtureBtn = document.getElementById('nurtureBtn');
         const goToLoginBtn = document.getElementById('goToLoginBtn');
 
+
+        function setupLogoutButton(buttonSelector = '#logoutBtn') {
+            const logoutBtn = document.querySelector(buttonSelector);
+
+            if (!logoutBtn) return;
+
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth); // Use the imported signOut function
+                    window.location.href = './login.html';
+                } catch (error) {
+                    console.error('Error logging out:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+        }
+
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
             highlightCurrentNavLink();
-
+            setupLogoutButton();
+            
             // Check auth state
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -612,6 +633,9 @@
                 console.log("Loading elements not found");
             }
         }
+
+        
+
     </script>
 </body>
 

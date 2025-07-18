@@ -41,7 +41,7 @@
         <!-- Dynamically Add Liked Employees Here -->
         <div class="grid grid-cols-2 gap-6" id="likedEmployeesContainer">
             <!-- Content will be loaded dynamically -->
-            <p class="text-[#545454] text-lg">Loading liked employees...</p>
+            <p class="text-[#545454] text-lg col-span-2">Loading liked employees...</p>
         </div>
     </div>
 
@@ -184,7 +184,12 @@
         // Load liked employees from Firestore
         async function loadLikedEmployees() {
             try {
-                likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">Loading liked employees...</p>';
+                likedEmployeesContainer.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold text-gray-600">Loading liked employees...</h4>
+                    </div>
+                `;
 
                 // Get the list of liked employee IDs
                 const likedDoc = await getDoc(doc(db, 'employerLikes', currentUser.uid));
@@ -229,7 +234,13 @@
                     likedEmployeesContainer.innerHTML = '';
 
                     if (employeesSnapshot.size === 0) {
-                        likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">No liked employees found.</p>';
+                        likedEmployeesContainer.innerHTML = `
+                            <div class="col-span-2 text-center py-8">
+                                <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
+                                <h4 class="text-xl font-semibold text-gray-600">No liked employees found</h4>
+                                <p class="text-gray-500 mt-2">The employees you liked may no longer be available</p>
+                            </div>
+                        `;
                         return;
                     }
 
@@ -403,11 +414,23 @@
                     });
 
                 } else {
-                    likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">You haven\'t liked any employees yet.</p>';
+                    likedEmployeesContainer.innerHTML = `
+                        <div class="col-span-2 text-center py-8">
+                            <i class="fas fa-heart text-4xl text-gray-400 mb-4"></i>
+                            <h4 class="text-xl font-semibold text-gray-600">No liked employees yet</h4>
+                            <p class="text-gray-500 mt-2">Browse employees to find potential matches!</p>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Error loading liked employees:', error);
-                likedEmployeesContainer.innerHTML = '<p class="text-[#545454] text-lg">Error loading liked employees. Please try again.</p>';
+                likedEmployeesContainer.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold text-gray-600">Error loading liked employees</h4>
+                        <p class="text-gray-500 mt-2">Please try again later</p>
+                    </div>
+                `;
             }
         }
 
