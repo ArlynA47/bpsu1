@@ -388,7 +388,7 @@
         </div>
     </div>
     <div class="action-buttons">
-        <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">Logout</button>
+        <button id="employerLogoutBtn" class="logout-action-btn">Logout</button>
     </div>
 </nav>
 
@@ -402,7 +402,7 @@
         <a href="./employee-liked-jobs.html" class="nav-link">Liked Jobs</a>
     </div>
     <div class="nav-profile-button">
-        <button id="logoutBtn" class="bg-[#B83535] text-white px-4 py-2 rounded hover:bg-[#A72828] cursor-pointer">
+        <button id="employeeLogoutBtn" class="logout-action-btn">
             Logout
         </button>
     </div>
@@ -701,6 +701,11 @@
             toggleEmployerElements(isEmployer);
             setupLogoutButton();
             
+            onAuthStateChanged(auth, (user) => {
+                if (!user) {
+                    window.location.href = './login.html';
+                }
+            });
             // Get modal elements
             const modal = document.getElementById('summaryModal');
             const imageModal = document.getElementById('imageAnalysisModal');
@@ -1556,20 +1561,28 @@ async function loadEmployeeFeedback(employeeId) {
         // Add the button to an appropriate container
         document.querySelector('.feedback-section').prepend(showAnalysesBtn);
 
-    function setupLogoutButton(buttonSelector = '#logoutBtn') {
-        const logoutBtn = document.querySelector(buttonSelector);
-
-        if (!logoutBtn) return;
-
-        logoutBtn.addEventListener('click', async () => {
+    function setupLogoutButton() {
+        // Set up both logout buttons
+        const employerLogoutBtn = document.getElementById('employerLogoutBtn');
+        const employeeLogoutBtn = document.getElementById('employeeLogoutBtn');
+        
+        const handleLogout = async () => {
             try {
-                await signOut(auth); // Use the imported signOut function
+                await signOut(auth);
                 window.location.href = './login.html';
             } catch (error) {
                 console.error('Error logging out:', error);
                 alert('Logout failed. Please try again.');
             }
-        });
+        };
+        
+        if (employerLogoutBtn) {
+            employerLogoutBtn.addEventListener('click', handleLogout);
+        }
+        
+        if (employeeLogoutBtn) {
+            employeeLogoutBtn.addEventListener('click', handleLogout);
+        }
     }
     </script>
 </body>
