@@ -1024,7 +1024,6 @@ nav ul li a:active {
 
 .analyzetext{
     margin-left: 10px;
-
 }
 
 
@@ -1033,7 +1032,8 @@ nav ul li a:active {
     display: flex;
     justify-content: space-between;
     background-color: #232323;
-    padding: 10px 20px;
+      padding-left: 30px;
+      padding-right: 30px;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -1070,7 +1070,8 @@ nav ul li a:active {
     display: flex;
     justify-content: space-between;
     background-color: #232323;
-    padding: 10px 20px;
+          padding-left: 30px;
+      padding-right: 30px;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -1125,11 +1126,13 @@ nav ul li a:active {
     flex-direction:column;
 }
 
-#employerFeedbackForm.hidden{
-    display:none;
+#employerFeedbackForm.hidden {
+    display: none !important;
 }
 
-
+#employerFeedbackForm:not(.hidden) {
+    display: flex !important;
+}
 
 
 

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/output.css">
+    <title>HirNa!</title>
+</head>
+
+<body>
+    <div class="flex justify-between bg-[#232323] h-10"></div>
+
+    <!-- Main Content -->
+    <div class="flex flex-col p-10 gap-8">
+        <div class="flex justify-between">
+            <h3 class="basis-[60%] text-[#3D3D3D] text-3xl font-semibold">Manage Job Applications</h3>
+
+            <div class="flex basis-[40%] gap-6">
+                <a href="./employer-job-listings.html"
+                    class="flex items-center justify-center gap-4 flex-1 bg-[#4B8053] text-white px-4 py-2 rounded hover:bg-[#3a6441] cursor-pointer text-lg no-underline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Job Listings
+                </a>
+                <button id="refreshBtn"
+                    class="flex items-center justify-center gap-4 flex-1 bg-[#2D342E] text-white px-4 py-2 rounded hover:bg-[#1f2621] cursor-pointer text-lg no-underline">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <!-- Total Applications -->
+            <div
+                class="flex flex-col items-center justify-center p-6 bg-[#E3F2FD] rounded-lg border-2 border-[#1976D2]">
+                <div id="totalApplications" class="text-4xl font-bold text-[#1976D2]">0</div>
+                <div class="text-md text-[#3D3D3D] font-medium mt-2">Total Applications</div>
+            </div>
+
+            <!-- Shortlisted -->
+            <div
+                class="flex flex-col items-center justify-center p-6 bg-[#FFFDE7] rounded-lg border-2 border-[#FBC02D]">
+                <div id="shortlisted" class="text-4xl font-bold text-[#FBC02D]">0</div>
+                <div class="text-md text-[#3D3D3D] font-medium mt-2">Shortlisted</div>
+            </div>
+
+            <!-- Hired -->
+            <div
+                class="flex flex-col items-center justify-center p-6 bg-[#E8F5E9] rounded-lg border-2 border-[#2E7D32]">
+                <div id="hired" class="text-4xl font-bold text-[#2E7D32]">0</div>
+                <div class="text-md text-[#3D3D3D] font-medium mt-2">Hired</div>
+            </div>
+
+            <!-- Rejected -->
+            <div
+                class="flex flex-col items-center justify-center p-6 bg-[#FFEBEE] rounded-lg border-2 border-[#D32F2F]">
+                <div id="rejected" class="text-4xl font-bold text-[#D32F2F]">0</div>
+                <div class="text-md text-[#3D3D3D] font-medium mt-2">Rejected</div>
+            </div>
+        </div>
+
+        <div id="applicationsContainer" class="w-full space-y-6">
+            <!-- Sort Controls -->
+            <div class="flex items-center gap-4">
+                <label for="sortBy" class="text-lg font-medium text-gray-700">Sort by:</label>
+                <select id="sortBy"
+                    class="flex-1 bg-white px-4 py-2 border-2 border-gray-500 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4B8053]">
+                    <option value="likelihood-desc">Likelihood (High to Low)</option>
+                    <option value="likelihood-asc">Likelihood (Low to High)</option>
+                    <option value="date-desc">Application Date (Newest First)</option>
+                    <option value="date-asc">Application Date (Oldest First)</option>
+                </select>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                <table class="min-w-full table-auto text-sm text-left text-gray-700">
+                    <thead class="bg-[#4B8053] text-white text-sm">
+                        <tr>
+                            <th class="px-5 py-3 font-semibold">Applicant</th>
+                            <th class="px-5 py-3 font-semibold">Job Title</th>
+                            <th class="px-5 py-3 font-semibold">Applied Date</th>
+                            <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsList" class="bg-white divide-y divide-gray-200">
+                        <!-- JavaScript will populate rows here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Placeholder -->
+            <div id="pagination" class="flex justify-center items-center gap-2 pt-4">
+                <!-- Pagination buttons will be dynamically added here -->
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <img src="../images/empty-folder.png" alt="No applications">
+            <h3>No Applications Found</h3>
+            <p>There are no applications matching your current filters.</p>
+            <button id="resetEmptyState" class="btn-secondary">Reset Filters</button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Applicant Analysis Modal -->
+    <div class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/50 flex items-center justify-center"
+        id="applicantAnalysisModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 animate-fadeIn">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h5 class="text-xl font-semibold text-gray-800">Applicant Analysis</h5>
+                    <button id="closeAnalysisModalBtn" type="button" class="text-gray-500 hover:text-gray-700"
+                        data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="px-6 py-4 max-h-[75vh] overflow-y-auto" id="applicantAnalysisContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, orderBy, writeBatch, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.appspot.com",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const applicationsList = document.getElementById('applicationsList');
+            const paginationEl = document.getElementById('pagination');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const totalApplicationsEl = document.getElementById('totalApplications');
+            const shortlistedEl = document.getElementById('shortlisted');
+            const hiredEl = document.getElementById('hired');
+            const rejectedEl = document.getElementById('rejected');
+
+            let currentUser = null;
+            let currentPage = 1;
+            const applicationsPerPage = 10;
+            let totalApplications = 0;
+            let allApplications = [];
+            let filteredApplications = [];
+            let isZeroReputationData = false;
+
+            // Initialize Bootstrap modal
+            const applicantAnalysisModal = new bootstrap.Modal(document.getElementById('applicantAnalysisModal'));
+
+            // Init
+            init();
+
+            async function init() {
+                const user = await getCurrentUser();
+                if (user) {
+                    currentUser = user;
+                    await loadApplications();
+                } else {
+                    window.location.href = 'Loginpage.html';
+                }
+                setupEventListeners();
+            }
+
+            async function getCurrentUser() {
+                return new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        unsubscribe();
+                        resolve(user);
+                    });
+                });
+            }
+
+            function setupEventListeners() {
+                document.getElementById('refreshBtn').addEventListener('click', loadApplications);
+                document.getElementById('resetEmptyState').addEventListener('click', function () {
+                    filteredApplications = allApplications;
+                    displayApplications();
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('applicationsContainer').style.display = 'block';
+                });
+                document.getElementById('sortBy').addEventListener('change', (e) => {
+                    sortApplications(e.target.value);
+                });
+
+                document.getElementById('closeAnalysisModalBtn').addEventListener('click', () => {
+                    document.getElementById('applicantAnalysisModal').classList.add('hidden');
+                });
+            }
+
+            async function showApplicantAnalysis(applicationId) {
+                loadingOverlay.style.display = 'flex';
+                document.getElementById('applicantAnalysisModal').classList.remove('hidden');
+
+                document.getElementById('applicantAnalysisContent').innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-6 gap-2">
+                            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <span class="text-gray-700 text-sm font-medium">Analyzing applicant...</span>
+                        </div>
+                    `;
+
+                try {
+                    const analysis = await generateApplicantAnalysis(applicationId);
+                    document.getElementById('applicantAnalysisContent').innerHTML = analysis;
+                } catch (error) {
+                    console.error('Error generating analysis:', error);
+                    document.getElementById('applicantAnalysisContent').innerHTML = `
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md text-sm font-medium">
+                            Error analyzing applicant: ${error.message}
+                        </div>
+                    `;
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+
+            async function generateApplicantAnalysis(applicationId) {
+                const appRef = doc(db, 'applications', applicationId);
+                const appSnap = await getDoc(appRef);
+
+                if (!appSnap.exists()) {
+                    throw new Error('Application not found');
+                }
+
+                const application = appSnap.data();
+                const userId = application.applicantId || application.userId;
+
+                // Get user data
+                const userDoc = await getDoc(doc(db, 'careerstepEmployees', userId));
+                if (!userDoc.exists()) {
+                    throw new Error('User profile not found');
+                }
+                const userData = userDoc.data();
+
+                // Get job data
+                const jobDoc = await getDoc(doc(db, 'jobSeeds', application.jobId));
+                const jobData = jobDoc.exists() ? jobDoc.data() : {};
+
+                // Calculate reputation score
+                const reputationScore = await calculateReputationScore(userId);
+
+                // Calculate skill match
+                const jobSkills = jobData.skills || [];
+                const userSkills = userData.jobPreferences?.skills || [];
+                const matchingSkills = getMatchingSkills(jobSkills, userSkills);
+                const skillMatchPercentage = jobSkills.length > 0 ?
+                    Math.round((matchingSkills.length / jobSkills.length) * 100) : 0;
+
+                // Calculate position availability
+                const positionsAvailable = jobData.positionsAvailable || 0;
+                const positionsNeeded = jobData.positionsNeeded || 1;
+                const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
+
+                // Check if employer liked this employee
+                let employerLikeBonus = 0;
+                const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', userId));
+                if (employeeDoc.exists()) {
+                    const employeeData = employeeDoc.data();
+                    const likedByEmployers = employeeData.likedByEmployers || [];
+
+                    if (likedByEmployers.some(like => like.employerId === currentUser.uid)) {
+                        employerLikeBonus = 15; // 15% bonus
+                    }
+                }
+
+                // Calculate likelihood score with employer bonus
+                const likelihoodScore = Math.min(100, Math.round(
+                    (reputationScore * 0.4) +
+                    (skillMatchPercentage * 0.4) +
+                    (availabilityPercentage * 0.2) +
+                    employerLikeBonus
+                ));
+
+                // Get score class
+                let scoreClass = '';
+                if (likelihoodScore >= 80) {
+                    scoreClass = 'text-green-700 font-bold';
+                } else if (likelihoodScore >= 60) {
+                    scoreClass = 'text-blue-600 font-semibold';
+                } else if (likelihoodScore >= 40) {
+                    scoreClass = 'text-yellow-600 font-medium';
+                } else {
+                    scoreClass = 'text-red-600 font-medium';
+                }
+
+
+                let reputationScorestr;
+
+                if (isZeroReputationData) {
+                    reputationScorestr = "No records";
+                } else {
+                    reputationScorestr = reputationScore + "%";
+                }
+
+                // Generate HTML
+                return `
+                <div class="space-y-6 text-[#3D3D3D]">
+                    <!-- Header: Applicant Name and Job Title -->
+                    <div class="text-center">
+                        <h4 class="text-2xl font-bold text-[#3D3D3D]">
+                            ${userData.personalInfo?.fullName || userData.displayName || 'Applicant'}
+                        </h4>
+                        <p class="text-sm text-gray-500">
+                            Applied for: <strong>${application.jobTitle || jobData.jobTitle || 'Unknown Position'}</strong>
+                        </p>
+                    </div>
+
+                    <!-- Match Score Section -->
+                    <div class="text-center space-y-3">
+                        <div class="text-2xl font-bold ${scoreClass}">
+                            ${getMatchQualityText(likelihoodScore)}
+                        </div>
+                        <div>
+                            <span class="inline-block px-3 py-1 rounded-lg text-sm ${getLikelihoodBadgeClass(likelihoodScore)}">
+                                ${likelihoodScore}% Match Score
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                            <div class="${getLikelihoodBadgeClassDark(likelihoodScore)} h-full transition-all duration-500 ease-in-out" style="width: ${likelihoodScore}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Employer Bonus (if any) -->
+                    ${employerLikeBonus > 0 ? `
+                    <div class="flex items-start gap-3 bg-blue-50 border border-blue-300 text-blue-800 p-4 rounded-lg shadow-sm mt-3">
+                        <span><strong>Employer Interest:</strong> You previously liked this candidate (+${employerLikeBonus}%)</span>
+                    </div>
+                    ` : ''}
+
+                    <!-- Score Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white border shadow rounded-lg p-4 text-center">
+                            <h5 class="text-lg font-semibold mb-2 text-gray-700">Reputation Score</h5>
+                            <div class="text-2xl font-bold text-[#65956C]">${reputationScorestr}</div>
+                            <p class="text-sm text-gray-600 mt-1">Based on employer feedback</p>
+                        </div>
+                        <div class="bg-white border shadow rounded-lg p-4 text-center">
+                            <h5 class="text-lg font-semibold mb-2 text-gray-700">Applicant Strength</h5>
+                            <div class="text-2xl font-bold text-[#65956C]">${likelihoodScore}%</div>
+                            <p class="text-sm text-gray-600 mt-1">Overall match quality</p>
+                        </div>
+                    </div>
+
+                    <!-- Skills Analysis -->
+                    <div class="space-y-2">
+                        <h5 class="text-xl font-bold">Skills Analysis</h5>
+                        ${jobSkills.length > 0 ? `
+                            <p class="text-sm text-gray-600"><h5 class="text-green-700 font-semibold mt-4 mb-2">✓ Matched Skills (${matchingSkills.length}):</h5></p>
+                            <div class="flex flex-wrap gap-2">
+                                ${matchingSkills.map(skill => `<span class="inline-block text-md px-4 py-1 rounded-lg border text-center 
+                                                                bg-[#E8F5E9] border-[#73A267] text-[#2E7D32]">${skill}</span>`).join('')}
+                            </div>
+
+                            ${jobSkills.length > matchingSkills.length ? `
+                                <p class="text-sm text-gray-600"><h5 class="text-red-700 font-semibold mt-4 mb-2">✗ Missing Skills (${jobSkills.length - matchingSkills.length}):</h5></p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${jobSkills.filter(skill => !matchingSkills.includes(skill)).map(skill => `<span class="inline-block text-md px-4 py-1 rounded-lg border text-center 
+                                                                bg-red-100 border-red-800 text-red-800">${skill}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        ` : `<p class="text-gray-500">No specific skills required for this position.</p>`}
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="space-y-2">
+                        <h5 class="text-xl font-bold">Recommendation</h5>
+                        <p class="text-sm text-gray-600">${getRecommendationText(likelihoodScore)}</p>
+                    </div>
+                </div>
+            `;
+
+            }
+
+            function getMatchQualityText(score) {
+                if (score >= 80) return 'Excellent Match!';
+                if (score >= 60) return 'Good Match';
+                if (score >= 40) return 'Fair Match';
+                return 'Poor Match';
+            }
+
+
+            function getRecommendationText(score) {
+                if (score >= 80) {
+                    return `<div class="bg-green-100 text-green-800 border border-green-300 rounded-md px-4 py-3 text-sm font-medium">
+                    Strong candidate – highly recommended for this position
+                </div>`;
+                } else if (score >= 60) {
+                    return `<div class="bg-blue-100 text-blue-800 border border-blue-300 rounded-md px-4 py-3 text-sm font-medium">
+                    Good candidate – worth considering for this position
+                </div>`;
+                } else if (score >= 40) {
+                    return `<div class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-md px-4 py-3 text-sm font-medium">
+                    Moderate candidate – may need additional training
+                </div>`;
+                } else {
+                    return `<div class="bg-red-100 text-red-800 border border-red-300 rounded-md px-4 py-3 text-sm font-medium">
+                    Weak candidate – may not be the best fit for this position
+                </div>`;
+                }
+            }
+
+
+            function sortApplications(sortBy) {
+                switch (sortBy) {
+                    case 'likelihood-desc':
+                        filteredApplications.sort((a, b) => {
+                            if (a.isHeader || b.isHeader) return 0;
+                            return (b.likelihoodScore || 0) - (a.likelihoodScore || 0);
+                        });
+                        break;
+                    case 'likelihood-asc':
+                        filteredApplications.sort((a, b) => {
+                            if (a.isHeader || b.isHeader) return 0;
+                            return (a.likelihoodScore || 0) - (b.likelihoodScore || 0);
+                        });
+                        break;
+                    case 'date-desc':
+                        filteredApplications.sort((a, b) => {
+                            if (a.isHeader || b.isHeader) return 0;
+                            return new Date(b.appliedAt) - new Date(a.appliedAt);
+                        });
+                        break;
+                    case 'date-asc':
+                        filteredApplications.sort((a, b) => {
+                            if (a.isHeader || b.isHeader) return 0;
+                            return new Date(a.appliedAt) - new Date(b.appliedAt);
+                        });
+                        break;
+                }
+
+                // Regroup by job title after sorting
+                const applicationsByJob = {};
+                filteredApplications.forEach(app => {
+                    if (!app.isHeader) {
+                        const jobTitle = app.jobTitle || 'Unknown Job';
+                        if (!applicationsByJob[jobTitle]) {
+                            applicationsByJob[jobTitle] = [];
+                        }
+                        applicationsByJob[jobTitle].push(app);
+                    }
+                });
+
+                // Rebuild filteredApplications with headers
+                const newFilteredApplications = [];
+                for (const jobTitle in applicationsByJob) {
+                    newFilteredApplications.push({
+                        isHeader: true,
+                        jobTitle: jobTitle,
+                        count: applicationsByJob[jobTitle].length
+                    });
+                    newFilteredApplications.push(...applicationsByJob[jobTitle]);
+                }
+
+                filteredApplications = newFilteredApplications;
+                currentPage = 1;
+                displayApplications();
+                setupPagination();
+            }
+
+            async function loadApplications() {
+                loadingOverlay.style.display = 'flex';
+                try {
+                    const applicationsQuery = query(
+                        collection(db, 'applications'),
+                        where('employerId', '==', currentUser.uid),
+                        orderBy('appliedAt', 'desc')
+                    );
+
+                    const querySnapshot = await getDocs(applicationsQuery);
+                    allApplications = [];
+
+                    // First pass - get all applications with basic data
+                    for (const applicationDoc of querySnapshot.docs) {
+                        const application = applicationDoc.data();
+                        application.id = applicationDoc.id;
+                        if (application.appliedAt) application.appliedAt = application.appliedAt.toDate();
+                        allApplications.push(application);
+                    }
+
+                    // Second pass - enrich with additional data and calculate scores
+                    for (let application of allApplications) {
+                        // Get applicant data
+                        const applicantUid = application.applicantId || application.userId;
+                        if (applicantUid) {
+                            try {
+                                const userDoc = await getDoc(doc(db, 'careerstepEmployees', applicantUid));
+                                if (userDoc.exists()) {
+                                    application.userData = userDoc.data();
+                                    application.applicantName = application.userData.personalInfo?.fullName ||
+                                        application.userData.displayName ||
+                                        'Unknown Applicant';
+                                    application.applicantEmail = application.userData.personalInfo?.contactEmail ||
+                                        application.userData.email || '';
+                                }
+                            } catch (userError) {
+                                console.error('Error fetching applicant profile:', userError);
+                            }
+                        }
+
+                        // Get job data
+                        if (application.jobId) {
+                            try {
+                                const jobDoc = await getDoc(doc(db, 'jobSeeds', application.jobId));
+                                if (jobDoc.exists()) {
+                                    application.jobData = jobDoc.data();
+                                    application.jobTitle = application.jobData.jobTitle || application.jobData.title;
+
+                                    // Calculate likelihood score for this application
+                                    application.likelihoodScore = await calculateApplicationScore(application);
+                                }
+                            } catch (jobError) {
+                                console.error('Error fetching job info:', jobError);
+                            }
+                        }
+                    }
+
+                    // Group applications by job title
+                    const applicationsByJob = {};
+                    allApplications.forEach(app => {
+                        const jobTitle = app.jobTitle || 'Unknown Job';
+                        if (!applicationsByJob[jobTitle]) {
+                            applicationsByJob[jobTitle] = [];
+                        }
+                        applicationsByJob[jobTitle].push(app);
+                    });
+
+                    // Sort each job's applications by likelihood score (descending)
+                    for (const jobTitle in applicationsByJob) {
+                        applicationsByJob[jobTitle].sort((a, b) => {
+                            // Put hired applications first
+                            if (a.status === 'hired') return -1;
+                            if (b.status === 'hired') return 1;
+
+                            // Then by likelihood score
+                            return (b.likelihoodScore || 0) - (a.likelihoodScore || 0);
+                        });
+                    }
+
+                    // Flatten back into filteredApplications array for display
+                    filteredApplications = [];
+                    for (const jobTitle in applicationsByJob) {
+                        filteredApplications.push({
+                            isHeader: true,
+                            jobTitle: jobTitle,
+                            count: applicationsByJob[jobTitle].length
+                        });
+
+                        filteredApplications.push(...applicationsByJob[jobTitle]);
+                    }
+
+                    updateStats(allApplications);
+                    totalApplications = allApplications.length;
+                    currentPage = 1;
+                    displayApplications();
+                    setupPagination();
+
+                    document.getElementById('emptyState').style.display = filteredApplications.length === 0 ? 'block' : 'none';
+                    document.getElementById('applicationsContainer').style.display = filteredApplications.length === 0 ? 'none' : 'block';
+                } catch (error) {
+                    console.error('Error loading applications:', error);
+                    applicationsList.innerHTML = '<tr><td colspan="5" class="text-center text-red-600 bg-red-50 px-4 py-3 font-medium rounded-md">Error loading applications. Please try again.<br>' + (error.message || error) + '</td></tr>';
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+
+            async function calculateApplicationScore(application) {
+                try {
+                    if (!application.applicantId || !application.jobId) return 0;
+
+                    // Get applicant data
+                    const userDoc = await getDoc(doc(db, 'careerstepEmployees', application.applicantId));
+                    if (!userDoc.exists()) return 0;
+                    const userData = userDoc.data();
+
+                    // Get job data
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', application.jobId));
+                    if (!jobDoc.exists()) return 0;
+                    const jobData = jobDoc.data();
+
+                    // Calculate reputation score (40% weight)
+                    const reputationScore = await calculateReputationScore(application.applicantId);
+
+                    // Calculate skill match (40% weight)
+                    const jobSkills = jobData.skills || [];
+                    const userSkills = userData.jobPreferences?.skills || [];
+                    const matchingSkills = getMatchingSkills(jobSkills, userSkills);
+                    const skillMatchPercentage = jobSkills.length > 0 ?
+                        Math.round((matchingSkills.length / jobSkills.length) * 100) : 0;
+
+                    // Calculate position availability (20% weight)
+                    const positionsAvailable = jobData.positionsAvailable || 0;
+                    const positionsNeeded = jobData.positionsNeeded || 1;
+                    const availabilityPercentage = Math.round((positionsAvailable / positionsNeeded) * 100);
+
+                    // Check if employer liked this employee
+                    let employerLikeBonus = 0;
+                    const employeeDoc = await getDoc(doc(db, 'careerstepPublicProfiles', application.applicantId));
+                    if (employeeDoc.exists()) {
+                        const employeeData = employeeDoc.data();
+                        const likedByEmployers = employeeData.likedByEmployers || [];
+
+                        if (likedByEmployers.some(like => like.employerId === currentUser.uid)) {
+                            employerLikeBonus = 15; // 15% bonus
+                        }
+                    }
+
+                    // Calculate likelihood score with employer bonus
+                    return Math.min(100, Math.round(
+                        (reputationScore * 0.4) +
+                        (skillMatchPercentage * 0.4) +
+                        (availabilityPercentage * 0.2) +
+                        employerLikeBonus
+                    ));
+                } catch (error) {
+                    console.error('Error calculating application score:', error);
+                    return 0;
+                }
+            }
+
+            async function calculateReputationScore(userId) {
+                try {
+                    const feedbackQuery = query(
+                        collection(db, 'employeeFeedback'),
+                        where('employeeId', '==', userId)
+                    );
+                    const feedbackSnapshot = await getDocs(feedbackQuery);
+
+                    let positiveCount = 0;
+                    let totalCount = 0;
+
+                    feedbackSnapshot.forEach(doc => {
+                        const feedback = doc.data();
+                        if (feedback.rating === 'positive') positiveCount++;
+                        totalCount++;
+                    });
+
+                    if (totalCount > 0) {
+                        isZeroReputationData = false;
+                        return Math.round((positiveCount / totalCount) * 100);
+                    } else {
+                        isZeroReputationData = true;
+                        return 75;
+                    }
+                } catch (error) {
+                    console.error('Error calculating reputation:', error);
+                    isZeroReputationData = true;
+                    return 75;
+                }
+            }
+
+            function getMatchingSkills(jobSkills, userSkills) {
+                if (!jobSkills || jobSkills.length === 0) return [];
+                if (!userSkills || userSkills.length === 0) return [];
+
+                return jobSkills.filter(jobSkill =>
+                    userSkills.some(userSkill =>
+                        userSkill.toLowerCase().includes(jobSkill.toLowerCase()) ||
+                        jobSkill.toLowerCase().includes(userSkill.toLowerCase())
+                    )
+                );
+            }
+
+            async function displayApplications() {
+                if (filteredApplications.length === 0) {
+                    applicationsList.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center text-gray-500 py-6">No applications found.</td>
+                        </tr>
+                    `;
+                    paginationEl.innerHTML = '';
+                    return;
+                }
+
+                const startIndex = (currentPage - 1) * applicationsPerPage;
+                const endIndex = Math.min(startIndex + applicationsPerPage, filteredApplications.length);
+                const appsToDisplay = filteredApplications.slice(startIndex, endIndex);
+
+                applicationsList.innerHTML = '';
+
+                // First, get all unique job IDs from the applications to display
+                const jobIds = new Set();
+                appsToDisplay.forEach(app => {
+                    if (!app.isHeader && app.jobId) {
+                        jobIds.add(app.jobId);
+                    }
+                });
+
+                // Fetch all job data in a single batch
+                const jobsData = {};
+                const jobsPromises = Array.from(jobIds).map(async jobId => {
+                    const jobDoc = await getDoc(doc(db, 'jobSeeds', jobId));
+                    if (jobDoc.exists()) {
+                        jobsData[jobId] = jobDoc.data();
+                    }
+                });
+
+                await Promise.all(jobsPromises);
+
+                // Now display the applications with the job data
+                for (const application of appsToDisplay) {
+                    if (application.isHeader) {
+                        // Create a header row for the job title
+                        const headerRow = document.createElement('tr');
+                        headerRow.className = 'job-header-row';
+
+                        // Find the first application for this job to get the jobId
+                        const jobApplication = filteredApplications.find(app =>
+                            !app.isHeader && app.jobTitle === application.jobTitle
+                        );
+
+                        let positionsInfo = '';
+                        if (jobApplication && jobApplication.jobId && jobsData[jobApplication.jobId]) {
+                            const jobData = jobsData[jobApplication.jobId];
+                            const positionsNeeded = jobData.positionsNeeded || 0;
+                            const positionsAvailable = jobData.positionsAvailable !== undefined ?
+                                jobData.positionsAvailable : positionsNeeded;
+                            const positionsHired = positionsNeeded - positionsAvailable;
+
+                            positionsInfo = `
+                                <span class="badge bg-secondary ms-2">
+                                    ${positionsHired} hired / ${positionsNeeded} needed
+                                </span>
+                            `;
+                        }
+
+                        headerRow.innerHTML = `
+                            <td colspan="5" class="bg-[#E9F1EA] px-6 py-4 text-[#2D342E] text-lg font-semibold rounded-t-md border-b border-gray-300">
+                                <div class="flex items-center flex-wrap gap-8">
+                                    <span>${application.jobTitle}</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-block bg-[#4B8053] text-white text-sm font-medium px-3 py-1 rounded-lg">
+                                            ${application.count} applicants
+                                        </span>
+                                        ${positionsInfo}
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                        applicationsList.appendChild(headerRow);
+                        continue;
+                    }
+
+                    const appRow = document.createElement('tr');
+                    appRow.className = application.status === 'hired' ? 'table-success' :
+                        application.status === 'shortlisted' ? 'table-info' : '';
+
+                    // Applicant name column (clickable)
+                    const applicantCell = document.createElement('td');
+                    applicantCell.className = 'p-4';
+                    applicantCell.innerHTML = `
+                        <a href="employee-profile.html?userId=${application.userId || application.applicantId}&isEmployer=true&jobId=${application.jobId}&status=${application.status}" class="text-green-800 hover:underline font-medium">
+                            ${application.applicantName || 'N/A'}
+                        </a>
+                        <br><small class="text-sm text-gray-500">${application.applicantEmail || ''}</small>
+                        <div class="mt-1">
+                            <span class="inline-block text-xs px-2 py-1 rounded-lg font-semibold ${getLikelihoodBadgeClass(application.likelihoodScore)}">
+                                ${application.likelihoodScore || 'N/A'}% match
+                            </span>
+                        </div>
+                    `;
+                    appRow.appendChild(applicantCell);
+
+                    // Job title column
+                    const jobCell = document.createElement('td');
+                    jobCell.textContent = application.jobTitle || 'Job not found';
+                    jobCell.className = 'text-gray-700';
+                    appRow.appendChild(jobCell);
+
+                    // Applied date column
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = formatDate(application.appliedAt);
+                    dateCell.className = 'text-gray-600';
+                    appRow.appendChild(dateCell);
+
+                    // Status column
+                    const statusCell = document.createElement('td');
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = `inline-block text-xs px-2 py-1 rounded-lg font-semibold ${getStatusTailwindColor(application.status)}`;
+                    statusBadge.textContent = capitalizeFirstLetter(getStatusDisplayName(application.status));
+                    statusCell.appendChild(statusBadge);
+                    appRow.appendChild(statusCell);
+
+                    // Actions
+                    const actionsCell = document.createElement('td');
+                    actionsCell.className = 'p-2 align-middle';
+
+                    const actionsWrapper = document.createElement('div');
+                    actionsWrapper.className = 'flex flex-wrap gap-2 items-center';
+
+                    // Analyze Button
+                    const analyzeBtn = document.createElement('button');
+                    analyzeBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm';
+                    analyzeBtn.innerHTML = '<i class="fas fa-chart-line"></i> Analyze';
+                    analyzeBtn.onclick = () => showApplicantAnalysis(application.id);
+                    actionsWrapper.appendChild(analyzeBtn);
+
+                    // Conditional Buttons
+                    if (application.status !== 'hired' && application.status !== 'rejected') {
+                        if (application.status !== 'shortlisted') {
+                            const shortlistBtn = document.createElement('button');
+                            shortlistBtn.className = 'bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm';
+                            shortlistBtn.textContent = 'Shortlist';
+                            shortlistBtn.onclick = () => updateStatus(application.id, 'shortlisted');
+                            actionsWrapper.appendChild(shortlistBtn);
+                        }
+
+                        const hireBtn = document.createElement('button');
+                        hireBtn.className = 'bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm';
+                        hireBtn.textContent = 'Hire';
+                        hireBtn.onclick = () => updateStatus(application.id, 'hired');
+                        actionsWrapper.appendChild(hireBtn);
+
+                        const rejectBtn = document.createElement('button');
+                        rejectBtn.className = 'bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm';
+                        rejectBtn.textContent = 'Reject';
+                        rejectBtn.onclick = () => updateStatus(application.id, 'rejected');
+                        actionsWrapper.appendChild(rejectBtn);
+                    }
+
+                    // Append wrapper once
+                    actionsCell.appendChild(actionsWrapper);
+
+                    appRow.appendChild(actionsCell);
+                    applicationsList.appendChild(appRow);
+                }
+            }
+
+            function getLikelihoodBadgeClass(score) {
+                if (score >= 80) return 'bg-green-100';
+                if (score >= 60) return 'bg-blue-100';
+                if (score >= 40) return 'bg-yellow-100';
+                return 'bg-red-100';
+            }
+
+            function getLikelihoodBadgeClassDark(score) {
+                if (score >= 80) return 'bg-green-700';
+                if (score >= 60) return 'bg-blue-700';
+                if (score >= 40) return 'bg-yellow-700';
+                return 'bg-red-700';
+            }
+
+            function updateStats(applications) {
+                totalApplicationsEl.textContent = applications.length;
+                shortlistedEl.textContent = applications.filter(app => app.status === 'shortlisted').length;
+                hiredEl.textContent = applications.filter(app => app.status === 'hired').length;
+                rejectedEl.textContent = applications.filter(app => app.status === 'rejected').length;
+            }
+
+            function getStatusDisplayName(status) {
+                const statusMap = {
+                    'submitted': 'Submitted',
+                    'shortlisted': 'Shortlisted',
+                    'hired': 'Hired',
+                    'rejected': 'Rejected'
+                };
+                return statusMap[status] || status;
+            }
+
+            function setupPagination() {
+                const totalPages = Math.ceil(totalApplications / applicationsPerPage);
+                if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+
+                let paginationHTML = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                }
+
+                paginationEl.innerHTML = paginationHTML;
+
+                document.querySelectorAll('[data-page]').forEach((btn) => {
+                    btn.addEventListener('click', function () {
+                        currentPage = parseInt(this.getAttribute('data-page'));
+                        displayApplications();
+                        setupPagination();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+            }
+
+            async function updateStatus(applicationId, newStatus) {
+                if (!confirm(`Are you sure you want to mark this application as ${getStatusDisplayName(newStatus)}?`)) return;
+
+                loadingOverlay.style.display = 'flex';
+                try {
+                    // Get the application document
+                    const appRef = doc(db, 'applications', applicationId);
+                    const appSnap = await getDoc(appRef);
+                    const appData = appSnap.exists() ? appSnap.data() : null;
+                    const oldStatus = appData?.status;
+                    const jobId = appData?.jobId;
+
+                    // Update application status (from both versions)
+                    await updateDoc(
+                        appRef,
+                        { status: newStatus, updatedAt: serverTimestamp() }
+                    );
+
+                    // Handle job position updates and analytics (merged logic)
+                    if (jobId) {
+                        try {
+                            const jobRef = doc(db, 'jobSeeds', jobId);
+                            const jobSnap = await getDoc(jobRef);
+
+                            if (jobSnap.exists()) {
+                                const jobData = jobSnap.data();
+                                const skills = jobData.skills || [];
+                                const location = jobData.location;
+
+                                // Position availability handling - modified to allow hiring even if positions are filled
+                                if (newStatus === 'hired') {
+                                    let positionsAvailable = jobData.positionsAvailable !== undefined ? jobData.positionsAvailable : jobData.positionsNeeded;
+
+                                    // Only decrement if there are available positions
+                                    if (positionsAvailable > 0) {
+                                        positionsAvailable = positionsAvailable - 1;
+                                    }
+
+                                    // Always update the positionsAvailable field, even if it goes negative
+                                    await updateDoc(jobRef, {
+                                        positionsAvailable,
+                                        ...(positionsAvailable <= 0 ? { status: 'filled' } : {})
+                                    });
+                                }
+
+                                // Analytics handling
+                                if (skills.length > 0 && location) {
+                                    // Case 1: Changing from hired to another status
+                                    if (oldStatus === 'hired' && newStatus !== 'hired') {
+                                        await updateHiringAnalytics(skills, location, 'decrement');
+                                    }
+                                    // Case 2: Changing to hired from another status
+                                    else if (newStatus === 'hired' && oldStatus !== 'hired') {
+                                        await updateHiringAnalytics(skills, location, 'increment');
+                                    }
+                                }
+                            }
+                        } catch (jobUpdateError) {
+                            console.error('Error updating job positions/analytics:', jobUpdateError);
+                        }
+                    }
+
+                    await loadApplications();
+                } catch (error) {
+                    console.error('Error updating application status:', error);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+
+            async function updateHiringAnalytics(skills, location, action = 'increment') {
+                const batch = writeBatch(db);
+                const timestamp = serverTimestamp();
+                const value = action === 'increment' ? 1 : -1;
+
+                skills.forEach(skill => {
+                    // Skill + Location specific
+                    const skillLocationRef = doc(db, 'jobApplicationAnalytics', `${skill}_${location}`);
+                    batch.set(skillLocationRef, {
+                        skillType: skill,
+                        province: location,
+                        currentCount: increment(value),
+                        totalHired: action === 'increment' ? increment(1) : increment(0),
+                        lastUpdated: timestamp
+                    }, { merge: true });
+
+                    // Skill overall
+                    const skillOverallRef = doc(db, 'jobApplicationAnalytics', `${skill}_overall`);
+                    batch.set(skillOverallRef, {
+                        skillType: skill,
+                        province: "overall",
+                        currentCount: increment(value),
+                        totalHired: action === 'increment' ? increment(1) : increment(0),
+                        lastUpdated: timestamp
+                    }, { merge: true });
+                });
+
+                // Province overall
+                const provinceOverallRef = doc(db, 'jobApplicationAnalytics', `overall_${location}`);
+                batch.set(provinceOverallRef, {
+                    skillType: "overall",
+                    province: location,
+                    currentCount: increment(value),
+                    totalHired: action === 'increment' ? increment(1) : increment(0),
+                    lastUpdated: timestamp
+                }, { merge: true });
+
+                // Global overall
+                const globalOverallRef = doc(db, 'jobApplicationAnalytics', 'overall_overall');
+                batch.set(globalOverallRef, {
+                    skillType: "overall",
+                    province: "overall",
+                    currentCount: increment(value),
+                    totalHired: action === 'increment' ? increment(1) : increment(0),
+                    lastUpdated: timestamp
+                }, { merge: true });
+
+                await batch.commit();
+            }
+
+            function formatDate(date) {
+                if (!date) return 'Not specified';
+                try {
+                    if (date.toDate) date = date.toDate();
+                    else if (typeof date === 'string' || typeof date === 'number') date = new Date(date);
+                    if (!(date instanceof Date) || isNaN(date.getTime())) return 'Not specified';
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } catch (error) { return 'Not specified'; }
+            }
+
+            function getStatusTailwindColor(status) {
+                switch (status) {
+                    case 'submitted': return 'bg-gray-200 text-gray-800';
+                    case 'shortlisted': return 'bg-yellow-200 text-yellow-800';
+                    case 'hired': return 'bg-green-200 text-green-800';
+                    case 'rejected': return 'bg-red-200 text-red-800';
+                    default: return 'bg-gray-100 text-gray-700';
+                }
+            }
+
+            function capitalizeFirstLetter(text) {
+                if (!text) return '';
+                return text.charAt(0).toUpperCase() + text.slice(1);
+            }
+        });
+    </script>
+</body>
+
+</html>

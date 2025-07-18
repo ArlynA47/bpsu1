@@ -48,7 +48,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
         import {
             getFirestore,
             doc,
@@ -94,6 +94,9 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
+            highlightCurrentNavLink();
+            setupLogoutButton();
+
             // Check auth state
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -101,10 +104,26 @@
                     await loadEmployerProfile(); // ✅ Load this first
                     await loadLikedEmployees();  // ✅ Then this can use the matched data
                 } else {
-                    window.location.href = '../login.html';
+                    window.location.href = './login.html';
                 }
             });
         });
+
+        function setupLogoutButton(buttonSelector = '#logoutBtn') {
+            const logoutBtn = document.querySelector(buttonSelector);
+
+            if (!logoutBtn) return;
+
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    window.location.href = './login.html';
+                } catch (error) {
+                    console.error('Error logging out:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+        }
 
         async function loadEmployerProfile() {
             try {
@@ -428,6 +447,18 @@
         // View employee profile
         function viewEmployeeProfile(employeeId) {
             window.location.href = `employee-profile.html?userId=${employeeId}&isEmployer=true`;
+        }
+
+        function highlightCurrentNavLink() {
+            const currentPath = window.location.pathname.split('/').pop(); // Get the filename, e.g., 'employee-home.html'
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href').split('/').pop();
+                if (linkPath === currentPath) {
+                    link.classList.add('underline', 'underline-offset-4');
+                }
+            });
         }
     </script>
 </body>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Profile</title>
+    <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/manage-profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -197,76 +198,165 @@
         }
     </style>
 </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <body>
-    <header>
-        <div class="logo-header">
-            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" width="50px" height="50px"> 
-            <h1>HirNa!</h1>
-        </div>
-        <nav>
-            <button class="profile-btn" onclick="window.location.href='skills-insights.html'">
-                <i class="fas fa-chart-line"></i> Skills Insights
-            </button>
-            <button class="profile-btn" onclick="window.location.href='employee-profile.html'">
-                <i class="fas fa-user"></i> Back to Profile
-            </button>
-        </nav>
-    </header>
+
+
+
+    
+
+    <nav id="employeeNav" class="main-nav">
+    <div class="nav-logo-container">
+        <img src="../images/hirna-logo.png" alt="HirNa Logo" class="nav-logo-img">
+    </div>
+
+
+    </nav>
+
+
     <main class="profile-container">
-        <h1><i class="fas fa-user-cog"></i> Manage Your Profile</h1>
-        
-        <div class="profile-section" id="galleryContainerdiv">
-            <h2><i class="fas fa-images"></i> Profile Gallery</h2>
-            <p>Upload images that showcase your work or professional skills</p>
+
+        <section class="mainmanageyourprofilecontainer">
+             
+            <button class="profile-btn" onclick="window.location.href='employee-profile.html'"><img class="leftarrowimage" src="../images/left-arrow.png"></button>
+
+            <div class="mainmanagecontainer">
+                <div class="manageprofileheader">
+                    <img class="seedimage" src="../images/seed 1.png">
+                    <h1 class="managetext">Manage your Profile</h1>
+                </div>
+
+
+                <div class="maineditcontent">
+
+
+
+        <div class="galleryContainerdiv" id="galleryContainerdiv">
+                        <div class="profilegalleryheadercontainer">
+                            <img class="addimage" src="../images/greenaddimage 1.png"><h1 class="galleryheader">Profile Gallery</h1>
+                        </div>
+                        <p class="profilegallerydesc">Upload images that showcase your professional works</p>
             
             <div class="upload-container" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                 <img class="addimage" src="../images/cloudupload 1.png" class="cloudimage">
                 <p>Drag & drop images here or click to browse</p>
                 <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
             </div>
             
+
+
+            <div class="maingallerycontain">
             <div class="gallery-container" id="galleryContainer">
                 <!-- Gallery items will be added here -->
             </div>
+            </div>
         </div>
+
+
+
+
+
+
+
+
         
         <div class="profile-section">
-            <h2><i class="fas fa-info-circle"></i> Profile Information</h2>
-            <form id="profileForm">
-                <div class="input-group">
-                    <label><i class="fas fa-briefcase"></i> Job Title</label>
-                    <input type="text" id="jobTitle" placeholder="Your current or desired job title">
+              <div class="profilegalleryheadercontainer">
+                 <img class="addimage" src="../images/information 2.png"><h1 class="galleryheader">Profile Information</h1>
+              </div>
+              <p class="profilegallerydesc">Modify your background skills, locations, work location, and availability. </p>
+
+
+
+
+
+            <form id="profileForm" class="profileinformationformscontainer">
+                <label class="infolabels"><i class="fas fa-briefcase"></i> Job Title</label>
+                <div class="profileinformationtopthree">
+                <div class="input-group" id="jobteette">
+                    <input class="jobtitlebox" type="text" id="jobTitle" placeholder="Your current or desired job title">
                 </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-tasks"></i> Skills</label>
-                    <div id="skillsContainer" class="skills-checkbox-group"></div>
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-map-marked-alt"></i> Preferred Locations</label>
-                    <div id="preferredLocationsContainer" class="checkbox-group"></div>
-                </div>
-                
-                <div class="input-group">
-                    <label>
+          
+                <div class="input-group" id="workandrelocate">
+                    <label class="labelworkandrelo">
                         <input type="checkbox" id="willingToRelocate">
-                        <i class="fas fa-truck-moving"></i> Willing to relocate to other locations
+                        <i class="fas fa-truck-moving"></i> Relocate to other locations
                     </label>
                 </div>
 
-                <div class="input-group">
-                    <label>
+                <div class="input-group" id="workandrelocates">
+                    <label class="labelworkandrelo">
                         <input type="checkbox" id="availableForWork" checked>
                         <i class="fas fa-user-clock"></i> Available for work
                     </label>
                 </div>
                 
+
+
+                </div>      
+
+
+
+
+
+                
+                <div class="input-group">
+                    <label class="infolabels"><i class="fas fa-tasks"></i> Skills</label>
+                    <div id="skillsContainer" class="skills-checkbox-group"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label class="infolabels"><i class="fas fa-map-marked-alt"></i> Preferred Locations</label>
+                    <div id="preferredLocationsContainer" class="checkbox-group"></div>
+                </div>
+ 
+                
                 <button type="submit" class="submit-comment-btn">
                     <i class="fas fa-save"></i> Save Changes
                 </button>
             </form>
+
+
+
+
         </div>
+
+
+
+                </div>
+            </div>
+
+
+
+
+
+        </section>
+
+
+
+
+
 
         
     </main>
@@ -515,6 +605,9 @@
                     saveBtn.className = 'save-analysis-btn';
                     saveBtn.setAttribute('data-id', doc.id);
                     saveBtn.textContent = 'Save Analysis';
+                    saveBtn.style.backgroundColor = '#5F8064'; // Green color
+                    saveBtn.style.color = 'white';
+                    saveBtn.style.width = '100%';
                     
                     analysisDiv.appendChild(textarea);
                     analysisDiv.appendChild(saveBtn);

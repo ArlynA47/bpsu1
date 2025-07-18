@@ -430,7 +430,8 @@
 }
 
 .activeLink {
-    color: #7FD33B;
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
 
@@ -440,7 +441,7 @@
 
 <body>
     <!-- Navigation Bar -->
-    <nav class="flex justify-between bg-[#232323] p-2.5 sticky top-0 z-50">
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
             <img src="./assets/images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
@@ -467,7 +468,7 @@
                 <h2 class="text-2xl">Para sa Talentado. Hindi lang sa Pulido.</h2>
 
                 <button onclick="document.getElementById('findJobs').scrollIntoView({ behavior: 'smooth' })"
-                    class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[40%] mt-4">Explore<i
+                    class="flex justify-center items-center gap-3 bg-[#315E26] text-white px-4 py-2 rounded hover:bg-[#3F742F] cursor-pointer max-w-[80%] mt-4">Explore Workforce Heatmap<i
                         class="fas fa-arrow-right"></i></button>
             </div>
         </div>
@@ -657,25 +658,25 @@
     </div>
 
     <!-- About Us -->
-    <div id="aboutUs" class="flex flex-col items-center py-20 px-10 md:px-20 gap-15 min-h-[50vh]">
+    <div id="aboutUs" class="bg-white flex flex-col items-center py-20 px-10 md:px-20 gap-10 min-h-[50vh]">
         <h1 class="text-[#3D3D3D] text-3xl font-bold mb-12">Why Choose HirNa?</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl shadow-sm">
+            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl">
                 <img src="./assets/images/choose-logo-1.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
                 <h2 class="text-[#315E26] text-xl font-bold">Skill-based Matching</h2>
                 <p class="text-center text-[#828282]">Land jobs that match your skills with smart, precision-based
                     matching that works for you.</p>
             </div>
 
-            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl shadow-sm">
+            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl">
                 <img src="./assets/images/choose-logo-2.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
                 <h2 class="text-[#315E26] text-xl font-bold">Ease of Use</h2>
                 <p class="text-center text-[#828282]">A Tinder-style job hunt—just one tap and you're instantly swiping
                     through tailored job listings.</p>
             </div>
 
-            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl shadow-sm">
+            <div class="flex flex-col justify-center items-center p-6 gap-2 bg-white rounded-xl">
                 <img src="./assets/images/choose-logo-3.png" alt="Choose Logo 1" class="h-20 w-20 mb-4">
                 <h2 class="text-[#315E26] text-xl font-bold">Resume-CV Free</h2>
                 <p class="text-center text-[#828282]">No resume? No problem—start job hunting instantly, no CV required
