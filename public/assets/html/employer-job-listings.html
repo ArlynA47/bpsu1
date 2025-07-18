@@ -196,69 +196,72 @@
                 }
 
                 jobCardsHTML += `
-            <div class="job-listing-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out">
-                <div class="flex justify-between gap-5">
-                    <div class="flex flex-1 flex-col">
-                        <span class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
-                            ${job.jobTitle}
-                        </span>
-                        <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
-                            <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
-                            Posted ${postedDate}
-                        </span>
-                    </div>
-                    <div class="flex items-start">
-                        <span class="px-3 py-1 text-sm font-medium rounded-lg ${isActive ? 'text-green-800 bg-green-100' : 'text-red-800 bg-red-100'}">
-                            ${isActive ? 'Active' : 'Closed'}
-                        </span>
-                    </div>
-                </div>
+                    <div class="job-listing-card hover:-translate-y-1 hover:shadow-3xl transition-all duration-300 ease-in-out">
+                        <div class="flex justify-between gap-5">
+                            <div class="flex flex-1 flex-col">
+                                <span class="flex-1 text-[#3D3D3D] text-xl font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+                                    ${job.jobTitle}
+                                </span>
+                                <span class="flex-1 text-[#3D3D3D] text-sm overflow-hidden whitespace-nowrap text-ellipsis flex items-center gap-1">
+                                    <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
+                                    Posted ${postedDate}
+                                </span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="px-3 py-1 text-sm font-medium rounded-lg ${isActive ? 'text-green-800 bg-green-100' : 'text-red-800 bg-red-100'}">
+                                    ${isActive ? 'Active' : 'Closed'}
+                                </span>
+                            </div>
+                        </div>
 
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
-                    <p class="text-[#3D3D3D] text-md leading-relaxed">${job.offer}</p>
-                </div>
+                        <div class="flex flex-col gap-2">
+                            <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
+                            <p class="text-[#3D3D3D] text-md leading-relaxed">${job.offer}</p>
+                        </div>
 
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
-                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                        ${locationHTML}
-                    </div>
-                </div>
+                        <div class="flex flex-col gap-2">
+                            <h3 class="text-[#65956C] text-lg font-bold">Job Location</h3>
+                            <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                ${locationHTML}
+                            </div>
+                        </div>
 
-                <div class="flex flex-col gap-2">
-                    <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
-                    <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
-                        ${skillsHTML}
-                    </div>
-                </div>
+                        <div class="flex flex-col gap-2">
+                            <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
+                            <div class="flex flex-wrap gap-2 overflow-y-auto pr-1 max-h-[6.5rem] scroll-smooth">
+                                ${skillsHTML}
+                            </div>
+                        </div>
 
-                 <div class="flex flex-wrap items-center gap-2 mt-4">
-                    <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1">
-                        <span class="flex items-center gap-2">
-                            <i class="fas fa-door-open text-[#65956C]"></i>
-                            <strong class="text-[#3D3D3D]">Vacancies:</strong> ${job.positionsAvailable ?? 'N/A'}
-                        </span>
-                        <span class="flex items-center gap-2">
-                            <i class="fas fa-users text-[#65956C]"></i>
-                            <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
-                        </span>
+                        <div class="flex flex-wrap items-center gap-2 mt-4">
+                            <div class="flex flex-col flex-1 text-[#3D3D3D] text-md gap-1">
+                                <span class="flex items-center gap-2">
+                                    <i class="fas fa-door-open text-[#65956C]"></i>
+                                    <strong class="text-[#3D3D3D]">Vacancies:</strong> ${job.positionsAvailable ?? 'N/A'}
+                                </span>
+                                <span class="flex items-center gap-2">
+                                    <i class="fas fa-users text-[#65956C]"></i>
+                                    <strong class="text-[#3D3D3D]">Needed:</strong> ${job.positionsNeeded ?? 'N/A'}
+                                </span>
+                            </div>
+
+                            ${isActive ? `
+                                <button 
+                                    class="bg-[#D33B3B] cursor-pointer hover:bg-[#b32f2f] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                                    onclick="markAsFulfilled('${job.id}')"
+                                >
+                                    <i class="fas fa-lock"></i> Mark as Closed
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    <button 
-                        class="bg-[#D33B3B] cursor-pointer hover:bg-[#b32f2f] text-white px-4 py-2 rounded-md flex items-center gap-2"
-                        onclick="markAsFulfilled('${job.id}')"
-                    >
-                        <i class="fas fa-lock"></i> Mark as Closed
-                    </button>
-                </div>
-            </div>
-        `;
+                `;
             });
-
             jobCardsContainer.innerHTML = jobCardsHTML;
 
         }
 
+        
         async function markAsFulfilled(jobId) {
             try {
                 await db.collection('jobSeeds').doc(jobId).update({

@@ -40,8 +40,6 @@
 
         <div class="flex flex-2 justify-between items-center gap-6">
             <a href="../../index.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
-            <a href="find-employees-unauth.html" class="flex-1 text-center text-white hover:text-gray-300">Meet
-                Talent</a>
             <a href="find-jobs-unauth.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Explore
                 Opportunities</a>
         </div>
@@ -59,7 +57,7 @@
         <div class="demo-counter">Demo: <span id="demoCount">1</span>/7</div>
 
         <div class="flex flex-col items-center gap-1">
-            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Perfect Job - Platform Demo</h3>
+            <h3 class="text-[#3D3D3D] text-3xl font-semibold">Find Your Perfect Job</h3>
             <p class="text-[#545454] text-xl">
                 <span class="text-[#315E26] font-semibold">Try our platform!</span> Log in to browse jobs matching your
                 skills
@@ -74,23 +72,23 @@
                         <span
                             class="flex-1 text-[#3D3D3D] text-2xl font-bold overflow-hidden whitespace-nowrap text-ellipsis"
                             id="jobTitle">
-                            Skilled Welder
+                            Loading job...
                         </span>
                         <span class="flex-1 text-[#3D3D3D] text-md overflow-hidden whitespace-nowrap text-ellipsis"
                             id="companyName">
-                            MetalWorks Inc.
+                            Loading company...
                         </span>
                     </div>
-                    <span class="text-[#3D3D3D] text-sm flex items-center gap-1">
+                    <span class="text-[#3D3D3D] text-sm flex items-center gap-1" id="postedDate">
                         <i class="far fa-clock text-[#3D3D3D] text-xs"></i>
-                        Posted 3 days ago
+                        Loading date...
                     </span>
                 </div>
 
                 <div class="flex flex-col gap-2 mt-4">
                     <h3 class="text-[#65956C] text-lg font-bold">Job Offer</h3>
                     <p class="text-[#3D3D3D] text-md leading-relaxed" id="jobOffer">
-                        Full-time position with competitive pay, benefits, and overtime opportunities
+                        Loading job offer details...
                     </p>
                 </div>
 
@@ -100,7 +98,7 @@
                         <span
                             class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold"
                             id="jobLocation">
-                            Pampanga
+                            Loading location...
                         </span>
                     </div>
                 </div>
@@ -110,38 +108,13 @@
                         <h3 class="text-[#65956C] text-lg font-bold">Skills Required</h3>
                         <span class="font-normal text-center text-xs px-2 py-1 rounded-md bg-[#65956C] text-white"
                             id="skillsMatchCount">
-                            5 Matches
+                            0 Matches
                         </span>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-2" id="skillsContainer">
                         <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold"
-                            id="skill1">
-                            Welding
-                        </span>
-                        <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold"
-                            id="skill2">
-                            Metalworking
-                        </span>
-                        <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold"
-                            id="skill3">
-                            Blueprint Reading
-                        </span>
-                        <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600"
-                            id="skill4">
-                            Fabrication
-                        </span>
-                        <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600"
-                            id="skill5">
-                            Power Tools
-                        </span>
-                        <span
-                            class="inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600 text-center">
-                            +2 more
+                            class="inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold">
+                            Loading skills...
                         </span>
                     </div>
                 </div>
@@ -150,24 +123,24 @@
                     <div class="flex flex-col gap-2">
                         <span class="flex items-center gap-2" id="vacancies">
                             <i class="fas fa-door-open text-[#65956C]"></i>
-                            <strong>Vacancies:</strong> 3
+                            <strong>Vacancies:</strong> Loading...
                         </span>
                         <span class="flex items-center gap-2" id="email">
                             <i class="fas fa-envelope text-[#65956C]"></i>
-                            <strong>Email:</strong> hr@metalworks.com
+                            <strong>Email:</strong> Loading...
                         </span>
                     </div>
                     <span class="flex items-center gap-2" id="needed">
                         <i class="fas fa-users text-[#65956C]"></i>
-                        <strong>Needed:</strong> Immediately
+                        <strong>Needed:</strong> Loading...
                     </span>
                     <span class="flex items-center gap-2" id="contact">
                         <i class="fas fa-phone-alt text-[#65956C]"></i>
-                        <strong>Contact:</strong> (045) 123-4567
+                        <strong>Contact:</strong> Loading...
                     </span>
                 </div>
 
-                <div class="mt-2 text-[#3D6585] font-semibold" id="priority">
+                <div class="mt-2 text-[#3D6585] font-semibold hidden" id="priority">
                     <i class="fas fa-star"></i> Priority - This employer likes profiles like yours
                 </div>
             </div>
@@ -214,101 +187,24 @@
         Job saved!
     </div>
 
-    <script>
-        // Demo job data
-        const demoJobs = [
-            {
-                jobTitle: "Skilled Welder",
-                companyName: "MetalWorks Inc.",
-                posted: "3 days ago",
-                offer: "Full-time position with competitive pay, benefits, and overtime opportunities",
-                location: "Pampanga",
-                skills: ["Welding", "Metalworking", "Blueprint Reading", "Fabrication", "Power Tools", "Measuring", "Safety"],
-                matches: 5,
-                vacancies: 3,
-                contact: "(045) 123-4567",
-                email: "hr@metalworks.com",
-                priority: true
-            },
-            {
-                jobTitle: "HVAC Technician",
-                companyName: "CoolAir Solutions",
-                posted: "1 week ago",
-                offer: "Permanent position with training opportunities and performance bonuses",
-                location: "Bulacan",
-                skills: ["HVAC Maintenance", "System Testing", "Pneumatics", "Troubleshooting", "Electrical"],
-                matches: 4,
-                vacancies: 2,
-                contact: "(044) 987-6543",
-                email: "careers@coolair.com",
-                priority: false
-            },
-            {
-                jobTitle: "Construction Foreman",
-                companyName: "BuildRight Construction",
-                posted: "2 days ago",
-                offer: "Leadership role with profit sharing and company vehicle",
-                location: "Tarlac",
-                skills: ["Carpentry", "Framing", "Blueprint Reading", "Project Planning", "Team Leadership"],
-                matches: 3,
-                vacancies: 1,
-                contact: "(045) 555-7890",
-                email: "jobs@buildright.ph",
-                priority: true
-            },
-            {
-                jobTitle: "Heavy Equipment Operator",
-                companyName: "EarthMovers Co.",
-                posted: "5 days ago",
-                offer: "Competitive hourly wage with overtime and hazard pay",
-                location: "Nueva Ecija",
-                skills: ["Heavy Equipment", "Load Handling", "Safety Compliance", "Logistics"],
-                matches: 4,
-                vacancies: 4,
-                contact: "(044) 222-3333",
-                email: "operations@earthmovers.ph",
-                priority: false
-            },
-            {
-                jobTitle: "Plumbing Supervisor",
-                companyName: "AquaFlow Systems",
-                posted: "1 day ago",
-                offer: "Management position with benefits package and company phone",
-                location: "Pampanga",
-                skills: ["Plumbing", "Pipefitting", "Waterproofing", "Team Management"],
-                matches: 3,
-                vacancies: 1,
-                contact: "(045) 777-8888",
-                email: "hr@aquaflow.com",
-                priority: true
-            },
-            {
-                jobTitle: "CNC Machinist",
-                companyName: "Precision Parts Ltd.",
-                posted: "3 weeks ago",
-                offer: "Shift work with night differential and production bonuses",
-                location: "Bulacan",
-                skills: ["CNC Operation", "Precision Measuring", "Quality Control", "CAD"],
-                matches: 2,
-                vacancies: 3,
-                contact: "(044) 444-5555",
-                email: "apply@precisionparts.ph",
-                priority: false
-            },
-            {
-                jobTitle: "Electrical Team Lead",
-                companyName: "PowerGrid Solutions",
-                posted: "Just now",
-                offer: "Lucrative contract position for experienced electricians",
-                location: "Pampanga",
-                skills: ["Electrical", "Circuit Testing", "PLC Programming", "Team Leadership"],
-                matches: 4,
-                vacancies: 2,
-                contact: "(045) 999-0000",
-                email: "recruitment@powergrid.ph",
-                priority: true
-            }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
+            authDomain: "careerstep-bpsu1.firebaseapp.com",
+            projectId: "careerstep-bpsu1",
+            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            messagingSenderId: "17047315291",
+            appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
+            measurementId: "G-WH6DT9HQW2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         // DOM Elements
         const jobTitleEl = document.getElementById('jobTitle');
@@ -318,69 +214,153 @@
         const toast = document.getElementById('toast');
         const signupCta = document.getElementById('signupCta');
         const demoCountEl = document.getElementById('demoCount');
+        const skillsContainer = document.getElementById('skillsContainer');
 
         // Demo variables
         let currentDemoIndex = 0;
+        let availableJobs = [];
         const maxDemos = 7;
 
         // Initialize the demo
-        document.addEventListener('DOMContentLoaded', () => {
-            displayDemoJob();
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadJobs();
+                displayDemoJob();
 
-            // Button event listeners
-            passBtn.addEventListener('click', nextDemoJob);
-            likeBtn.addEventListener('click', likeDemoJob);
+                // Button event listeners
+                passBtn.addEventListener('click', nextDemoJob);
+                likeBtn.addEventListener('click', likeDemoJob);
+            } catch (error) {
+                console.error("Error initializing demo:", error);
+            }
         });
 
+        // Load jobs from Firestore
+        async function loadJobs() {
+            try {
+                // Query active jobs
+                const q = query(collection(db, 'jobSeeds'), where('status', '==', 'active'));
+                const querySnapshot = await getDocs(q);
+                
+                // Get random 7 jobs
+                const allJobs = [];
+                querySnapshot.forEach(doc => {
+                    allJobs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Shuffle and take first 7
+                availableJobs = shuffleArray(allJobs).slice(0, 7);
+                
+                if (availableJobs.length === 0) {
+                    console.warn("No jobs found in database");
+                    showSignupCta();
+                }
+            } catch (error) {
+                console.error("Error loading jobs:", error);
+                showSignupCta();
+            }
+        }
+
+        // Helper function to shuffle array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Format post date
+        function formatPostDate(date) {
+            if (!date) return "Recently";
+            
+            const now = new Date();
+            const postDate = date.toDate ? date.toDate() : new Date(date);
+            const diff = now - postDate;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? 's' : ''} ago`;
+            return postDate.toLocaleDateString();
+        }
+
         // Display current demo job
-        function displayDemoJob() {
-            if (currentDemoIndex >= demoJobs.length) {
+        async function displayDemoJob() {
+            if (currentDemoIndex >= availableJobs.length) {
                 showSignupCta();
                 return;
             }
 
             demoCountEl.textContent = currentDemoIndex + 1;
-            const job = demoJobs[currentDemoIndex];
+            const job = availableJobs[currentDemoIndex];
 
             // Update all fields
-            jobTitleEl.textContent = job.jobTitle;
-            companyNameEl.textContent = job.companyName;
-            document.getElementById('jobOffer').textContent = job.offer;
-            document.getElementById('jobLocation').textContent = job.location;
-            document.getElementById('skillsMatchCount').textContent = job.matches + " Matches";
-
-            // Update skills
-            for (let i = 0; i < 5; i++) {
-                const skillEl = document.getElementById('skill' + (i + 1));
-                if (job.skills[i]) {
-                    skillEl.textContent = job.skills[i];
-                    // Style matched skills differently (first few are matches)
-                    skillEl.className = i < job.matches ?
-                        'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold' :
-                        'inline-block text-md px-4 py-1 rounded-lg border border-gray-300 bg-white text-gray-600';
-                }
+            jobTitleEl.textContent = job.jobTitle || "No title provided";
+            document.getElementById('jobOffer').textContent = job.offer || "No offer details provided";
+            document.getElementById('jobLocation').textContent = job.location || "Location not specified";
+            document.getElementById('postedDate').innerHTML = `<i class="far fa-clock text-[#3D3D3D] text-xs"></i> Posted ${formatPostDate(job.createdAt)}`;
+            
+            // Update skills - we'll show all skills without matching since user isn't logged in
+            const skills = job.skills || [];
+            document.getElementById('skillsMatchCount').textContent = skills.length > 0 ? `${skills.length} Skills` : "No skills specified";
+            
+            // Clear and rebuild skills container
+            skillsContainer.innerHTML = '';
+            skills.forEach(skill => {
+                const skillEl = document.createElement('span');
+                skillEl.className = 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-[#E8F5E9] border-[#73A267] text-[#2E7D32] font-semibold';
+                skillEl.textContent = skill;
+                skillsContainer.appendChild(skillEl);
+            });
+            
+            // If no skills, show a message
+            if (skills.length === 0) {
+                const noSkillsEl = document.createElement('span');
+                noSkillsEl.className = 'inline-block text-md px-4 py-1 rounded-lg border text-center bg-gray-100 border-gray-300 text-gray-600';
+                noSkillsEl.textContent = 'No specific skills required';
+                skillsContainer.appendChild(noSkillsEl);
             }
+
+            // Try to get company info
+            let companyName = "Company not specified";
+            let contactNumber = "Not provided";
+            let email = job.employerEmail || "Not provided";
+            
+            try {
+                if (job.employerId) {
+                    const employerDoc = await getDoc(doc(db, 'employers', job.employerId));
+                    if (employerDoc.exists()) {
+                        const employerData = employerDoc.data();
+                        companyName = employerData.companyInfo?.companyName || "Company not specified";
+                        contactNumber = employerData.companyInfo?.contactNumber || "Not provided";
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching employer info:", error);
+            }
+            
+            companyNameEl.textContent = companyName;
 
             // Update other info
-            document.getElementById('vacancies').innerHTML = `<i class="fas fa-door-open text-[#65956C]"></i><strong>Vacancies:</strong> ${job.vacancies}`;
-            document.getElementById('email').innerHTML = `<i class="fas fa-envelope text-[#65956C]"></i><strong>Email:</strong> ${job.email}`;
-            document.getElementById('needed').innerHTML = `<i class="fas fa-users text-[#65956C]"></i><strong>Needed:</strong> Immediately`;
-            document.getElementById('contact').innerHTML = `<i class="fas fa-phone-alt text-[#65956C]"></i><strong>Contact:</strong> ${job.contact}`;
+            document.getElementById('vacancies').innerHTML = `<i class="fas fa-door-open text-[#65956C]"></i><strong>Vacancies:</strong> ${job.positionsAvailable ?? 'Not specified'}`;
+            document.getElementById('email').innerHTML = `<i class="fas fa-envelope text-[#65956C]"></i><strong>Email:</strong> ${email}`;
+            document.getElementById('needed').innerHTML = `<i class="fas fa-users text-[#65956C]"></i><strong>Needed:</strong> ${job.positionsNeeded || 'Not specified'}`;
+            document.getElementById('contact').innerHTML = `<i class="fas fa-phone-alt text-[#65956C]"></i><strong>Contact:</strong> ${contactNumber}`;
 
-            // Update priority
-            const priorityEl = document.getElementById('priority');
-            if (job.priority) {
-                priorityEl.innerHTML = '<i class="fas fa-star"></i> Priority - This employer likes profiles like yours';
-                priorityEl.classList.remove('hidden');
-            } else {
-                priorityEl.classList.add('hidden');
-            }
+            // Hide priority since we don't have user info
+            document.getElementById('priority').classList.add('hidden');
         }
 
         // Show next demo job
         function nextDemoJob() {
             currentDemoIndex++;
-            if (currentDemoIndex < maxDemos) {
+            if (currentDemoIndex < maxDemos && currentDemoIndex < availableJobs.length) {
                 displayDemoJob();
             } else {
                 showSignupCta();
@@ -404,7 +384,7 @@
             document.querySelector('.tinder-card').classList.add('hidden');
             document.querySelector('.button-card').classList.add('hidden');
             signupCta.classList.remove('hidden');
-            demoCountEl.textContent = "7";
+            demoCountEl.textContent = Math.min(availableJobs.length, maxDemos);
         }
     </script>
 </body>
