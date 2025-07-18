@@ -135,11 +135,13 @@
                 
                 <div class="input-group">
                     <label class="infolabels"><i class="fas fa-tasks"></i> Skills</label>
+                    <input type="text" id="skillsSearch" placeholder="Search skills..." class="search-input">
                     <div id="skillsContainer" class="skills-checkbox-group"></div>
                 </div>
                 
                 <div class="input-group">
                     <label class="infolabels"><i class="fas fa-map-marked-alt"></i> Preferred Locations</label>
+                    <input type="text" id="locationsSearch" placeholder="Search locations..." class="search-input">
                     <div id="preferredLocationsContainer" class="checkbox-group"></div>
                 </div>
  
@@ -271,6 +273,9 @@
                     
                     // Load gallery images
                     loadGalleryImages();
+
+                    //setup search functionality
+                    setupSearchFunctionality();
                 } else {
                     alert('Profile not found');
                     window.location.href = 'employee-profile.html';
@@ -288,7 +293,8 @@
             container.innerHTML = '';
             
             if (docSnap.exists()) {
-                const allSkills = docSnap.data().items;
+                // Get all skills and sort them alphabetically
+                const allSkills = docSnap.data().items.sort((a, b) => a.localeCompare(b));
                 const userSkills = profileData.skills || profileData.jobPreferences?.skills || [];
                 
                 allSkills.forEach(skill => {
@@ -318,7 +324,7 @@
                 "Ifugao", "Kalinga", "Mountain Province", "Aurora",
                 "Bataan", "Bulacan", "Nueva Ecija", "Pampanga",
                 "Tarlac", "Zambales"
-            ];
+            ].sort((a, b) => a.localeCompare(b)); // Sort provinces alphabetically
             
             const userLocations = profileData.preferredLocations || profileData.jobPreferences?.preferredLocations || [];
             
@@ -331,6 +337,7 @@
             for (let i = 0; i < northLuzonProvinces.length; i += 2) {
                 if (northLuzonProvinces[i]) {
                     const label = document.createElement("label");
+                    label.className = "location-checkbox"; // Added class for easier selection
                     const checkbox = document.createElement("input");
                     checkbox.type = "checkbox";
                     checkbox.value = northLuzonProvinces[i];
@@ -338,12 +345,13 @@
                     checkbox.checked = userLocations.includes(northLuzonProvinces[i]);
                     
                     label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(" " + northLuzonProvinces[i]));
+                    label.appendChild(document.createTextNode(northLuzonProvinces[i]));
                     leftColumn.appendChild(label);
                 }
                 
                 if (northLuzonProvinces[i + 1]) {
                     const label = document.createElement("label");
+                    label.className = "location-checkbox"; // Added class for easier selection
                     const checkbox = document.createElement("input");
                     checkbox.type = "checkbox";
                     checkbox.value = northLuzonProvinces[i + 1];
@@ -351,7 +359,7 @@
                     checkbox.checked = userLocations.includes(northLuzonProvinces[i + 1]);
                     
                     label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(" " + northLuzonProvinces[i + 1]));
+                    label.appendChild(document.createTextNode(northLuzonProvinces[i + 1]));
                     rightColumn.appendChild(label);
                 }
             }
@@ -635,6 +643,50 @@
                 console.error('Error updating profile:', error);
                 alert('Failed to update profile');
             }
+        }
+
+        function setupSearchFunctionality() {
+            // Skills search (unchanged)
+            const skillsSearch = document.getElementById('skillsSearch');
+            skillsSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const checkboxes = document.querySelectorAll('#skillsContainer .skill-checkbox');
+                
+                checkboxes.forEach(checkbox => {
+                    const label = checkbox.textContent.toLowerCase();
+                    checkbox.style.display = label.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
+
+            // Locations search (modified)
+            const locationsSearch = document.getElementById('locationsSearch');
+            locationsSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const leftColumn = document.querySelector('#preferredLocationsContainer .checkbox-column:first-child');
+                const rightColumn = document.querySelector('#preferredLocationsContainer .checkbox-column:last-child');
+                
+                // Process both columns together
+                const allLabels = document.querySelectorAll('#preferredLocationsContainer .location-checkbox');
+                let visibleCount = 0;
+                
+                allLabels.forEach(label => {
+                    const text = label.textContent.toLowerCase().trim();
+                    if (text.includes(searchTerm)) {
+                        label.style.display = 'block';
+                        visibleCount++;
+                        
+                        // Move to left column if odd number, right if even
+                        const targetColumn = visibleCount % 2 === 1 ? leftColumn : rightColumn;
+                        targetColumn.appendChild(label);
+                    } else {
+                        label.style.display = 'none';
+                    }
+                });
+                
+                // Handle empty columns
+                leftColumn.style.display = leftColumn.children.length > 0 ? 'block' : 'none';
+                rightColumn.style.display = rightColumn.children.length > 0 ? 'block' : 'none';
+            });
         }
     </script>
 </body>

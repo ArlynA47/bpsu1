@@ -61,7 +61,7 @@ padding-right: 25px;
 border-radius: 10px;
 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 width: 65%;
-height: 130%;
+height:fit-content;
 margin-left: 5px;
 }
 
@@ -228,11 +228,35 @@ height: 260px;
 overflow-y: auto;
 }
 
+.skill-checkbox{
+    height:fit-content;
+}
+
+#preferredLocationsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.location-checkbox {
+    display: block; /* Ensure labels take full width */
+    padding: 5px;
+}
 
 .checkbox-column {
 display: flex;
 flex-direction: column;
 gap: 10px;
+flex:1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 .skills-checkbox-group label, .checkbox-group label {
