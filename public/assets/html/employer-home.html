@@ -6,19 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../images/hirna-logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../css/output.css" />
+    <link rel="stylesheet" href="../css/map.css" />
+    <style>
+    .activeLink {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+    }
+    </style>
     <title>HirNa!</title>
 </head>
 
 <body>
     <!-- Navigation Bar -->
-    <nav class="flex justify-between bg-[#232323] py-2.5 px-10 sticky top-0 z-50">
+    <nav class="flex justify-between bg-[#232323] py-2.5 px-10">
         <div class="flex flex-1 justify-start items-end gap-2 ">
             <img src="../images/hirna-logo.png" alt="HirNa Logo" class="h-10 w-10">
         </div>
 
         <div class="flex flex-2 justify-between items-center gap-6">
-            <a href="./employer-home.html" class="flex-1 text-center text-white hover:text-gray-300">Home</a>
+            <a href="./employer-home.html" class="flex-1 text-center text-white hover:text-gray-300 activeLink">Home</a>
             <a href="./employer-browse-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Browse
                 Employees</a>
             <a href="./employer-liked-employees.html" class="flex-1 text-center text-white hover:text-gray-300">Liked
@@ -34,35 +41,298 @@
         </div>
     </nav>
 
-    <!-- Your Firebase config and initialization -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    <!-- North Luzon Job Market Overview -->
+    <div id="findJobs" class="bg-[#F5FFF1] min-h-[70vh] flex flex-col items-center py-20 px-10 md:px-20 gap-8">
+        <div class="flex flex-col items-center gap-8 w-full md:w-[80%]">
+            <h1 class="text-[#3D3D3D] text-3xl font-bold">North Luzon Workforce Heatmap</h1>
+            <div class="flex flex-wrap justify-center gap-4 w-full">
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D33B3B]"></div>
+                    <span class="text-[#474747]">High Activity (Top 25%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#D3733B]"></div>
+                    <span class="text-[#474747]">Medium Activity (25-50%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#FFEA05]"></div>
+                    <span class="text-[#474747]">Moderate Activity (50-75%)</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div class="rounded-full w-5 h-5 bg-[#7FD33B]"></div>
+                    <span class="text-[#474747]">Lower Activity (Bottom 25%)</span>
+                </div>
+            </div>
+        </div>
 
-        // Firebase configuration
+        <div class="w-full flex flex-col lg:flex-row gap-6">
+            <!-- Map Container -->
+            <div class="flex-1 relative">
+                <div class="map-container shadow-lg">
+                    <div id="northLuzonMap"></div>
+                    
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <div class="map-search-container">
+                            <div class="map-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="provinceSearch" placeholder="Search province...">
+                            </div>
+                            <button id="resetViewBtn" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-globe-americas"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="map-filters">
+                            <select id="heatmapMetric" class="filter-select">
+                                <option value="totalJobs">Total Job Listings</option>
+                                <option value="activeJobs">Active Job Listings</option>
+                                <option value="jobSeekers">Available Workers</option>
+                                <option value="employers">Registered Employers</option>
+                                <option value="fulfillmentRate">Job Fulfillment Rate</option>
+                                <option value="avgFulfillmentTime">Avg. Fulfillment Time</option>
+                            </select>
+                            
+                            <select id="skillFilter" class="filter-select">
+                                <option value="all">All Skills</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info Panel -->
+             <div class="w-full lg:w-96 bg-white rounded-xl shadow-md p-6 flex flex-col gap-4 info-panel">
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h3 id="selectedProvince" class="text-xl font-semibold">Select a Province</h3>
+                    <div class="flex gap-2">
+                        <button id="exportBtn" class="p-2 rounded-full hover:bg-gray-100" title="Export data">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="provinceStats" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Will be populated dynamically -->
+                    <div class="col-span-2 text-center py-10 text-gray-400">
+                        <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+                        <p>Click on a province to view detailed statistics</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="w-full border-t border-gray-200 my-6 relative">
+            <div class="absolute left-0 -top-3 px-4 bg-[#F5FFF1] text-gray-500 text-sm">
+                Overall North Luzon Data
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="totalJobs">
+                <h3 class="text-[#5E5E5E]">Total Job Seeds</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="totalJobsCount">0</span>
+                <p class="text-sm text-gray-500">All job opportunities in North Luzon</p>
+            </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="activeJobs">
+                <h3 class="text-[#5E5E5E]">Active Job Seeds</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="activeJobsCount">0</span>
+                <p class="text-sm text-gray-500">Open for applications</p>
+            </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="jobSeekers">
+                <h3 class="text-[#5E5E5E]">Available Workers</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="availableWorkersCount">0</span>
+                <p class="text-sm text-gray-500">Ready for work</p>
+            </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 gap-2 shadow-sm hover:shadow-md transition-all" data-metric="fulfillmentRate">
+                <h3 class="text-[#5E5E5E]">Fulfillment Rate</h3>
+                <span class="text-3xl font-bold text-[#3D3D3D]" id="fulfillmentRateCount">0%</span>
+                <p class="text-sm text-gray-500">Job Seeds successfully filled</p>
+            </div>
+        </div>
+
+        <!-- Top Provinces Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Job Activity</h3>
+                <p class="text-sm text-gray-500 mb-2">Provinces with the highest number of active job listings</p>
+                <div id="topProvincesJobs" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 5 Provinces by Workforce</h3>
+                <p class="text-sm text-gray-500 mb-2">Provinces with the highest number of registered job seekers</p>
+                <div id="topProvincesWorkers" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Market Insights</h3>
+                <div id="marketInsights" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Skills Analysis Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Top 10 In-Demand Skills</h3>
+                <div id="topSkillsDemand" class="space-y-2">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Loading data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-lg font-semibold mb-3">Skills Analysis</h3>
+                <div id="skillsAnalysis" class="text-sm text-gray-600">
+                    <!-- Will be populated dynamically -->
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                        <p>Analyzing skills data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="fixed bottom-6 right-6 z-50">
+        <button id="chatbotBtn" class="bg-[#315E26] text-white rounded-full w-15 h-15 flex items-center justify-center shadow-lg hover:bg-[#3F742F] transition-colors">
+            <i class="fas fa-comment-dots text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Chatbot modal (hidden by default) -->
+    <div id="chatbotModal" class="hidden">
+    <div class="bg-[#315E26] text-white p-3 rounded-t-lg flex justify-between items-center">
+        <h3 class="font-medium">HirNa Assistant</h3>
+        <div class="flex items-center">
+        <button id="refreshChatbot" class="text-white hover:text-gray-200 mr-2" title="Refresh Chat">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button id="closeChatbot" class="text-white hover:text-gray-200">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
+    </div>
+    <div id="chatbotMessages" class="flex-1 p-4 overflow-y-auto"></div>
+    <div class="p-3 border-t">
+        <div class="flex gap-2">
+        <input id="chatbotInput" type="text" placeholder="Type your question..." 
+                class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#315E26]">
+        <button id="sendChatbotMsg" class="bg-[#315E26] text-white px-4 rounded-lg hover:bg-[#3F742F]">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Initialization -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCM1QSKbZH9Ih3RHv39nQipYoti8Yrji_M",
             authDomain: "careerstep-bpsu1.firebaseapp.com",
             projectId: "careerstep-bpsu1",
-            storageBucket: "careerstep-bpsu1.firebasestorage.app",
+            storageBucket: "careerstep-bpsu1.appspot.com",
             messagingSenderId: "17047315291",
             appId: "1:17047315291:web:dc2c9312e3d5b0ced5307e",
             measurementId: "G-WH6DT9HQW2"
         };
+        firebase.initializeApp(firebaseConfig);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const employerDocRef = firebase.firestore().collection("employers").doc(user.uid);
+                    const docSnap = await employerDocRef.get();
 
-        function highlightCurrentNavLink() {
-            const currentPath = window.location.pathname.split('/').pop();
-            const navLinks = document.querySelectorAll('nav a');
-
-            navLinks.forEach(link => {
-                const linkPath = link.getAttribute('href').split('/').pop();
-                if (linkPath === currentPath) {
-                    link.classList.add('underline', 'underline-offset-4');
+                    if (docSnap.exists) {
+                        console.log("✅ User exists in employers:", docSnap.data());
+                        // You can allow access or proceed to load the page
+                    } else {
+                        console.warn("⛔ User is logged in but not registered as employee.");
+                        // Optionally sign them out or redirect
+                        await firebase.auth().signOut();
+                        window.location.href = './login.html'; // or back to login
+                    }
+                } catch (error) {
+                    console.error("🔥 Error checking employee document:", error);
+                    alert("An error occurred while checking user access.");
                 }
-            });
+            } else {
+                console.warn("🚫 No user session. Redirecting to login...");
+                window.location.href = './login.html';
+            }
+        });
+    </script>
+
+    <!-- Load Google Maps API -->
+    <script>
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyClDJB3NHPBo3NtbbpZz770bYFZH13nu5A&libraries=places,drawing&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        // Ensure initMap exists in case Google Maps loads first
+        window.initMap = function () {
+            console.log('Google Maps is ready, but initMap implementation not loaded yet');
+        };
+
+        // Load scripts in correct order
+        function loadScripts() {
+            const mapsJs = document.createElement('script');
+            mapsJs.src = '../js/employee-employer-map.js';
+            mapsJs.onload = loadGoogleMaps;
+            document.head.appendChild(mapsJs);
+        }
+
+        function setLoading(element, isLoading) {
+            if (isLoading) {
+                element.disabled = true;
+                const spinner = document.createElement('span');
+                spinner.className = 'loading-spinner';
+                element.appendChild(spinner);
+            } else {
+                element.disabled = false;
+                const spinner = element.querySelector('.loading-spinner');
+                if (spinner) {
+                spinner.remove();
+                }
+            }
         }
 
         function setupLogoutButton(buttonSelector = '#logoutBtn') {
@@ -72,7 +342,7 @@
 
             logoutBtn.addEventListener('click', async () => {
                 try {
-                    await signOut(auth);
+                    await firebase.auth().signOut();
                     window.location.href = './login.html';
                 } catch (error) {
                     console.error('Error logging out:', error);
@@ -82,7 +352,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            highlightCurrentNavLink();
+            loadScripts();
             setupLogoutButton();
         });
     </script>
