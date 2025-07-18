@@ -326,9 +326,6 @@ body {
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
-  .top-1 {
-    top: calc(var(--spacing) * 1);
-  }
   .top-1\/2 {
     top: calc(1/2 * 100%);
   }
@@ -340,9 +337,6 @@ body {
   }
   .left-0 {
     left: calc(var(--spacing) * 0);
-  }
-  .left-1 {
-    left: calc(var(--spacing) * 1);
   }
   .left-1\/2 {
     left: calc(1/2 * 100%);
@@ -458,9 +452,6 @@ body {
   .inline-flex {
     display: inline-flex;
   }
-  .table {
-    display: table;
-  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -481,9 +472,6 @@ body {
   }
   .h-20 {
     height: calc(var(--spacing) * 20);
-  }
-  .h-30 {
-    height: calc(var(--spacing) * 30);
   }
   .h-40 {
     height: calc(var(--spacing) * 40);
@@ -545,9 +533,6 @@ body {
   .w-20 {
     width: calc(var(--spacing) * 20);
   }
-  .w-30 {
-    width: calc(var(--spacing) * 30);
-  }
   .w-40 {
     width: calc(var(--spacing) * 40);
   }
@@ -602,17 +587,8 @@ body {
   .flex-3 {
     flex: 3;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .shrink-0 {
     flex-shrink: 0;
-  }
-  .flex-grow {
-    flex-grow: 1;
-  }
-  .grow {
-    flex-grow: 1;
   }
   .basis-\[40\%\] {
     flex-basis: 40%;
@@ -625,10 +601,6 @@ body {
   }
   .border-collapse {
     border-collapse: collapse;
-  }
-  .-translate-x-1 {
-    --tw-translate-x: calc(var(--spacing) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .-translate-x-1\/2 {
     --tw-translate-x: calc(calc(1/2 * 100%) * -1);
@@ -826,10 +798,6 @@ body {
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
-  .border-0 {
-    border-style: var(--tw-border-style);
-    border-width: 0px;
-  }
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
@@ -886,9 +854,6 @@ body {
   .border-\[\#FBC02D\] {
     border-color: #FBC02D;
   }
-  .border-black {
-    border-color: var(--color-black);
-  }
   .border-blue-300 {
     border-color: var(--color-blue-300);
   }
@@ -909,9 +874,6 @@ body {
   }
   .border-green-300 {
     border-color: var(--color-green-300);
-  }
-  .border-green-600 {
-    border-color: var(--color-green-600);
   }
   .border-red-300 {
     border-color: var(--color-red-300);
@@ -997,9 +959,6 @@ body {
   .bg-\[\#FFFDE7\] {
     background-color: #FFFDE7;
   }
-  .bg-black {
-    background-color: var(--color-black);
-  }
   .bg-black\/50 {
     background-color: color-mix(in srgb, #000 50%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1018,9 +977,6 @@ body {
   .bg-blue-700 {
     background-color: var(--color-blue-700);
   }
-  .bg-blue-800 {
-    background-color: var(--color-blue-800);
-  }
   .bg-gray-50 {
     background-color: var(--color-gray-50);
   }
@@ -1029,12 +985,6 @@ body {
   }
   .bg-gray-200 {
     background-color: var(--color-gray-200);
-  }
-  .bg-gray-300 {
-    background-color: var(--color-gray-300);
-  }
-  .bg-gray-600 {
-    background-color: var(--color-gray-600);
   }
   .bg-green-50 {
     background-color: var(--color-green-50);
@@ -1053,9 +1003,6 @@ body {
   }
   .bg-green-700 {
     background-color: var(--color-green-700);
-  }
-  .bg-green-800 {
-    background-color: var(--color-green-800);
   }
   .bg-orange-500 {
     background-color: var(--color-orange-500);
@@ -1081,9 +1028,6 @@ body {
   .bg-red-700 {
     background-color: var(--color-red-700);
   }
-  .bg-red-800 {
-    background-color: var(--color-red-800);
-  }
   .bg-transparent {
     background-color: transparent;
   }
@@ -1099,14 +1043,8 @@ body {
   .bg-yellow-500 {
     background-color: var(--color-yellow-500);
   }
-  .bg-yellow-600 {
-    background-color: var(--color-yellow-600);
-  }
   .bg-yellow-700 {
     background-color: var(--color-yellow-700);
-  }
-  .bg-yellow-800 {
-    background-color: var(--color-yellow-800);
   }
   .bg-\[url\(\'\/public\/assets\/images\/hero-bg\.png\'\)\] {
     background-image: url('/public/assets/images/hero-bg.png');
@@ -1361,9 +1299,6 @@ body {
   .text-\[\#FFD700\] {
     color: #FFD700;
   }
-  .text-blue-500 {
-    color: var(--color-blue-500);
-  }
   .text-blue-600 {
     color: var(--color-blue-600);
   }
@@ -1385,15 +1320,6 @@ body {
   .text-gray-800 {
     color: var(--color-gray-800);
   }
-  .text-green-100 {
-    color: var(--color-green-100);
-  }
-  .text-green-400 {
-    color: var(--color-green-400);
-  }
-  .text-green-500 {
-    color: var(--color-green-500);
-  }
   .text-green-600 {
     color: var(--color-green-600);
   }
@@ -1402,9 +1328,6 @@ body {
   }
   .text-green-800 {
     color: var(--color-green-800);
-  }
-  .text-indigo-700 {
-    color: var(--color-indigo-700);
   }
   .text-purple-800 {
     color: var(--color-purple-800);
@@ -1430,26 +1353,11 @@ body {
   .text-yellow-800 {
     color: var(--color-yellow-800);
   }
-  .italic {
-    font-style: italic;
-  }
   .no-underline {
     text-decoration-line: none;
   }
   .underline {
     text-decoration-line: underline;
-  }
-  .decoration-green-300 {
-    text-decoration-color: var(--color-green-300);
-  }
-  .decoration-green-400 {
-    text-decoration-color: var(--color-green-400);
-  }
-  .decoration-green-500 {
-    text-decoration-color: var(--color-green-500);
-  }
-  .decoration-lime-300 {
-    text-decoration-color: var(--color-lime-300);
   }
   .underline-offset-4 {
     text-underline-offset: 4px;
@@ -1465,10 +1373,6 @@ body {
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-  .shadow-inner {
-    --tw-shadow: inset 0 2px 4px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.05));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .shadow-lg {
@@ -1532,10 +1436,6 @@ body {
   .duration-500 {
     --tw-duration: 500ms;
     transition-duration: 500ms;
-  }
-  .duration-700 {
-    --tw-duration: 700ms;
-    transition-duration: 700ms;
   }
   .ease-in-out {
     --tw-ease: var(--ease-in-out);
@@ -1669,13 +1569,6 @@ body {
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-yellow-600);
-      }
-    }
-  }
-  .hover\:text-\[\#5c8651\] {
-    &:hover {
-      @media (hover: hover) {
-        color: #5c8651;
       }
     }
   }
