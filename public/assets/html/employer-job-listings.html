@@ -55,6 +55,8 @@
         </div>
 
         <div class="grid grid-cols-2 gap-6" id="jobCardsContainer">
+            <!-- Content will be loaded dynamically -->
+            <p class="text-[#545454] text-lg col-span-2">Loading your job listings...</p>
         </div>
     </div>
 
@@ -84,8 +86,9 @@
         async function fetchEmployerJobSeeds(userId) {
             const jobCardsContainer = document.getElementById('jobCardsContainer');
             jobCardsContainer.innerHTML = `
-                <div class="loading text-center gap-2 p-8 col-span-2">
-                    <span class="text-lg text-[#3D3D3D]"><i class="fas fa-spinner fa-spin mr-4"></i> Loading your job seeds...</span>
+                <div class="col-span-2 text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-600">Loading your job listings</h4>
                 </div>
             `;
 
@@ -99,9 +102,10 @@
 
                 if (querySnapshot.empty) {
                     jobCardsContainer.innerHTML = `
-                        <div class="no-listings flex flex-col items-center justify-center text-center gap-2 p-8 col-span-2">
-                            <h3 class="text-2xl font-semibold text-[#3D3D3D]">You haven't created any job seeds yet</h3>
-                            <p class="text-lg text-gray-600">Get started by creating your first job seed</p>
+                        <div class="col-span-2 text-center py-8">
+                            <i class="fas fa-seedling text-4xl text-gray-400 mb-4"></i>
+                            <h4 class="text-xl font-semibold text-gray-600">No job listings yet</h4>
+                            <p class="text-gray-500 mt-2">Create your first job seed to get started</p>
                         </div>
                     `;
                     return;
@@ -138,12 +142,13 @@
             } catch (error) {
                 console.error("Error fetching job seeds:", error);
                 jobCardsContainer.innerHTML = `
-                    <div class="no-listings flex flex-col items-center justify-center text-center gap-3 p-8 col-span-2">
-                        <h3 class="text-2xl font-semibold text-[#D33B3B]">Error loading job seeds</h3>
-                        <p class="text-gray-600 text-lg">Please try again later</p>
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold text-gray-600">Error loading job listings</h4>
+                        <p class="text-gray-500 mt-2">Please try again later</p>
                         <button 
-                            onclick="fetchEmployerJobSeeds('')"
-                            class="mt-2 inline-flex items-center gap-2 bg-[#D33B3B] text-white px-5 py-2 rounded hover:bg-[#b32f2f] cursor-pointer">
+                            onclick="fetchEmployerJobSeeds('${auth.currentUser?.uid}')"
+                            class="mt-4 inline-flex items-center gap-2 bg-[#D33B3B] text-white px-5 py-2 rounded hover:bg-[#b32f2f] cursor-pointer">
                             <i class="fas fa-redo-alt"></i>
                             Retry
                         </button>

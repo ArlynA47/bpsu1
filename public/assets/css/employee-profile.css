@@ -1020,8 +1020,7 @@ nav ul li a:active {
     display: flex;
     justify-content: space-between;
     background-color: #232323;
-      padding-left: 30px;
-      padding-right: 30px;
+    padding:10px 30px;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -1040,8 +1039,8 @@ nav ul li a:active {
 
 .center-links-container {
     display: flex;
-    justify-content: center;
-    gap: 24px;
+    justify-content: space-between;
+    width:50%;
 }
 
 .nav-link-item {
@@ -1058,8 +1057,7 @@ nav ul li a:active {
     display: flex;
     justify-content: space-between;
     background-color: #232323;
-          padding-left: 30px;
-      padding-right: 30px;
+    padding:10px 30px;
     position: sticky;
     top: 0;
     z-index: 50;
