@@ -110,7 +110,7 @@ function initMap() {
 async function loadAllData() {
   try {
     // Load province geometries
-    const provincesResponse = await fetch('assets/js/provinces.json');
+    const provincesResponse = await fetch('../js/provinces.json');
     const provinces = await provincesResponse.json();
     
     console.log(`Initializing data for ${provinces.length} provinces`);
