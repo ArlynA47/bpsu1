@@ -9,39 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <div class="logo-header">
-            <img src="../images/careerstep-logo.png" alt="CareerStep Logo" width="50px" height="50px"> 
-            <h1>HirNa!</h1>
-        </div>
-        <nav>
-            <button class="profile-btn" onclick="window.location.href='employee-profile.html'">
-                <i class="fas fa-arrow-left"></i> Back to Profile
-            </button>
-        </nav>
-    </header>
+
+
+
+    <nav id="employeeNav" class="main-nav">
+    <div class="nav-logo-container">
+        <img src="../images/hirna-logo.png" alt="HirNa Logo" class="nav-logo-img">
+    </div>
+    </nav>
+
+
+
     
-    <div class="container">
-        <h1><i class="fas fa-lightbulb"></i> Skills Insights</h1>
-        <p>Personalized recommendations to improve your employability and skills</p> <br>
-        
-        <div class="dashboard-section">
-            <div class="section-title">
-                <h2><i class="fas fa-chart-line"></i> Skills Analysis</h2>
+        <section class="mainskillsinsightscontainer">
+             
+            <button class="profile-btn" onclick="window.location.href='employee-profile.html'"><img class="leftarrowimage" src="../images/left-arrow.png"></button>
+
+            <div class="mainmanagecontainer">
+                <div class="manageprofileheader">
+                    <img class="seedimage" src="../images/seed 1.png">
+                    <h1 class="managetext">Skills Insights</h1>
+                </div>
+
+
+<div class="maineditcontent">
+    <div class="buttonheader">
+        <button class="skillsinsightsbuttonnavigations" data-target="skillsanalysismaincontent">Skills Analysis</button>
+        <button class="skillsinsightsbuttonnavigations" data-target="trainingoppurtunitiesmaincontent">Training Opportunities</button>
+        <button class="skillsinsightsbuttonnavigations" data-target="feedbackinsightsmaincontent">Feedback Insights</button>
+    </div>
+
+    <div id="skillsanalysismaincontent" class="skillsanalysismaincontent">
+                    <div class="section-title">
+                <h2 class="skillsinsightslabels"> Skills Analysis</h2>
                 <button class="refresh-btn" id="refreshAnalysis">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
             </div>
-            
-            <div id="skillsAnalysisContainer">
-                <div class="loading-spinner"></div>
-                <p class="text-center">Analyzing your skills...</p>
-            </div>
-        </div>
-        
-        <div class="dashboard-section">
+        <div id="skillsAnalysisContainer"> </div>
+    </div>
+              
+
+    <div id="trainingoppurtunitiesmaincontent" class="skillsanalysismaincontent">
             <div class="section-title">
-                <h2><i class="fas fa-graduation-cap"></i> Training Opportunities</h2>
+                
+                <h2 class="skillsinsightslabels"> Training Opportunities</h2>
                 <button class="refresh-btn" id="refreshTraining">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
@@ -51,19 +63,105 @@
                 <div class="loading-spinner"></div>
                 <p class="text-center">Finding training opportunities...</p>
             </div>
-        </div>
+     
+    </div>
+
+    <div id="feedbackinsightsmaincontent" class="skillsanalysismaincontent">
         
-        <div class="dashboard-section">
-            <div class="section-title">
-                <h2><i class="fas fa-comment-alt"></i> Feedback Insights</h2>
-            </div>
-            
+               <div class="section-title">
+                <h2 class="skillsinsightslabels"> Feedback Insights</h2>
+              </div>
             <div id="feedbackInsightsContainer">
                 <div class="loading-spinner"></div>
                 <p class="text-center">Analyzing your feedback...</p>
             </div>
-        </div>
     </div>
+</div>
+            </div>
+
+
+
+
+
+        </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.skillsinsightsbuttonnavigations');
+    const contentDivs = document.querySelectorAll('.skillsanalysismaincontent');
+    
+    // Initialize first tab as active
+    buttons[0].classList.add('active');
+    contentDivs[0].style.display = 'block';
+    
+    // Hide other tabs
+    for (let i = 1; i < contentDivs.length; i++) {
+        contentDivs[i].style.display = 'none';
+    }
+    
+    // Add click handlers
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('data-target');
+            const targetDiv = document.getElementById(targetId);
+            
+            // Update UI
+            buttons.forEach(btn => btn.classList.remove('active'));
+            contentDivs.forEach(div => div.style.display = 'none');
+            
+            this.classList.add('active');
+            targetDiv.style.display = 'block';
+            
+            // Load content
+            switch(targetId) {
+                case 'skillsanalysismaincontent':
+                    if (document.getElementById('skillsAnalysisContainer').innerHTML === '') {
+                        loadSkillsAnalysis();
+                    }
+                    break;
+                case 'trainingoppurtunitiesmaincontent':
+                    if (document.getElementById('trainingOpportunitiesContainer').innerHTML === '') {
+                        loadTrainingOpportunities();
+                    }
+                    break;
+                case 'feedbackinsightsmaincontent':
+                    if (document.getElementById('feedbackInsightsContainer').innerHTML === '') {
+                        loadFeedbackInsights();
+                    }
+                    break;
+            }
+        });
+    });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -693,76 +791,86 @@
                 // Generate HTML
                 const reputationScore = Math.round((positiveCount / (positiveCount + negativeCount)) * 100) || 0;
                 
-                let html = `
-                <div class="card-container" style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="insight-card" style="width: 100%;">
-                        <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
-                            <div class="card-icon">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <h3 class="card-title">Feedback Summary</h3>
-                        </div>
-                        <div class="card-content" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-                            <div style="text-align: center; flex: 1;">
-                                <div style="font-size: 2.5rem; font-weight: bold; color: ${reputationScore >= 70 ? '#28a745' : reputationScore >= 40 ? '#ffc107' : '#dc3545'}">
-                                    ${reputationScore}/100
-                                </div>
-                                <div style="font-size: 1rem; margin-bottom: 10px;">
-                                    Reputation Score
-                                </div>
-                            </div>
-                            <div style="flex: 2;">
-                                <div style="display: flex; justify-content: center; gap: 30px;">
-                                    <div>
-                                        <div style="font-size: 1.2rem; color: #28a745;">${positiveCount}</div>
-                                        <div>Positive</div>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 1.2rem; color: #dc3545;">${negativeCount}</div>
-                                        <div>Negative</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+let html = `
+    <div class="card-container" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="insight-card" style="width: 100%;">
+            <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3 class="card-title">Feedback Summary</h3>
+            </div>
+            <div class="card-content" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 2.5rem; font-weight: bold; color: ${reputationScore >= 70 ? '#28a745' : reputationScore >= 40 ? '#ffc107' : '#dc3545'}">
+                        ${reputationScore}/100
                     </div>
-
-                    <div class="insight-card" style="width: 100%;">
-                        <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
-                            <div class="card-icon">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <h3 class="card-title">Recent Feedback & Recommendations</h3>
+                    <div style="font-size: 1rem; margin-bottom: 10px;">
+                        Reputation Score
+                    </div>
+                </div>
+                <div style="flex: 2;">
+                    <div style="display: flex; justify-content: center; gap: 30px;">
+                        <div style="display: flex; align-content:center; margin-right: 10px;">
+                            <div style="font-size: 2rem; color: #28a745; margin-right: 15px;">${positiveCount}</div>
+                            <img style="width: 40px; height: 40px;"  src="../images/likey.png">
+                      
                         </div>
-                        <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
-                            ${feedbacks.slice(0, 3).map(feedback => `
-                                <div class="feedback-item ${feedback.rating === 'positive' ? 'positive-feedback' : 'negative-feedback'}" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                                    <div class="feedback-header" style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <div>${feedback.employerName || 'Anonymous Employer'}</div>
-                                        <div style="font-size: 0.9rem;">${feedback.createdAt?.toDate ? feedback.createdAt.toDate().toLocaleDateString() : 'Unknown date'}</div>
-                                    </div>
-                                    <div class="feedback-content" style="margin-top: 5px;">
-                                        <p>${feedback.comment || 'No comment provided'}</p>
-                                    </div>
-                                </div>
-                            `).join('')}
+                               <div style="display: flex; align-content:center; margin-left: 10px;">
+                            <div style="font-size: 2rem; color: #dc3545; margin-right: 15px;">${negativeCount}</div>
+                            <img style="width: 40px; height: 40px;" src="../images/dislikey.png">
 
-                            ${recommendations ? `
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
-                                    <h4 style="margin-bottom: 8px;">Recommendations:</h4>
-                                    <p>${recommendations.replace(/\n/g, '<br>')}</p>
-                                </div>
-                            ` : ''}
-
-                            ${feedbacks.length > 3 ? `
-                                <div style="text-align: center; margin-top: 10px;">
-                                    <a href="employee-profile.html" style="color: #3D6585;">View all feedback on your profile</a>
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        </div>
 
+        <div class="insight-card" style="width: 100%;">
+            <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                <div class="card-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="card-title">Recent Feedback</h3>
+            </div>
+            <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
+                ${feedbacks.slice(0, 3).map(feedback => `
+                    <div class="feedback-item ${feedback.rating === 'positive' ? 'positive-feedback' : 'negative-feedback'}" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                        <div class="feedback-header" style="display: flex; justify-content: space-between; font-weight: bold;">
+                            <div>${feedback.employerName || 'Anonymous Employer'}</div>
+                            <div style="font-size: 0.9rem;">${feedback.createdAt?.toDate ? feedback.createdAt.toDate().toLocaleDateString() : 'Unknown date'}</div>
+                        </div>
+                        <div class="feedback-content" style="margin-top: 5px;">
+                            <p>${feedback.comment || 'No comment provided'}</p>
+                        </div>
+                    </div>
+                `).join('')}
+
+                ${feedbacks.length > 3 ? `
+                    <div style="text-align: center; margin-top: 10px;">
+                        <a href="employee-profile.html" style="color: #3D6585;">View all feedback on your profile</a>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+
+        ${recommendations ? `
+        <div class="insight-card" style="width: 100%;">
+            <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                <div class="card-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="card-title">Actionable Recommendations</h3>
+            </div>
+            <div class="card-content">
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    ${recommendations.replace(/\n/g, '<br>')}
+                </div>
+            </div>
+        </div>
+        ` : ''}
+    </div>
+`;
 
 
                 
