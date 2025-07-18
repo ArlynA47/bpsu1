@@ -474,15 +474,16 @@ width: 40px;
 }
 
 .profile-btn {
-background-color: #315E26;
-color: white;
+color: #315E26;
 padding: 8px 16px;
 border-radius: 4px;
 text-decoration: none;
+margin-left: 25px;
+ font-size: 20px; 
 }
 
 .profile-btn:hover {
-background-color: #3F742F;
+color: #3F742F;
 }
 
 
