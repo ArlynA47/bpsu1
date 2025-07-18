@@ -261,6 +261,7 @@
 
         }
 
+        
         async function markAsFulfilled(jobId) {
             try {
                 await db.collection('jobSeeds').doc(jobId).update({
